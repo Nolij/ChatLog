@@ -12,7 +12,9 @@ import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
 import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import net.minecraft.util.math.Vec3d;
 import xyz.xdmatthewbx.chatlog.modules.*;
+import xyz.xdmatthewbx.chatlog.util.Lock;
 
 public class ChatLog implements ClientModInitializer {
 
@@ -29,6 +31,7 @@ public class ChatLog implements ClientModInitializer {
 	public static ESPModule ESP_MODULE;
 	public static InputUnlockModule INPUT_UNLOCK_MODULE;
 	public static HUDModule HUD_MODULE;
+	public static FreeCamModule FREECAM_MODULE;
 
 	public static MinecraftClient CLIENT;
 
@@ -38,6 +41,14 @@ public class ChatLog implements ClientModInitializer {
 //	public static Registry<KeyBinding> KEYBIND_REGISTRY = new SimpleRegistry<>(RegistryKey.ofRegistry(new Identifier(MOD_ID, "keybinds")), Lifecycle.stable());
 
 	public static KeyBind configKeyBind;
+
+	public static Lock cameraLock = new Lock();
+
+	public static Vec3d cameraPos;
+	public static float cameraPitch;
+	public static float cameraYaw;
+
+	public static Lock movementLock = new Lock();
 
 	public ChatLog() {
 		INSTANCE = this;
@@ -53,6 +64,7 @@ public class ChatLog implements ClientModInitializer {
 		ESP_MODULE = new ESPModule();
 		INPUT_UNLOCK_MODULE = new InputUnlockModule();
 		HUD_MODULE = new HUDModule();
+		FREECAM_MODULE = new FreeCamModule();
 	}
 
 	@Override
@@ -88,6 +100,7 @@ public class ChatLog implements ClientModInitializer {
 		ESP_MODULE.onInitializeClient();
 		INPUT_UNLOCK_MODULE.onInitializeClient();
 		HUD_MODULE.onInitializeClient();
+		FREECAM_MODULE.onInitializeClient();
 
 		CONFIG.load();
 	}

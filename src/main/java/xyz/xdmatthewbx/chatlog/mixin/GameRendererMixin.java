@@ -62,4 +62,11 @@ public class GameRendererMixin {
 		Renderer.renderAll(matrix, camera);
 	}
 
+	@Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
+	private void bobView(MatrixStack matrices, float f, CallbackInfo ci) {
+		if (ChatLog.cameraLock.isLocked() && ChatLog.CONFIG.get().main.render.disableBobbingWhenCameraLocked) {
+			ci.cancel();
+		}
+	}
+
 }

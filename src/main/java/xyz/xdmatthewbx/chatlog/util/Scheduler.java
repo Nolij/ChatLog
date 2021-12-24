@@ -1,4 +1,4 @@
-package xyz.xdmatthewbx.chatlog;
+package xyz.xdmatthewbx.chatlog.util;
 
 import net.minecraft.client.MinecraftClient;
 import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;

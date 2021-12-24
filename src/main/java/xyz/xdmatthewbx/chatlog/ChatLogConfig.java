@@ -1,10 +1,8 @@
 package xyz.xdmatthewbx.chatlog;
 
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.mojang.blaze3d.platform.*;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -12,21 +10,17 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.gui.registry.GuiRegistry;
-import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer;
 import me.shedaniel.autoconfig.util.Utils;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Jankson;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.JsonObject;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.JsonPrimitive;
-import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.api.Modifier;
 import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import me.shedaniel.clothconfig2.gui.entries.KeyCodeEntry;
-import me.shedaniel.clothconfig2.gui.entries.StringListEntry;
 import com.mojang.blaze3d.platform.InputUtil;
 import net.minecraft.command.EntitySelectorReader;
-import net.minecraft.command.argument.BlockPredicateArgumentType;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.component.LiteralComponent;
@@ -109,6 +103,10 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		@ConfigEntry.Category("hudModule")
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
 		public HUDConfig hudModule = new HUDConfig();
+
+		@ConfigEntry.Category("freeCamModule")
+		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+		public FreeCamConfig freeCamModule = new FreeCamConfig();
 	}
 
 	@Config(name = "general")
@@ -121,6 +119,8 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		public boolean allowRenderThroughBlocks = true;
 
 		public float lineWidth = 2F;
+
+		public boolean disableBobbingWhenCameraLocked = true;
 	}
 
 	@Config(name = "toolTipInfoModule")
@@ -204,7 +204,13 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "hudModule")
 	public static class HUDConfig implements ConfigData {
+		@ConfigEntry.Gui.Tooltip
 		public boolean enabled = false;
+	}
+
+	@Config(name = "freeCamModule")
+	public static class FreeCamConfig implements ConfigData {
+		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromKeyCode(InputUtil.KEY_RIGHT_CONTROL_CODE), Modifier.none());
 	}
 
 	public ChatLogConfig() {
