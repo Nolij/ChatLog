@@ -7,8 +7,7 @@ import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.ChatLogConfig;
 import xyz.xdmatthewbx.chatlog.KeyBind;
 
-import static xyz.xdmatthewbx.chatlog.ChatLog.CONFIG;
-import static xyz.xdmatthewbx.chatlog.ChatLog.registerChangeListener;
+import static xyz.xdmatthewbx.chatlog.ChatLog.*;
 
 public class PerspectiveModule extends BaseModule {
 
@@ -46,7 +45,8 @@ public class PerspectiveModule extends BaseModule {
 			if (ChatLog.CLIENT != null && ChatLog.CLIENT.player != null) {
 				if (ChatLog.CONFIG.get().main.perspectiveModule.mode == ChatLogConfig.PerspectiveMode.HOLD) {
 					if (!enabled && keyBind.isPressed()) actualPerspective = CLIENT.options.getPerspective();
-					if ((enabled = keyBind.isPressed()) && !held) {
+					if (cameraLock.isLocked() == enabled && (enabled = keyBind.isPressed()) && !held) {
+						cameraLock.obtain();
 						held = true;
 						pitch = ChatLog.CLIENT.player.getPitch();
 						yaw = ChatLog.CLIENT.player.getYaw();
@@ -54,14 +54,23 @@ public class PerspectiveModule extends BaseModule {
 					}
 				} else if (ChatLog.CONFIG.get().main.perspectiveModule.mode == ChatLogConfig.PerspectiveMode.TOGGLE) {
 					if (keyBind.wasPressed()) {
-						if (!enabled) actualPerspective = CLIENT.options.getPerspective();
+						if (enabled || !cameraLock.isLocked()) {
+							if (!enabled) {
+								cameraLock.obtain();
+								actualPerspective = CLIENT.options.getPerspective();
+							}
 
-						enabled = !enabled;
+							enabled = !enabled;
 
-						pitch = ChatLog.CLIENT.player.getPitch();
-						yaw = ChatLog.CLIENT.player.getYaw();
+							pitch = ChatLog.CLIENT.player.getPitch();
+							yaw = ChatLog.CLIENT.player.getYaw();
 
-						CLIENT.options.setPerspective(enabled ? ACTIVE_PERSPECTIVE : actualPerspective);
+							CLIENT.options.setPerspective(enabled ? ACTIVE_PERSPECTIVE : actualPerspective);
+
+							if (!enabled) {
+								cameraLock.release();
+							}
+						}
 					}
 				}
 
@@ -69,10 +78,12 @@ public class PerspectiveModule extends BaseModule {
 					held = false;
 					CLIENT.options.setPerspective(actualPerspective);
 					actualPerspective = null;
+					cameraLock.release();
 				}
 
 				if (enabled && CLIENT.options.getPerspective() != ACTIVE_PERSPECTIVE) {
 					enabled = false;
+					cameraLock.release();
 				}
 			}
 		});
