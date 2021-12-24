@@ -55,5 +55,8 @@
 
 	"text.autoconfig.chatlog.option.main.inputUnlockModule": "Input Unlock Module",
 	"text.autoconfig.chatlog.option.main.inputUnlockModule.enabled": "Enable Module",
-	"text.autoconfig.chatlog.option.main.inputUnlockModule.enabled.@Tooltip": "§cWARNING: Only use this for input that is entirely client-sided. Servers CAN detect this!"
+	"text.autoconfig.chatlog.option.main.inputUnlockModule.enabled.@Tooltip": "§cWARNING: Only use this for input that is entirely client-sided. Servers CAN detect this!",
+
+	"text.autoconfig.chatlog.option.main.freeCamModule": "FreeCam Module",
+	"text.autoconfig.chatlog.option.main.freeCamModule.keyBind": "Enable Module"
 }
