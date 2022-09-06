@@ -21,14 +21,13 @@ import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.chunk.ChunkCache;
-import org.quiltmc.qsl.lifecycle.api.client.event.ClientWorldTickEvents;
+import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.render.Renderer;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
@@ -137,9 +136,11 @@ public class ESPModule extends BaseModule {
 //					}
 //				}
 //			}
-			for (int y = chunk.getBottomY(); y < chunk.getTopY(); y += 16) {
-				cacheChunkAsync(chunk.getPos().getBlockPos(0, y, 0));
-			}
+			SCAN_POOL.submit(() -> {
+				for (int y = chunk.getBottomY(); y < chunk.getTopY(); y += 16) {
+					cacheChunkAsync(chunk.getPos().getBlockPos(0, y, 0).toImmutable());
+				}
+			});
 		}
 	}
 
@@ -191,7 +192,8 @@ public class ESPModule extends BaseModule {
 			return ActionResult.PASS;
 		});
 
-		ClientWorldTickEvents.START.register((client, world) -> {
+		ClientTickEvents.START.register(client -> {
+			if (ChatLog.CLIENT.world == null) return;
 			while (!blockCacheQueue.isEmpty()) {
 				BlockPos block = blockCacheQueue.pop();
 //				cacheBlockPos(block);
@@ -201,7 +203,7 @@ public class ESPModule extends BaseModule {
 			}
 			while (!subChunkCacheQueue.isEmpty()) {
 				BlockPos origin = subChunkCacheQueue.pop();
-				ChunkCache chunkCache = new ChunkCache(world, origin, origin.add(15, 15, 15));
+				ChunkCache chunkCache = new ChunkCache(ChatLog.CLIENT.world, origin, origin.add(15, 15, 15));
 				SCAN_POOL.submit(() -> {
 					for (int x = 0; x < 16; x++) {
 						for (int z = 0; z < 16; z++) {
