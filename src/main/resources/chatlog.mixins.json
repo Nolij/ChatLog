@@ -1,0 +1,25 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "xyz.xdmatthewbx.chatlog.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [],
+	"client": [
+		"BackgroundRendererMixin",
+		"BuiltChunkMixin",
+		"CameraMixin",
+		"ChatHudMixin",
+		"GameRendererMixin",
+		"InGameHudMixin",
+		"InGameOverlayRendererMixin",
+		"KeyboardMixin",
+		"MouseMixin",
+		"ScreenMixin",
+		"SharedConstantsMixin",
+		"WorldChunkMixin",
+		"WorldRendererMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
