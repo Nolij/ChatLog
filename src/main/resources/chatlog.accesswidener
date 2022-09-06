@@ -1,0 +1,26 @@
+accessWidener v1	named
+
+accessible	field	net/minecraft/client/gui/screen/ingame/BookScreen						contents				Lnet/minecraft/client/gui/screen/ingame/BookScreen$Contents;
+accessible	field	net/minecraft/client/gui/screen/ingame/BookScreen$WrittenBookContents	pages					Ljava/util/List;
+mutable		field	net/minecraft/client/gui/screen/ingame/BookScreen$WrittenBookContents	pages					Ljava/util/List;
+accessible	method	net/minecraft/client/gui/screen/Screen									renderTextHoverEffect	(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/text/Style;II)V
+accessible	method	net/minecraft/client/render/Camera										setRotation				(FF)V
+accessible	field	net/minecraft/client/render/WorldRenderer								chunks					Lnet/minecraft/client/render/BuiltChunkStorage;
+accessible	field	net/minecraft/client/render/WorldRenderer$ChunkInfo						chunk					Lnet/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk;
+accessible	field	net/minecraft/client/render/WorldRenderer								noCullingBlockEntities	Ljava/util/Set;
+accessible	field	net/minecraft/client/world/ClientChunkManager							chunks					Lnet/minecraft/client/world/ClientChunkManager$ClientChunkMap;
+accessible	field	net/minecraft/client/world/ClientChunkManager$ClientChunkMap			chunks					Ljava/util/concurrent/atomic/AtomicReferenceArray;
+accessible	method	net/minecraft/command/EntitySelector									getPositionPredicate	(Lnet/minecraft/util/math/Vec3d;)Ljava/util/function/Predicate;
+accessible	field	net/minecraft/command/EntitySelector									entityFilter			Lnet/minecraft/util/TypeFilter;
+accessible	field	net/minecraft/command/EntitySelector									box						Lnet/minecraft/util/math/Box;
+accessible	field	net/minecraft/command/EntitySelector									positionOffset			Ljava/util/function/Function;
+accessible	method	net/minecraft/command/EntitySelector									getEntities				(Lnet/minecraft/util/math/Vec3d;Ljava/util/List;)Ljava/util/List;
+accessible	field	net/minecraft/client/MinecraftClient									renderTickCounter		Lnet/minecraft/client/render/RenderTickCounter;
+accessible	field	net/minecraft/client/MinecraftClient									pausedTickDelta			F
+accessible	method	net/minecraft/client/render/WorldRenderer								drawShapeOutline		(Lnet/minecraft/client/util/math/MatrixStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/util/shape/VoxelShape;DDDFFFF)V
+accessible	field	net/minecraft/client/MinecraftClient									fpsCounter				I
+accessible	method	net/minecraft/client/font/TextRenderer									draw					(Lnet/minecraft/text/OrderedText;FFILnet/minecraft/util/math/Matrix4f;Z)I
+accessible	method	net/minecraft/client/render/RenderLayer									of						(Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$DrawMode;ILnet/minecraft/client/render/RenderLayer$MultiPhaseParameters;)Lnet/minecraft/client/render/RenderLayer$MultiPhase;
+accessible	field	net/minecraft/block/pattern/CachedBlockPosition							state					Lnet/minecraft/block/BlockState;
+accessible	field	net/minecraft/block/pattern/CachedBlockPosition							blockEntity				Lnet/minecraft/block/entity/BlockEntity;
+accessible	field	net/minecraft/block/pattern/CachedBlockPosition							cachedEntity			Z
