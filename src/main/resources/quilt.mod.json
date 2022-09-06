@@ -35,5 +35,6 @@
 			}
 		]
 	},
+	"access_widener": "chatlog.accesswidener",
 	"mixin": "chatlog.mixins.json"
 }
