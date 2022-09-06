@@ -1,29 +1,105 @@
-# Quilt Template Mod
+# ChatLog-Quilt
 
-The official Quilt template Mod. You can use it as a template for your own mods!
+Just a chat logging mod, really!
 
-## Usage
+This mod aims to seamlessly and undetectably log all chat messages that the client receives and maintain all data such as formatting and hover & click events (some extra functionality also included).
 
-In order to use this mod as a template:
+It is a primary goal of this to be entirely client-sided, unseen and uncontrollable by servers. As such, any requested changes (whether in the form of a feature request or pull request) which do not follow this will be rejected.
 
-1. Create a new repository from this template with `Use this template`
-2. Clone the recently-created repo on your PC
-3. Make the necessary changes in order to make it yours:
-    - Update `gradle.properties` in order to use your Maven group and mod ID
-        - If you don't know which Maven group to use, and you are planning to host the mod's source code on GitHub, use `io.github.<Your_Username_Here>`
-    - Update `quilt.mod.json` in order to reflect your mod's metadata
-        - If you are planning to include (jar-in-jar) a mod, don't forget to declare its dependency on it!
-        - The icon provided here is a placeholder one. If you aren't able to replace it yet, you can delete it and remove the "icon" property
-    - Create a LICENSE file for this mod! If you don't know which license to use, check out [here](https://choosealicense.com/).
-        - If you use `LICENSE.md`, don't forget to update the buildscript in order to use that file name!
-        - In `quilt.mod.json`, don't forget to put the license's [SPDX identifier](https://spdx.org/licenses/) under the `"license"` property in `"metadata"`.
-        - The GPLv3 and AGPLv3 are not valid mod licenses, so you can use almost any license except for those.
-    - Update the Java sub-directory structure so it reflects your Maven group
-    - If the dependencies on `gradle/libs.versions.toml` isn't up-to-date, feel free to update them! The [linked utility](https://lambdaurora.dev/tools/import_quilt.html) should help you in this easy and quick process.
-4. The mod is now ready to be worked on!
+# FAQ
 
-## License
+#### Q: I don't want people using this mod or some of its features on my server. Can you add a way for servers to disable specific modules of this mod?
+A: Why would you care if your players log the chat? Also, you really didn't read the description above, did you? No part of this mod shall be visible to or controllable by any server.
 
-This template on the QuiltMC GitHub is licensed under the [Creative Common Zero v1.0 license](./LICENSE-TEMPLATE.md).
+#### Q: Can I use this in my modpack?
+A: This mod is licensed under LGPLv3. You may do as you wish with it so long as it does not claim to be "endorsed" or otherwise supported by the author(s) of this project unless otherwise stated, and follows the terms of the LGPLv3 license (including, but not limited to: you must make the source code of all modifications you make to this mod available to all who you distribute the mod to).
 
-Mods created with this template are not automatically licensed under the CC0, and are not required to give any kind of credit back to QuiltMC for this template.
+#### Q: Can you add reach/killaura/scaffold/etc?
+A: Why would I add that to a chat logging mod? That's clearly all this is. Additionally, these modifications would be visible to the server, which I don't allow for this project.
+
+#### Q: Can you add some other feature that isn't visible to the server?
+A: I will definitely consider it. Please submit a feature request or a pull request. So long as it is completely client-sided and isn't malicious to the end user I will likely add it.
+
+#### Q: The chat logging got me banned and was visible to the server!
+A: I provide no guarantee of functionality or safety, nor warranty, as per our license, so please don't yell at me. However, I do wish to fix this issue, as it means something this mod does is visible to the server, so please submit an issue report if this happens to you with the server in question, a full list of modifications, and their versions.
+
+#### Q: Will you port this to Forge/some other modloader?
+A: I have no plans to as of now. Quilt currently does not send a mod list to the server, and I wish to log chat in peace. I have no interest in circumventing the mod list sent to the server in Forge or any other modloader, so this will remain Quilt for the time being. However, you are welcome to submit a pull request with support so long as all modifications are invisible to the server. This will be your responsibility to maintain.
+
+#### Q: Will you port to version X.X.X?
+A: Unlike some other developers I have full intention to support older versions. It is worth noting that it will still be in Fabric, which may be problematic for those who use 1.8 where Forge is still the most popular as of writing this, but we do have plans to support it in the future (don't ask for an ETA, it will happen when it will happen. The progress will be visible in the version's corresponding branch and you are welcome to contribute to it to speed up the process).
+
+#### Q: There seem to be some non-chat logging features in this mod...
+A: It's just a chat logging mod, really!
+
+#### Q: What kind of weird license is this?
+A: OSLv3 is the closest equivalent to a LAGPL I could find. AGPL and GPL are incompatible with Minecraft, and LGPL doesn't protect network use. OSLv3 protects network use and is compatible with Minecraft.
+
+#### Q: Why though? It's so strict!!!!
+A: This is and will remain free software. Any requests to change the license other than to make it even stronger will be denied immediately (unfortunately GPL and AGPL aren't comaptible with Minecraft due to linking restrictions, as much as I'd like to use them). Even in situations where I use parts of other projects with more permissive licenses, I will treat them as free software.
+
+# Licensing
+
+This project is licensed under OSLv3. Some parts of this project were taken from other, non-OSLv3 (however still permissive, so, therefore not violating any licenses) projects. All changes from the original versions of the code from these projects is OSLv3, but the original versions are still the copyright of their original authors. These features and the source code used in the creation of them are listed below:
+
+NOTE: for all references there is a specific commit included. No code past this point was used in this project. All pull requests must update this list for licensing reasons. Any changes made after this point (including changes in license) do not apply to this project unless this file is updated to reflect that. If code past this point is based on code from this project (excluding unmodified code from the originating project), they are required to make their project OSLv3.
+
+### Perspective Module
+
+##### Perspective Mod Redux
+
+Reference: https://github.com/BackportProjectMC/PerspectiveModRedux/tree/bf423a398ccef3a94e8fcd68ea02fc91ae94b6b3
+
+License: Expat (The Unlicense)
+
+Author: BackportProjectMC
+
+### Anti-Fog Module
+
+##### Clear Skies
+
+Reference: https://github.com/grondag/clear-skies/tree/009689f4aa429730ac91a9e8b7f96d31d5ec1821
+
+License: Apache-2.0
+
+Author: grondag
+
+### Config Screen
+
+##### Roughly Enough Items
+
+Reference: https://github.com/shedaniel/RoughlyEnoughItems/tree/12dac7bb9c85da1c8c2ff28a06b8c7406c0c6611
+
+License: Expat (MIT)
+
+Author: shedaniel
+
+### Rendering System
+
+##### SeedCrackerX
+
+Reference: https://github.com/19MisterX98/SeedcrackerX/tree/b496facd0e89a1f86668a2cd3ad3182dea906edf
+
+License: Expat (MIT)
+
+Author: 19MisterX98
+
+### HUD Module
+
+##### FPS-Display
+
+Reference: https://github.com/Grayray75/FPS-Display/commit/adae8e341cde02d26bd2b19469aa193f38841447
+
+License: LGPL-3.0
+
+Author: Grayray75
+
+### Scheduler (currently unused)
+
+##### Plasmid
+
+Reference: https://github.com/NucleoidMC/plasmid/tree/6455b8217c9c05cc7881db3d23fe18e4e8c6e6b0
+
+License: LGPL-3.0
+
+Author: NucleoidMC
