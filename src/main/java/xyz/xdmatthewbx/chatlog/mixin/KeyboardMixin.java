@@ -29,12 +29,6 @@ public class KeyboardMixin {
 		if (window != this.client.getWindow().getHandle()) return;
 		Screen currentScreen = this.client.currentScreen;
 		if (action == 0 || currentScreen == null || currentScreen.passEvents) {
-//			for (KeyBinding bind : ChatLog.KEYBIND_REGISTRY.stream().toList()) {
-//				if (!KeyBinding.KEY_TO_BINDINGS.containsKey(InputUtil.fromKeyCode(key, scancode)) && bind.matchesKey(key, scancode)) {
-//					bind.setPressed(action != 0);
-//					if (action != 0) bind.timesPressed++;
-//				}
-//			}
 			for (KeyBind bind : KeyBind.getAllBinds()) {
 				if (bind.matches(key, scancode)) {
 					bind.setPressed(action != 0);
