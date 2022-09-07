@@ -19,7 +19,7 @@ public class ChatLog implements ClientModInitializer {
 	public static final String MOD_ID = "chatlog";
 	public static final Logger LOGGER = LoggerFactory.getLogger("ChatLog");
 
-	public static ToolTipInfoModule TOOL_TIP_INFO_MODULE;
+	public static ToolTipInfoModule TOOLTIP_INFO_MODULE;
 	public static PerspectiveModule PERSPECTIVE_MODULE;
 	public static AntiBlindModule ANTI_BLIND_MODULE;
 	public static AntiFogModule ANTI_FOG_MODULE;
@@ -41,7 +41,7 @@ public class ChatLog implements ClientModInitializer {
 		INSTANCE = this;
 		CLIENT = MinecraftClient.getInstance();
 
-		TOOL_TIP_INFO_MODULE = new ToolTipInfoModule();
+		TOOLTIP_INFO_MODULE = new ToolTipInfoModule();
 		PERSPECTIVE_MODULE = new PerspectiveModule();
 		ANTI_BLIND_MODULE = new AntiBlindModule();
 		ANTI_FOG_MODULE = new AntiFogModule();
@@ -74,7 +74,7 @@ public class ChatLog implements ClientModInitializer {
 			}
 		});
 
-		TOOL_TIP_INFO_MODULE.onInitializeClient();
+		TOOLTIP_INFO_MODULE.onInitializeClient();
 		PERSPECTIVE_MODULE.onInitializeClient();
 		ANTI_BLIND_MODULE.onInitializeClient();
 		ANTI_FOG_MODULE.onInitializeClient();
