@@ -22,6 +22,7 @@ public class ChatLog implements ClientModInitializer {
 	public static ToolTipInfoModule TOOLTIP_INFO_MODULE;
 	public static PerspectiveModule PERSPECTIVE_MODULE;
 	public static AntiBlindModule ANTI_BLIND_MODULE;
+	public static FullBrightModule FULLBRIGHT_MODULE;
 	public static AntiFogModule ANTI_FOG_MODULE;
 	public static AntiDistortionModule ANTI_DISTORTION_MODULE;
 	public static AntiOverlayModule ANTI_OVERLAY_MODULE;
@@ -44,6 +45,7 @@ public class ChatLog implements ClientModInitializer {
 		TOOLTIP_INFO_MODULE = new ToolTipInfoModule();
 		PERSPECTIVE_MODULE = new PerspectiveModule();
 		ANTI_BLIND_MODULE = new AntiBlindModule();
+		FULLBRIGHT_MODULE = new FullBrightModule();
 		ANTI_FOG_MODULE = new AntiFogModule();
 		ANTI_DISTORTION_MODULE = new AntiDistortionModule();
 		ANTI_OVERLAY_MODULE = new AntiOverlayModule();
@@ -77,6 +79,7 @@ public class ChatLog implements ClientModInitializer {
 		TOOLTIP_INFO_MODULE.onInitializeClient();
 		PERSPECTIVE_MODULE.onInitializeClient();
 		ANTI_BLIND_MODULE.onInitializeClient();
+		FULLBRIGHT_MODULE.onInitializeClient();
 		ANTI_FOG_MODULE.onInitializeClient();
 		ANTI_DISTORTION_MODULE.onInitializeClient();
 		ANTI_OVERLAY_MODULE.onInitializeClient();
