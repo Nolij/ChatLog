@@ -44,6 +44,7 @@ public class ChatLog implements ClientModInitializer {
 
 	public static Lock cameraLock = new Lock();
 
+	public static Vec3d prevCameraPos;
 	public static Vec3d cameraPos;
 	public static float cameraPitch;
 	public static float cameraYaw;
@@ -88,6 +89,7 @@ public class ChatLog implements ClientModInitializer {
 			if (configKeyBind.wasPressed()) {
 				CLIENT.setScreen(AutoConfig.getConfigScreen(ChatLogConfig.class, CLIENT.currentScreen).get());
 			}
+			prevCameraPos = cameraPos;
 		});
 
 		TOOLTIP_INFO_MODULE.onInitializeClient();
