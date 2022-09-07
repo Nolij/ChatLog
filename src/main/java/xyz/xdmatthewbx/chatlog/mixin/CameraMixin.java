@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,9 +41,15 @@ public class CameraMixin {
 	@ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setPos(DDD)V", ordinal = 0))
 	private void setPos(Args args) {
 		if (ChatLog.cameraLock.isLocked() && ChatLog.cameraPos != null) {
-			args.set(0, ChatLog.cameraPos.x);
-			args.set(1, ChatLog.cameraPos.y);
-			args.set(2, ChatLog.cameraPos.z);
+			if (ChatLog.prevCameraPos == null) {
+				args.set(0, ChatLog.cameraPos.x);
+				args.set(1, ChatLog.cameraPos.y);
+				args.set(2, ChatLog.cameraPos.z);
+			} else {
+				args.set(0, MathHelper.lerp(ChatLog.getTickDelta(), ChatLog.prevCameraPos.x, ChatLog.cameraPos.x));
+				args.set(1, MathHelper.lerp(ChatLog.getTickDelta(), ChatLog.prevCameraPos.y, ChatLog.cameraPos.y));
+				args.set(2, MathHelper.lerp(ChatLog.getTickDelta(), ChatLog.prevCameraPos.z, ChatLog.cameraPos.z));
+			}
 		}
 	}
 

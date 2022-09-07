@@ -10,12 +10,14 @@
 		"GameRendererMixin",
 		"InGameHudMixin",
 		"InGameOverlayRendererMixin",
+		"KeyboardInputMixin",
 		"KeyboardMixin",
 		"LightmapTextureManagerMixin",
 		"MouseMixin",
 		"ScreenMixin",
 		"SharedConstantsMixin",
-		"WorldChunkMixin"
+		"WorldChunkMixin",
+		"WorldRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

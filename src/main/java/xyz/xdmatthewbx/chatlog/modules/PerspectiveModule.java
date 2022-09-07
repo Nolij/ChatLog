@@ -17,8 +17,6 @@ public class PerspectiveModule extends BaseModule {
 	private static KeyBind keyBind;
 
 	public boolean enabled;
-	public float pitch;
-	public float yaw;
 	private boolean held = false;
 	private Perspective actualPerspective = null;
 	private final Perspective ACTIVE_PERSPECTIVE = Perspective.THIRD_PERSON_BACK;
@@ -37,28 +35,27 @@ public class PerspectiveModule extends BaseModule {
 		});
 
 		ClientTickEvents.START.register(e -> {
-			if (ChatLog.CLIENT != null && ChatLog.CLIENT.player != null) {
+			if (CLIENT != null && CLIENT.player != null) {
 				if (ChatLog.CONFIG.get().main.perspectiveModule.mode == ChatLogConfig.PerspectiveMode.HOLD) {
 					if (!enabled && keyBind.isPressed()) actualPerspective = CLIENT.options.getPerspective();
 					if (cameraLock.isLocked() == enabled && (enabled = keyBind.isPressed()) && !held) {
+						cameraYaw = CLIENT.player.getYaw(getTickDelta());
+						cameraPitch = CLIENT.player.getPitch(getTickDelta());
 						cameraLock.obtain();
 						held = true;
-						pitch = ChatLog.CLIENT.player.getPitch();
-						yaw = ChatLog.CLIENT.player.getYaw();
 						CLIENT.options.setPerspective(ACTIVE_PERSPECTIVE);
 					}
 				} else if (ChatLog.CONFIG.get().main.perspectiveModule.mode == ChatLogConfig.PerspectiveMode.TOGGLE) {
 					if (keyBind.wasPressed()) {
 						if (enabled || !cameraLock.isLocked()) {
 							if (!enabled) {
+								cameraYaw = CLIENT.player.getYaw(getTickDelta());
+								cameraPitch = CLIENT.player.getPitch(getTickDelta());
 								cameraLock.obtain();
 								actualPerspective = CLIENT.options.getPerspective();
 							}
 
 							enabled = !enabled;
-
-							pitch = ChatLog.CLIENT.player.getPitch();
-							yaw = ChatLog.CLIENT.player.getYaw();
 
 							CLIENT.options.setPerspective(enabled ? ACTIVE_PERSPECTIVE : actualPerspective);
 

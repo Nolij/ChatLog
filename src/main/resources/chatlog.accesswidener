@@ -24,3 +24,4 @@ accessible	method	net/minecraft/client/render/RenderLayer									of						(Ljava
 accessible	field	net/minecraft/block/pattern/CachedBlockPosition							state					Lnet/minecraft/block/BlockState;
 accessible	field	net/minecraft/block/pattern/CachedBlockPosition							blockEntity				Lnet/minecraft/block/entity/BlockEntity;
 accessible	field	net/minecraft/block/pattern/CachedBlockPosition							cachedEntity			Z
+accessible	method	net/minecraft/entity/Entity												movementInputToVelocity	(Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;
