@@ -13,6 +13,7 @@
 	"text.autoconfig.chatlog.option.main.render": "Render Settings",
 	"text.autoconfig.chatlog.option.main.render.allowRenderThroughBlocks": "Allow Rendering Through Blocks",
 	"text.autoconfig.chatlog.option.main.render.lineWidth": "Line Width",
+	"text.autoconfig.chatlog.option.main.render.disableBobbingWhenCameraLocked": "Disable Camera Bobbing When Locked",
 
 	"text.autoconfig.chatlog.option.main.toolTipInfoModule": "Tool Tip Info Module",
 	"text.autoconfig.chatlog.option.main.toolTipInfoModule.enabled": "Enable Module",
