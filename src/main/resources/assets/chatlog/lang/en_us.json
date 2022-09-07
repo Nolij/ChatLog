@@ -63,5 +63,6 @@
 	"text.autoconfig.chatlog.option.main.hudModule.enabled.@Tooltip": "§cWARNING: This module currently crashes the game. Do not enable it.",
 
 	"text.autoconfig.chatlog.option.main.freeCamModule": "FreeCam Module",
-	"text.autoconfig.chatlog.option.main.freeCamModule.keyBind": "Keybind"
+	"text.autoconfig.chatlog.option.main.freeCamModule.keyBind": "Keybind",
+	"text.autoconfig.chatlog.option.main.freeCamModule.renderHand": "Render Hand When Active"
 }
