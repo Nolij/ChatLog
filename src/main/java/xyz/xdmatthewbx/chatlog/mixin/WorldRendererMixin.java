@@ -23,7 +23,7 @@ public class WorldRendererMixin {
 
 	@ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;ZZ)V"))
 	public void setupTerrain(Args args) {
-		if (ChatLog.FREECAM_MODULE.enabled) {
+		if (ChatLog.FREECAM_MODULE.enabled && ChatLog.CONFIG.get().main.render.allowRenderThroughBlocks) {
 			args.set(3, true);
 		}
 	}
