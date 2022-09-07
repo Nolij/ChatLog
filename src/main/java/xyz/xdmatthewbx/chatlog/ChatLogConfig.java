@@ -115,7 +115,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "perspectiveModule")
 	public static class PerspectiveConfig implements ConfigData {
-		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromKeyCode(InputUtil.KEY_LEFT_ALT_CODE), Modifier.none());
+		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromKeyCode(InputUtil.KEY_GRAVE_ACCENT_CODE), Modifier.none());
 
 		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
 		public PerspectiveMode mode = PerspectiveMode.HOLD;
