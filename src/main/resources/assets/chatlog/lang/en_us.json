@@ -24,6 +24,9 @@
 	"text.autoconfig.chatlog.option.main.antiBlindModule": "Anti-Blind Module",
 	"text.autoconfig.chatlog.option.main.antiBlindModule.enabled": "Enable Module",
 
+	"text.autoconfig.chatlog.option.main.fullBrightModule": "Fullbright Module",
+	"text.autoconfig.chatlog.option.main.fullBrightModule.enabled": "Enable Module",
+
 	"text.autoconfig.chatlog.option.main.antiFogModule": "Anti-Fog Module",
 	"text.autoconfig.chatlog.option.main.antiFogModule.enabled": "Enable Module",
 

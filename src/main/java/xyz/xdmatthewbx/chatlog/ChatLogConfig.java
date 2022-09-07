@@ -82,6 +82,10 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
 		public AntiBlindConfig antiBlindModule = new AntiBlindConfig();
 
+		@ConfigEntry.Category("antiBlindModule")
+		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+		public FullBrightConfig fullBrightModule = new FullBrightConfig();
+
 		@ConfigEntry.Category("antiFogModule")
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
 		public AntiFogConfig antiFogModule = new AntiFogConfig();
@@ -134,6 +138,11 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "antiBlindModule")
 	public static class AntiBlindConfig implements ConfigData {
+		public boolean enabled = true;
+	}
+
+	@Config(name = "fullBrightModule")
+	public static class FullBrightConfig implements ConfigData {
 		public boolean enabled = true;
 	}
 
