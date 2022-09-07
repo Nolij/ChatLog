@@ -19,7 +19,7 @@ public class InGameHudMixin {
 		return opacity;
 	}
 
-	@ModifyArgs(method = "renderPortalOverlay", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V"))
+	@ModifyArgs(method = "renderPortalOverlay", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V", remap = false))
 	public void renderPortalOverlay(Args args) {
 		if (ChatLog.ANTI_OVERLAY_MODULE.enabled) {
 			args.set(3, Math.min(args.get(3), (float) ChatLog.CONFIG.get().main.antiOverlayModule.overlayOpacity * 0.7F));
