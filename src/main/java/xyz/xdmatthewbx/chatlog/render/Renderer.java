@@ -35,7 +35,6 @@ public abstract class Renderer {
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 		RenderSystem.disableBlend();
-//		RenderSystem.blendFuncSeparate(GlStateManager.class_4534.ZERO.ordinal(), GlStateManager.class_4535.ZERO.ordinal(), GlStateManager.class_4534.ZERO.ordinal(), GlStateManager.class_4535.ZERO.ordinal());
 		RenderSystem.lineWidth(ChatLog.CONFIG.get().main.render.lineWidth);
 
 		BUFFER.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
@@ -46,7 +45,6 @@ public abstract class Renderer {
 			TESSELLATOR.draw();
 		}
 		RenderSystem.enableDepthTest();
-//		RenderSystem.disableBlend();
 
 		matrix.pop();
 		RenderSystem.applyModelViewMatrix();

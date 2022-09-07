@@ -6,8 +6,6 @@ import me.shedaniel.clothconfig2.api.Modifier;
 import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Map;
 
 public class KeyBind {
 

@@ -6,9 +6,7 @@
 	"mixins": [],
 	"client": [
 		"BackgroundRendererMixin",
-		"BuiltChunkMixin",
 		"CameraMixin",
-		"ChatHudMixin",
 		"GameRendererMixin",
 		"InGameHudMixin",
 		"InGameOverlayRendererMixin",
@@ -17,8 +15,7 @@
 		"MouseMixin",
 		"ScreenMixin",
 		"SharedConstantsMixin",
-		"WorldChunkMixin",
-		"WorldRendererMixin"
+		"WorldChunkMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
