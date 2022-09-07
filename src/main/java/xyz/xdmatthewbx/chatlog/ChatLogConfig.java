@@ -12,9 +12,6 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.gui.registry.GuiRegistry;
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer;
 import me.shedaniel.autoconfig.util.Utils;
-import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Jankson;
-import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.JsonObject;
-import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.JsonPrimitive;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.api.Modifier;
 import me.shedaniel.clothconfig2.api.ModifierKeyCode;
@@ -22,26 +19,18 @@ import me.shedaniel.clothconfig2.gui.entries.KeyCodeEntry;
 import com.mojang.blaze3d.platform.InputUtil;
 import net.minecraft.command.EntitySelectorReader;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
 import net.minecraft.text.component.LiteralComponent;
 import net.minecraft.text.component.TranslatableComponent;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.JsonSerializer;
 import net.minecraft.util.math.MathHelper;
 
-import java.awt.*;
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.List;
-
-import static me.shedaniel.autoconfig.util.Utils.setUnsafely;
-import static xyz.xdmatthewbx.chatlog.ChatLog.CONFIG;
 
 @Config(name = "chatlog")
 public class ChatLogConfig extends PartitioningSerializer.GlobalData {
@@ -223,7 +212,6 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 				.startModifierKeyCodeField(MutableText.create(new TranslatableComponent(i13n)), getUnsafely(field, config, ModifierKeyCode.unknown()))
 				.setModifierDefaultValue(() -> getUnsafely(field, defaults))
 				.setModifierSaveConsumer(newValue -> setUnsafely(field, config, newValue.clearModifier()))
-//				.setModifierSaveConsumer(newValue -> setUnsafely(field, config, newValue))
 				.build();
 			return Collections.singletonList(entry);
 		}, field -> field.getType() == ModifierKeyCode.class);
@@ -317,12 +305,8 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 				short modifier = 0;
 				while (in.hasNext()) {
 					switch (in.nextName()) {
-						case "keyCode" -> {
-							keyCode = in.nextString();
-						}
-						case "modifier" -> {
-							modifier = (short) in.nextInt();
-						}
+						case "keyCode" -> keyCode = in.nextString();
+						case "modifier" -> modifier = (short) in.nextInt();
 					}
 				}
 				assert keyCode != null;
@@ -335,32 +319,6 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		});
 
 		return builder.create();
-	}
-
-	public static Jankson buildJankson(Jankson.Builder builder) {
-		builder.registerSerializer(InputUtil.Key.class, (value, marshaller) ->
-			new JsonPrimitive(value.getTranslationKey()));
-		builder.registerDeserializer(String.class, InputUtil.Key.class, (value, marshaller) ->
-			InputUtil.fromTranslationKey(value));
-
-		builder.registerSerializer(ModifierKeyCode.class, (value, marshaller) -> {
-			JsonObject object = new JsonObject();
-			object.put("keyCode", new JsonPrimitive(value.getKeyCode().getTranslationKey()));
-			object.put("modifier", new JsonPrimitive(value.getModifier().getValue()));
-			return object;
-		});
-		builder.registerDeserializer(JsonObject.class, ModifierKeyCode.class, (value, marshaller) -> {
-			String code = value.get(String.class, "keyCode");
-			if (code.endsWith(".unknown")) {
-				return ModifierKeyCode.unknown();
-			} else {
-				InputUtil.Key keyCode = InputUtil.fromTranslationKey(code);
-				Modifier modifier = Modifier.of(value.getShort("modifier", (short) 0));
-				return ModifierKeyCode.of(keyCode, modifier);
-			}
-		});
-
-		return builder.build();
 	}
 
 	public static <V> V getUnsafely(Field field, Object obj) {

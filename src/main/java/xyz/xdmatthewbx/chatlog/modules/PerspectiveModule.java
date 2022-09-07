@@ -30,11 +30,6 @@ public class PerspectiveModule extends BaseModule {
 
 	@Override
 	public void onInitializeClient() {
-//		Registry.register(ChatLog.KEYBIND_REGISTRY, new Identifier(ChatLog.MOD_ID, MODULE_ID + "_toggle"), toggleKey = new KeyBinding("", InputUtil.Type.KEYSYM, ChatLog.CONFIG.main.perspectiveToggleKey.getKeyCode().getCode(), ""));
-//		ChatLog.CONFIG_HOLDER.registerSaveListener((configHolder, chatLogConfig) -> {
-//			toggleKey.setBoundKey(chatLogConfig.main.perspectiveToggleKey.getKeyCode());
-//			return ActionResult.PASS;
-//		});
 		keyBind = new KeyBind(ChatLog.CONFIG.get().main.perspectiveModule.keyBind);
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
 			keyBind.setBoundKey(chatLogConfig.main.perspectiveModule.keyBind);
