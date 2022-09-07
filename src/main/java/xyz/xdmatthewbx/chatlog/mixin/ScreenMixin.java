@@ -16,8 +16,8 @@ public class ScreenMixin {
 
 	@Redirect(method = "renderTextHoverEffect", at = @At(value = "INVOKE", target = "Lnet/minecraft/text/Style;getHoverEvent()Lnet/minecraft/text/HoverEvent;"))
 	public HoverEvent formatStyles(Style instance) {
-		if (ChatLog.TOOL_TIP_INFO_MODULE.enabled) {
-			return ChatLog.TOOL_TIP_INFO_MODULE.getHoverEvent(instance);
+		if (ChatLog.TOOLTIP_INFO_MODULE.enabled) {
+			return ChatLog.TOOLTIP_INFO_MODULE.getHoverEvent(instance);
 		} else {
 			return instance.getHoverEvent();
 		}
