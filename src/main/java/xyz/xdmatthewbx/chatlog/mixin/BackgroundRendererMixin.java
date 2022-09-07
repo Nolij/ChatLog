@@ -54,7 +54,7 @@ public class BackgroundRendererMixin {
 		return instance.getSubmersionType();
 	}
 
-	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogStart(F)V"))
+	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogStart(F)V", remap = false))
 	private static float setShaderFogStart(float f) {
 		if (ChatLog.ANTI_FOG_MODULE.enabled) {
 			return -5F;
@@ -63,7 +63,7 @@ public class BackgroundRendererMixin {
 		}
 	}
 
-	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V"))
+	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
 	private static float setShaderFogEnd(float f) {
 		if (ChatLog.ANTI_FOG_MODULE.enabled) {
 			return 10000000F;
