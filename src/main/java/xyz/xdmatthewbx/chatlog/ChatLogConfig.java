@@ -90,7 +90,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		public InputUnlockConfig inputUnlockModule = new InputUnlockConfig();
 
 		@ConfigEntry.Category("hudModule")
-		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+		@ConfigEntry.Gui.CollapsibleObject(startExpanded = false)
 		public HUDConfig hudModule = new HUDConfig();
 
 		@ConfigEntry.Category("freeCamModule")
