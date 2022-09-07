@@ -19,6 +19,9 @@ public class GameRendererMixin {
 
 	@Shadow @Final private Camera camera;
 
+	@Shadow
+	private boolean renderHand;
+
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderNauseaOverlay(F)V"))
 	public float setShaderColor(float opacity) {
 		if (ChatLog.ANTI_DISTORTION_MODULE.enabled) {
@@ -67,6 +70,15 @@ public class GameRendererMixin {
 		if (ChatLog.cameraLock.isLocked() && ChatLog.CONFIG.get().main.render.disableBobbingWhenCameraLocked) {
 			ci.cancel();
 		}
+	}
+
+	@Redirect(method = "renderWorld", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/GameRenderer;renderHand:Z"))
+	private boolean shouldRenderHand(GameRenderer instance) {
+		if (ChatLog.FREECAM_MODULE.enabled && !ChatLog.CONFIG.get().main.freeCamModule.renderHand) {
+			return false;
+		}
+
+		return this.renderHand;
 	}
 
 }
