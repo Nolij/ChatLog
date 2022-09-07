@@ -190,6 +190,8 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 	@Config(name = "freeCamModule")
 	public static class FreeCamConfig implements ConfigData {
 		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromKeyCode(InputUtil.KEY_RIGHT_CONTROL_CODE), Modifier.none());
+
+		public boolean renderHand = false;
 	}
 
 	public ChatLogConfig() {

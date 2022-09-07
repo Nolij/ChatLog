@@ -59,5 +59,6 @@
 	"text.autoconfig.chatlog.option.main.inputUnlockModule.enabled.@Tooltip": "§cWARNING: Only use this for input that is entirely client-sided. Servers CAN detect this!",
 
 	"text.autoconfig.chatlog.option.main.freeCamModule": "FreeCam Module",
-	"text.autoconfig.chatlog.option.main.freeCamModule.keyBind": "Keybind"
+	"text.autoconfig.chatlog.option.main.freeCamModule.keyBind": "Keybind",
+	"text.autoconfig.chatlog.option.main.freeCamModule.renderHand": "Render Hand When Active"
 }
