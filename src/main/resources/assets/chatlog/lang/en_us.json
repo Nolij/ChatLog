@@ -52,6 +52,7 @@
 	"text.autoconfig.chatlog.option.EntityESPFilter": "Entity Filter",
 	"text.autoconfig.chatlog.option.EntityESPFilter.enabled": "Enable Filter",
 	"text.autoconfig.chatlog.option.EntityESPFilter.entityFilter": "Filter",
+	"text.autoconfig.chatlog.option.EntityESPFilter.entityColorMode": "Highlight Color Setting",
 	"text.autoconfig.chatlog.option.EntityESPFilter.color": "Highlight Color",
 
 	"text.autoconfig.chatlog.option.main.inputUnlockModule": "Input Unlock Module",
