@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.List;
 
 @Config(name = "chatlog")
+@Config.Gui.Background(Config.Gui.Background.TRANSPARENT)
 public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@ConfigEntry.Category("main")
@@ -41,6 +42,10 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	public enum PerspectiveMode {
 		HOLD, TOGGLE
+	}
+
+	public enum EntityColorMode {
+		MANUAL, TEAM
 	}
 
 	@Config(name = "main")
@@ -176,6 +181,9 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 		@EntitySelector
 		public String entityFilter = "";
+
+		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+		public EntityColorMode entityColorMode = EntityColorMode.MANUAL;
 
 		@ConfigEntry.ColorPicker
 		public int color = 0xFFFFFF;
