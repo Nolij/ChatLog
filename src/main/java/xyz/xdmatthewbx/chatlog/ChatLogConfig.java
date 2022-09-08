@@ -331,6 +331,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		return builder.create();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <V> V getUnsafely(Field field, Object obj) {
 		if (obj == null) {
 			return null;
