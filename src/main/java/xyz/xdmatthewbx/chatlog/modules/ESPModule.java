@@ -21,8 +21,10 @@ import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.chunk.ChunkCache;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;
 import xyz.xdmatthewbx.chatlog.ChatLog;
+import xyz.xdmatthewbx.chatlog.ChatLogConfig;
 import xyz.xdmatthewbx.chatlog.render.Renderer;
 
 import java.util.*;
@@ -50,7 +52,7 @@ public class ESPModule extends BaseModule {
 	private final AtomicReference<ClientWorld> cachedWorld = new AtomicReference<>();
 
 	public List<Pair<Predicate<CachedBlockPosition>, Integer>> blockFilters = new LinkedList<>();
-	public List<Pair<EntitySelector, Integer>> entityFilters = new LinkedList<>();
+	public List<ImmutableTriple<EntitySelector, ChatLogConfig.EntityColorMode, Integer>> entityFilters = new LinkedList<>();
 
 	private BlockPredicateArgumentType blockPredicateArgumentType;
 
@@ -162,7 +164,13 @@ public class ESPModule extends BaseModule {
 				}
 			}
 			for (Entity entity : entityFilter.getEntities(checkPos, entities)) {
-				result.add(new Pair<>(entity, filter.getRight()));
+				int color;
+				switch (filter.getMiddle()) {
+					case MANUAL -> color = filter.getRight();
+					case TEAM -> color = entity.getTeamColorValue();
+					default -> throw new IllegalStateException();
+				}
+				result.add(new Pair<>(entity, color));
 			}
 		}
 		return result;
@@ -184,7 +192,7 @@ public class ESPModule extends BaseModule {
 			for (var filter : CONFIG.get().main.espModule.entityFilters) {
 				if (filter.enabled) {
 					try {
-						entityFilters.add(new Pair<>(new EntitySelectorReader(new StringReader(filter.entityFilter)).read(), filter.color));
+						entityFilters.add(new ImmutableTriple<>(new EntitySelectorReader(new StringReader(filter.entityFilter)).read(), filter.entityColorMode, filter.color));
 					} catch (CommandSyntaxException ignored) { }
 				}
 			}
