@@ -5,6 +5,7 @@ import net.minecraft.util.ActionResult;
 import static xyz.xdmatthewbx.chatlog.ChatLog.CONFIG;
 import static xyz.xdmatthewbx.chatlog.ChatLog.registerChangeListener;
 
+@Module
 public class InputUnlockModule extends BaseModule {
 
 	public static final String MODULE_ID = "input_unlock";

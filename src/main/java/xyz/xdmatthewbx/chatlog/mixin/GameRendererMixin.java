@@ -12,6 +12,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.xdmatthewbx.chatlog.ChatLog;
+import xyz.xdmatthewbx.chatlog.modules.AntiDistortionModule;
+import xyz.xdmatthewbx.chatlog.modules.FreeCamModule;
 import xyz.xdmatthewbx.chatlog.render.Renderer;
 
 @Mixin(GameRenderer.class)
@@ -24,7 +26,7 @@ public class GameRendererMixin {
 
 	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderNauseaOverlay(F)V"))
 	public float setShaderColor(float opacity) {
-		if (ChatLog.ANTI_DISTORTION_MODULE.enabled) {
+		if (AntiDistortionModule.INSTANCE.enabled) {
 			return Math.min(opacity, (float) ChatLog.CONFIG.get().main.antiDistortionModule.nauseaOverlayScale);
 		}
 		return opacity;
@@ -32,7 +34,7 @@ public class GameRendererMixin {
 
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/GameOptions;getDistortionEffectScale()Lnet/minecraft/client/option/Option;"))
 	public Option<Double> renderDistortionEffectScale(GameOptions instance) {
-		if (ChatLog.ANTI_DISTORTION_MODULE.enabled) {
+		if (AntiDistortionModule.INSTANCE.enabled) {
 			return new Option<>(
 				"options.screenEffectScale",
 				Option.emptyTooltip(),
@@ -47,7 +49,7 @@ public class GameRendererMixin {
 
 	@Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/GameOptions;getDistortionEffectScale()Lnet/minecraft/client/option/Option;"))
 	public Option<Double> renderWorldDistortionEffectScale(GameOptions instance) {
-		if (ChatLog.ANTI_DISTORTION_MODULE.enabled) {
+		if (AntiDistortionModule.INSTANCE.enabled) {
 			return new Option<>(
 				"options.screenEffectScale",
 				Option.emptyTooltip(),
@@ -74,7 +76,7 @@ public class GameRendererMixin {
 
 	@Redirect(method = "renderWorld", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/GameRenderer;renderHand:Z"))
 	private boolean shouldRenderHand(GameRenderer instance) {
-		if (ChatLog.FREECAM_MODULE.enabled && !ChatLog.CONFIG.get().main.freeCamModule.renderHand) {
+		if (FreeCamModule.INSTANCE.enabled && !ChatLog.CONFIG.get().main.freeCamModule.renderHand) {
 			return false;
 		}
 
