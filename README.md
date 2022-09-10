@@ -3,7 +3,7 @@
 By using this project in any form, you hereby give your "express assent" for the terms of the license of this project (see [Licensing](#licensing)), and acknowledge that I (the author of this project) have fulfilled my obligation under the license to "make a reasonable effort under the circumstances to obtain the express assent of recipients to the terms of this License".
 
 
-# ChatLog-Quilt
+# ChatLog
 
 Just a chat logging mod, really!
 
@@ -12,6 +12,9 @@ This mod aims to seamlessly and undetectably log all chat messages that the clie
 It is a primary goal of this to be entirely client-sided, unseen and uncontrollable by servers. As such, any requested changes (whether in the form of a feature request or pull request) which do not follow this will be rejected.
 
 # FAQ
+
+#### Q: ![where download](download.jpg)
+A: I know what this mod can be used for. Only the worthy (really diluting the term "worthy" there) may possess it. I won't distribute binaries (JAR files) or instructions for building this mod, only source code. I thoroughly discourage sharing binaries and building instructions (although the terms of the license do allow for this). This is meant to be a fun challenge and tinkering project, not another tool for those who are not willing to put in the effort.
 
 #### Q: I don't want people using this mod or some of its features on my server. Can you add a way for servers to disable specific modules of this mod?
 A: Why would you care if your players log the chat? Also, you really didn't read the description above, did you? No part of this mod shall be visible to or controllable by any server.
