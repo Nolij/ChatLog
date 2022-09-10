@@ -161,9 +161,31 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 	public static class ESPConfig implements ConfigData {
 		public boolean enabled = true;
 
+		@ConfigEntry.Gui.Excluded
 		public List<BlockESPFilter> blockFilters = List.of();
 
+		@ConfigEntry.Gui.Excluded
 		public List<EntityESPFilter> entityFilters = List.of();
+
+		public List<BlockESPFilterGroup> blockFilterGroups = List.of();
+
+		public List<EntityESPFilterGroup> entityFilterGroups = List.of();
+	}
+
+	public static class BlockESPFilterGroup {
+		public boolean enabled = true;
+
+		public String name = "";
+
+		public List<BlockESPFilter> filters = List.of();
+	}
+
+	public static class EntityESPFilterGroup {
+		public boolean enabled = true;
+
+		public String name = "";
+
+		public List<EntityESPFilter> filters = List.of();
 	}
 
 	public static class BlockESPFilter {
@@ -305,8 +327,8 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 				short modifier = 0;
 				while (in.hasNext()) {
 					switch (in.nextName()) {
-						case "keyCode" -> keyCode = in.nextString();
-						case "modifier" -> modifier = (short) in.nextInt();
+						case "keyCode"	-> keyCode = in.nextString();
+						case "modifier"	-> modifier = (short) in.nextInt();
 					}
 				}
 				assert keyCode != null;

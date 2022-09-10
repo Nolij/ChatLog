@@ -183,18 +183,45 @@ public class ESPModule extends BaseModule {
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
 			enabled = chatLogConfig.main.espModule.enabled;
+			var legacyBlockFilters = CONFIG.get().main.espModule.blockFilters;
+			if (!legacyBlockFilters.isEmpty()) {
+				var legacyGroup = new ChatLogConfig.BlockESPFilterGroup();
+				legacyGroup.enabled = chatLogConfig.main.espModule.enabled;
+				legacyGroup.name = "MIGRATED FILTERS";
+				legacyGroup.filters = legacyBlockFilters;
+				chatLogConfig.main.espModule.blockFilterGroups.add(legacyGroup);
+				chatLogConfig.main.espModule.blockFilters = List.of();
+			}
+			var legacyEntityFilters = CONFIG.get().main.espModule.entityFilters;
+			if (!legacyEntityFilters.isEmpty()) {
+				var legacyGroup = new ChatLogConfig.EntityESPFilterGroup();
+				legacyGroup.enabled = chatLogConfig.main.espModule.enabled;
+				legacyGroup.name = "MIGRATED FILTERS";
+				legacyGroup.filters = legacyEntityFilters;
+				chatLogConfig.main.espModule.entityFilterGroups.add(legacyGroup);
+				chatLogConfig.main.espModule.entityFilters = List.of();
+			}
 			blockFilters.clear();
-			for (var filter : CONFIG.get().main.espModule.blockFilters) {
-				if (filter.enabled) {
-					blockFilters.add(new Pair<>(getBlockPredicate(filter.blockFilter), filter.color));
+			for (var filterGroup : chatLogConfig.main.espModule.blockFilterGroups) {
+				if (filterGroup.enabled) {
+					for (var filter : filterGroup.filters) {
+						if (filter.enabled) {
+							blockFilters.add(new Pair<>(getBlockPredicate(filter.blockFilter), filter.color));
+						}
+					}
 				}
 			}
 			entityFilters.clear();
-			for (var filter : CONFIG.get().main.espModule.entityFilters) {
-				if (filter.enabled) {
-					try {
-						entityFilters.add(new ImmutableTriple<>(new EntitySelectorReader(new StringReader(filter.entityFilter)).read(), filter.entityColorMode, filter.color));
-					} catch (CommandSyntaxException ignored) { }
+			for (var filterGroup : chatLogConfig.main.espModule.entityFilterGroups) {
+				if (filterGroup.enabled) {
+					for (var filter : filterGroup.filters) {
+						if (filter.enabled) {
+							try {
+								entityFilters.add(new ImmutableTriple<>(new EntitySelectorReader(new StringReader(filter.entityFilter)).read(), filter.entityColorMode, filter.color));
+							} catch (CommandSyntaxException ignored) {
+							}
+						}
+					}
 				}
 			}
 			resetBlockCache();
