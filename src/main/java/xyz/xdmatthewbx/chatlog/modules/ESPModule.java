@@ -184,7 +184,7 @@ public class ESPModule extends BaseModule {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
 			enabled = chatLogConfig.main.espModule.enabled;
 			blockFilters.clear();
-			for (var filterGroup : CONFIG.get().main.espModule.blockFilters) {
+			for (var filterGroup : chatLogConfig.main.espModule.blockFilterGroups) {
 				if (filterGroup.enabled) {
 					for (var filter : filterGroup.filters) {
 						if (filter.enabled) {
@@ -194,7 +194,7 @@ public class ESPModule extends BaseModule {
 				}
 			}
 			entityFilters.clear();
-			for (var filterGroup : CONFIG.get().main.espModule.entityFilters) {
+			for (var filterGroup : chatLogConfig.main.espModule.entityFilterGroups) {
 				if (filterGroup.enabled) {
 					for (var filter : filterGroup.filters) {
 						if (filter.enabled) {
