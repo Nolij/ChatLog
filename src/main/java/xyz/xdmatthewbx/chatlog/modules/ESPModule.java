@@ -35,6 +35,7 @@ import java.util.function.Predicate;
 
 import static xyz.xdmatthewbx.chatlog.ChatLog.*;
 
+@Module
 public class ESPModule extends BaseModule {
 
 	public static final String MODULE_ID = "esp";
