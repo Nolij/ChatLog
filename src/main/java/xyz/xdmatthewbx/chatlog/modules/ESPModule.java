@@ -187,7 +187,7 @@ public class ESPModule extends BaseModule {
 			if (!legacyBlockFilters.isEmpty()) {
 				var legacyGroup = new ChatLogConfig.BlockESPFilterGroup();
 				legacyGroup.enabled = chatLogConfig.main.espModule.enabled;
-				legacyGroup.name = "Migrated";
+				legacyGroup.name = "MIGRATED FILTERS";
 				legacyGroup.filters = legacyBlockFilters;
 				chatLogConfig.main.espModule.blockFilterGroups.add(legacyGroup);
 				chatLogConfig.main.espModule.blockFilters = List.of();
@@ -196,7 +196,7 @@ public class ESPModule extends BaseModule {
 			if (!legacyEntityFilters.isEmpty()) {
 				var legacyGroup = new ChatLogConfig.EntityESPFilterGroup();
 				legacyGroup.enabled = chatLogConfig.main.espModule.enabled;
-				legacyGroup.name = "Migrated";
+				legacyGroup.name = "MIGRATED FILTERS";
 				legacyGroup.filters = legacyEntityFilters;
 				chatLogConfig.main.espModule.entityFilterGroups.add(legacyGroup);
 				chatLogConfig.main.espModule.entityFilters = List.of();
