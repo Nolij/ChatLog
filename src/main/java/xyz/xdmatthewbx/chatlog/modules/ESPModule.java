@@ -184,17 +184,26 @@ public class ESPModule extends BaseModule {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
 			enabled = chatLogConfig.main.espModule.enabled;
 			blockFilters.clear();
-			for (var filter : CONFIG.get().main.espModule.blockFilters) {
-				if (filter.enabled) {
-					blockFilters.add(new Pair<>(getBlockPredicate(filter.blockFilter), filter.color));
+			for (var filterGroup : CONFIG.get().main.espModule.blockFilters) {
+				if (filterGroup.enabled) {
+					for (var filter : filterGroup.filters) {
+						if (filter.enabled) {
+							blockFilters.add(new Pair<>(getBlockPredicate(filter.blockFilter), filter.color));
+						}
+					}
 				}
 			}
 			entityFilters.clear();
-			for (var filter : CONFIG.get().main.espModule.entityFilters) {
-				if (filter.enabled) {
-					try {
-						entityFilters.add(new ImmutableTriple<>(new EntitySelectorReader(new StringReader(filter.entityFilter)).read(), filter.entityColorMode, filter.color));
-					} catch (CommandSyntaxException ignored) { }
+			for (var filterGroup : CONFIG.get().main.espModule.entityFilters) {
+				if (filterGroup.enabled) {
+					for (var filter : filterGroup.filters) {
+						if (filter.enabled) {
+							try {
+								entityFilters.add(new ImmutableTriple<>(new EntitySelectorReader(new StringReader(filter.entityFilter)).read(), filter.entityColorMode, filter.color));
+							} catch (CommandSyntaxException ignored) {
+							}
+						}
+					}
 				}
 			}
 			resetBlockCache();

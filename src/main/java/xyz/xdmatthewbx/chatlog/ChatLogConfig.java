@@ -161,9 +161,17 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 	public static class ESPConfig implements ConfigData {
 		public boolean enabled = true;
 
-		public List<BlockESPFilter> blockFilters = List.of();
+		public List<FilterGroup<BlockESPFilter>> blockFilters = List.of();
 
-		public List<EntityESPFilter> entityFilters = List.of();
+		public List<FilterGroup<EntityESPFilter>> entityFilters = List.of();
+	}
+
+	public static class FilterGroup<T> {
+		public boolean enabled = true;
+
+		public String name = "";
+
+		public List<T> filters = List.of();
 	}
 
 	public static class BlockESPFilter {
