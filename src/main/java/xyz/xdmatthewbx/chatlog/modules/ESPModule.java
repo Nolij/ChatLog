@@ -183,6 +183,24 @@ public class ESPModule extends BaseModule {
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
 			enabled = chatLogConfig.main.espModule.enabled;
+			var legacyBlockFilters = CONFIG.get().main.espModule.blockFilters;
+			if (!legacyBlockFilters.isEmpty()) {
+				var legacyGroup = new ChatLogConfig.BlockESPFilterGroup();
+				legacyGroup.enabled = chatLogConfig.main.espModule.enabled;
+				legacyGroup.name = "Migrated";
+				legacyGroup.filters = legacyBlockFilters;
+				chatLogConfig.main.espModule.blockFilterGroups.add(legacyGroup);
+				chatLogConfig.main.espModule.blockFilters = List.of();
+			}
+			var legacyEntityFilters = CONFIG.get().main.espModule.entityFilters;
+			if (!legacyEntityFilters.isEmpty()) {
+				var legacyGroup = new ChatLogConfig.EntityESPFilterGroup();
+				legacyGroup.enabled = chatLogConfig.main.espModule.enabled;
+				legacyGroup.name = "Migrated";
+				legacyGroup.filters = legacyEntityFilters;
+				chatLogConfig.main.espModule.entityFilterGroups.add(legacyGroup);
+				chatLogConfig.main.espModule.entityFilters = List.of();
+			}
 			blockFilters.clear();
 			for (var filterGroup : chatLogConfig.main.espModule.blockFilterGroups) {
 				if (filterGroup.enabled) {
