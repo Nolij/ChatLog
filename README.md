@@ -12,7 +12,7 @@ It is a primary goal of this to be entirely client-sided, unseen and uncontrolla
 A: Why would you care if your players log the chat? Also, you really didn't read the description above, did you? No part of this mod shall be visible to or controllable by any server.
 
 #### Q: Can I use this in my modpack?
-A: This mod is licensed under LGPLv3. You may do as you wish with it so long as it does not claim to be "endorsed" or otherwise supported by the author(s) of this project unless otherwise stated, and follows the terms of the LGPLv3 license (including, but not limited to: you must make the source code of all modifications you make to this mod available to all who you distribute the mod to).
+A: This mod is licensed under OSLv3. You may do as you wish with it so long as it does not claim to be "endorsed" or otherwise supported by the author(s) of this project unless otherwise stated, and follows the terms of the OSLv3 license (including, but not limited to: you must make the source code of all modifications you make to this mod available to all who you distribute the mod to).
 
 #### Q: Can you add reach/killaura/scaffold/etc?
 A: Why would I add that to a chat logging mod? That's clearly all this is. Additionally, these modifications would be visible to the server, which I don't allow for this project.
@@ -84,7 +84,7 @@ License: Expat (MIT)
 
 Author: 19MisterX98
 
-### HUD Module
+### HUD Module (incomplete)
 
 ##### FPS-Display
 
