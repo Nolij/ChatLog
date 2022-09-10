@@ -49,13 +49,17 @@ public class ChatLog implements ClientModInitializer {
 
 	public static Lock movementLock = new Lock();
 
+	@SuppressWarnings("unchecked")
+	private static Class<? extends BaseModule> castToModuleType(Class<?> moduleType) throws ClassCastException {
+		return (Class<? extends BaseModule>) moduleType;
+	}
+
 	static {
 		Reflections reflections = new Reflections(BaseModule.class.getPackageName());
 		for (var MODULE_TYPE : reflections.getTypesAnnotatedWith(Module.class)) {
 			if (BaseModule.class.isAssignableFrom(MODULE_TYPE)) {
 				LOGGER.info("Found module {}", MODULE_TYPE.getTypeName());
-				//noinspection unchecked
-				MODULE_TYPES.add((Class<? extends BaseModule>) MODULE_TYPE);
+				MODULE_TYPES.add(castToModuleType(MODULE_TYPE));
 			} else {
 				LOGGER.error("Class {} is marked @Module but does not extend {}.", MODULE_TYPE.getTypeName(), BaseModule.class.getTypeName());
 			}
