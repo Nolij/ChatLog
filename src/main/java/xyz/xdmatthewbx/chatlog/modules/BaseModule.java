@@ -15,6 +15,9 @@ public abstract class BaseModule {
 	protected final ChatLog MOD;
 
 	public BaseModule(String moduleId) {
+		if (!this.getClass().isAnnotationPresent(Module.class)) {
+			throw new IllegalStateException();
+		}
 		MODULE_ID = moduleId;
 		LOGGER = LoggerFactory.getLogger(ChatLog.MOD_ID + "." + MODULE_ID);
 		CLIENT = MinecraftClient.getInstance();

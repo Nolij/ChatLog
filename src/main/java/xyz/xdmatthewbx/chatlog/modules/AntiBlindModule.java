@@ -5,6 +5,7 @@ import net.minecraft.util.ActionResult;
 import static xyz.xdmatthewbx.chatlog.ChatLog.CONFIG;
 import static xyz.xdmatthewbx.chatlog.ChatLog.registerChangeListener;
 
+@Module
 public class AntiBlindModule extends BaseModule {
 
 	public static final String MODULE_ID = "antiblind";

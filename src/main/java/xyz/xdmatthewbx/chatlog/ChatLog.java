@@ -10,27 +10,26 @@ import net.minecraft.util.ActionResult;
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
 import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.minecraft.util.math.Vec3d;
 import xyz.xdmatthewbx.chatlog.modules.*;
+import xyz.xdmatthewbx.chatlog.modules.Module;
 import xyz.xdmatthewbx.chatlog.util.Lock;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class ChatLog implements ClientModInitializer {
 
 	public static final String MOD_ID = "chatlog";
 	public static final Logger LOGGER = LoggerFactory.getLogger("ChatLog");
 
-	public static ToolTipInfoModule TOOLTIP_INFO_MODULE;
-	public static PerspectiveModule PERSPECTIVE_MODULE;
-	public static AntiBlindModule ANTI_BLIND_MODULE;
-	public static FullBrightModule FULLBRIGHT_MODULE;
-	public static AntiFogModule ANTI_FOG_MODULE;
-	public static AntiDistortionModule ANTI_DISTORTION_MODULE;
-	public static AntiOverlayModule ANTI_OVERLAY_MODULE;
-	public static ESPModule ESP_MODULE;
-	public static InputUnlockModule INPUT_UNLOCK_MODULE;
-	public static FreeCamModule FREECAM_MODULE;
+	private static final Set<Class<? extends BaseModule>> MODULE_TYPES = new HashSet<>();
+	private final Set<BaseModule> MODULES;
 
 	public static MinecraftClient CLIENT;
 
@@ -50,20 +49,32 @@ public class ChatLog implements ClientModInitializer {
 
 	public static Lock movementLock = new Lock();
 
+	static {
+		Reflections reflections = new Reflections(BaseModule.class.getPackageName());
+		for (var MODULE_TYPE : reflections.getTypesAnnotatedWith(Module.class)) {
+			if (BaseModule.class.isAssignableFrom(MODULE_TYPE)) {
+				LOGGER.info("Found module {}", MODULE_TYPE.getTypeName());
+				//noinspection unchecked
+				MODULE_TYPES.add((Class<? extends BaseModule>) MODULE_TYPE);
+			} else {
+				LOGGER.error("Class {} is marked @Module but does not extend {}.", MODULE_TYPE.getTypeName(), BaseModule.class.getTypeName());
+			}
+		}
+	}
+
 	public ChatLog() {
 		INSTANCE = this;
 		CLIENT = MinecraftClient.getInstance();
 
-		TOOLTIP_INFO_MODULE = new ToolTipInfoModule();
-		PERSPECTIVE_MODULE = new PerspectiveModule();
-		ANTI_BLIND_MODULE = new AntiBlindModule();
-		FULLBRIGHT_MODULE = new FullBrightModule();
-		ANTI_FOG_MODULE = new AntiFogModule();
-		ANTI_DISTORTION_MODULE = new AntiDistortionModule();
-		ANTI_OVERLAY_MODULE = new AntiOverlayModule();
-		ESP_MODULE = new ESPModule();
-		INPUT_UNLOCK_MODULE = new InputUnlockModule();
-		FREECAM_MODULE = new FreeCamModule();
+		MODULES = new LinkedHashSet<>();
+
+		for (var type : MODULE_TYPES) {
+			try {
+				MODULES.add(type.getConstructor().newInstance());
+			} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+				LOGGER.error("Module Initialization failed for {}.", type.getTypeName());
+			}
+		}
 	}
 
 	@Override
@@ -90,16 +101,9 @@ public class ChatLog implements ClientModInitializer {
 			prevCameraPos = cameraPos;
 		});
 
-		TOOLTIP_INFO_MODULE.onInitializeClient();
-		PERSPECTIVE_MODULE.onInitializeClient();
-		ANTI_BLIND_MODULE.onInitializeClient();
-		FULLBRIGHT_MODULE.onInitializeClient();
-		ANTI_FOG_MODULE.onInitializeClient();
-		ANTI_DISTORTION_MODULE.onInitializeClient();
-		ANTI_OVERLAY_MODULE.onInitializeClient();
-		ESP_MODULE.onInitializeClient();
-		INPUT_UNLOCK_MODULE.onInitializeClient();
-		FREECAM_MODULE.onInitializeClient();
+		for (var module : MODULES) {
+			module.onInitializeClient();
+		}
 
 		CONFIG.load();
 	}

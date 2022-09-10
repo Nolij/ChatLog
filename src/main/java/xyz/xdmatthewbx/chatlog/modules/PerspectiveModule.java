@@ -9,6 +9,7 @@ import xyz.xdmatthewbx.chatlog.KeyBind;
 
 import static xyz.xdmatthewbx.chatlog.ChatLog.*;
 
+@Module
 public class PerspectiveModule extends BaseModule {
 
 	public static final String MODULE_ID = "perspective";

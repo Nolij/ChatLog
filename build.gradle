@@ -45,6 +45,8 @@ dependencies {
 	modApi "com.terraformersmc:modmenu:4.0.6"
 
 	include(modRuntimeOnly("maven.modrinth:no-chat-reports:Fabric-1.19.2-v1.11.2"))
+
+	implementation "org.reflections:reflections:0.10.2"
 }
 
 processResources {

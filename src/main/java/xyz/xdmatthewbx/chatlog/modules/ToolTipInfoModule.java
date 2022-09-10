@@ -12,6 +12,7 @@ import java.util.List;
 import static xyz.xdmatthewbx.chatlog.ChatLog.CONFIG;
 import static xyz.xdmatthewbx.chatlog.ChatLog.registerChangeListener;
 
+@Module
 public class ToolTipInfoModule extends BaseModule {
 
 	public static final String MODULE_ID = "tooltip_info";
