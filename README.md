@@ -47,7 +47,7 @@ A: It's just a chat logging mod, really!
 A: OSL-3.0 is the closest equivalent to a LAGPL I could find. AGPL and GPL are incompatible with Minecraft, and LGPL doesn't protect network use. OSL-3.0 protects network use and is compatible with Minecraft.
 
 #### Q: Why though? It's so strict!!!!
-A: This is and will remain free, copyleft software. Any requests to change the license other than to make it even stronger will be denied immediately (unfortunately GPL and AGPL aren't comaptible with Minecraft due to linking restrictions, as much as I'd like to use them). Even in situations where I use parts of other projects with more "permissive" licenses, I will treat them as copyleft, free software.
+A: This is, and will remain, free, copyleft software. Any requests to change the license other than to make it even stronger will be denied immediately (unfortunately GPL and AGPL aren't compatible with Minecraft due to linking restrictions, as much as I'd like to use them). Even in situations where I use parts of other projects with more "permissive" licenses, I will treat them as copyleft, free software.
 
 # <a name="licensing" />Licensing
 
@@ -55,7 +55,17 @@ This project is licensed under OSL-3.0. Some parts of this project were taken fr
 
 NOTE: for all references there is a specific commit included. No code past this point was used in this project. All pull requests must update this list for licensing reasons. Any changes made after this point (including changes in license) do not apply to this project unless this file is updated to reflect that. If code past this point is based on code from this project (excluding unmodified code from the originating project), they are required to make their project (or the parts which use ChatLog code; see OSL-3.0 terms) OSL-3.0.
 
-### Perspective Module
+### [README.md](README.md)
+
+##### "where download"
+
+Reference: https://github.com/Fabricators-of-Create/Create/tree/d8fab18d8865158500561e721002dbcd0af6186d
+
+License: Expat (MIT)
+
+Author: Fabricators of Create
+
+### [Perspective Module](src/main/java/xyz/xdmatthewbx/chatlog/modules/PerspectiveModule.java)
 
 ##### Perspective Mod Redux
 
@@ -65,7 +75,7 @@ License: Expat (The Unlicense)
 
 Author: BackportProjectMC
 
-### Anti-Fog Module
+### [Anti-Fog Module](src/main/java/xyz/xdmatthewbx/chatlog/modules/AntiFogModule.java)
 
 ##### Clear Skies
 
@@ -75,7 +85,7 @@ License: Apache-2.0
 
 Author: grondag
 
-### Config Screen
+### [Config Screen](src/main/java/xyz/xdmatthewbx/chatlog/ChatLogConfig.java)
 
 ##### Roughly Enough Items
 
@@ -85,7 +95,7 @@ License: Expat (MIT)
 
 Author: shedaniel
 
-### Rendering System
+### [Rendering System](src/main/java/xyz/xdmatthewbx/chatlog/render/Renderer.java)
 
 ##### SeedCrackerX
 
