@@ -40,14 +40,14 @@ dependencies {
 	modImplementation libs.quilted.fabric.api
 	// modImplementation libs.bundles.quilted.fabric.api // If you wish to use Fabric API's deprecated modules, you can replace the above line with this one
 
-	modApi "me.shedaniel.cloth:cloth-config-fabric:8.0.75"
+	modApi "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
 
-	modApi "com.terraformersmc:modmenu:4.0.6"
+	modApi "com.terraformersmc:modmenu:${project.mod_menu_version}"
 
-	include(modRuntimeOnly("maven.modrinth:no-chat-reports:Fabric-1.19.2-v1.11.2"))
+	include(implementation("org.reflections:reflections:${project.reflections_version}"))
+	include "org.javassist:javassist:${project.javassist_version}"
 
-	include(implementation("org.reflections:reflections:0.10.2"))
-	include "org.javassist:javassist:3.29.1-GA"
+	include(modRuntimeOnly("maven.modrinth:no-chat-reports:${project.no_chat_reports_version}"))
 }
 
 processResources {
