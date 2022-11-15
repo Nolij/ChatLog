@@ -1,5 +1,6 @@
 {
 	"text.chatlog.tooltipinfo.display": "Action: %s\nValue: %s",
+	"text.chatlog.config.error.nonZero": "Value must be non-zero",
 
 	"text.chatlog.hud.fps": "%d FPS",
 	"text.chatlog.hud.coords": "XYZ: %.2f, %.2f, %.2f",
@@ -67,5 +68,11 @@
 
 	"text.autoconfig.chatlog.option.main.freeCamModule": "FreeCam Module",
 	"text.autoconfig.chatlog.option.main.freeCamModule.keyBind": "Keybind",
-	"text.autoconfig.chatlog.option.main.freeCamModule.renderHand": "Render Hand When Active"
+	"text.autoconfig.chatlog.option.main.freeCamModule.renderHand": "Render Hand When Active",
+
+	"text.autoconfig.chatlog.option.main.autoClickerModule": "Auto-Clicker Module",
+	"text.autoconfig.chatlog.option.main.autoClickerModule.keyBind": "Keybind",
+	"text.autoconfig.chatlog.option.main.autoClickerModule.mode": "Mode",
+	"text.autoconfig.chatlog.option.main.autoClickerModule.cps": "Clicks Per Second",
+	"text.autoconfig.chatlog.option.main.autoClickerModule.jitter": "Jitter"
 }

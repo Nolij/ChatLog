@@ -15,7 +15,7 @@ public class PerspectiveModule extends BaseModule {
 	public static final String MODULE_ID = "perspective";
 	public static PerspectiveModule INSTANCE;
 
-	private static KeyBind keyBind;
+	private KeyBind keyBind;
 
 	public boolean enabled;
 	private boolean held = false;
@@ -37,7 +37,7 @@ public class PerspectiveModule extends BaseModule {
 
 		ClientTickEvents.START.register(e -> {
 			if (CLIENT != null && CLIENT.player != null) {
-				if (ChatLog.CONFIG.get().main.perspectiveModule.mode == ChatLogConfig.PerspectiveMode.HOLD) {
+				if (ChatLog.CONFIG.get().main.perspectiveModule.mode == ChatLogConfig.KeyBindMode.HOLD) {
 					if (!enabled && keyBind.isPressed()) actualPerspective = CLIENT.options.getPerspective();
 					if (cameraLock.isLocked() == enabled && (enabled = keyBind.isPressed()) && !held) {
 						cameraYaw = CLIENT.player.getYaw(getTickDelta());
@@ -46,7 +46,7 @@ public class PerspectiveModule extends BaseModule {
 						held = true;
 						CLIENT.options.setPerspective(ACTIVE_PERSPECTIVE);
 					}
-				} else if (ChatLog.CONFIG.get().main.perspectiveModule.mode == ChatLogConfig.PerspectiveMode.TOGGLE) {
+				} else if (ChatLog.CONFIG.get().main.perspectiveModule.mode == ChatLogConfig.KeyBindMode.TOGGLE) {
 					if (keyBind.wasPressed()) {
 						if (enabled || !cameraLock.isLocked()) {
 							if (!enabled) {

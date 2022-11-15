@@ -40,7 +40,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 	@ConfigEntry.Gui.TransitiveObject
 	public CategoryMain main = new CategoryMain();
 
-	public enum PerspectiveMode {
+	public enum KeyBindMode {
 		HOLD, TOGGLE
 	}
 
@@ -91,7 +91,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		public ESPConfig espModule = new ESPConfig();
 
 		@ConfigEntry.Category("inputUnlockModule")
-		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+		@ConfigEntry.Gui.CollapsibleObject(startExpanded = false)
 		public InputUnlockConfig inputUnlockModule = new InputUnlockConfig();
 
 		@ConfigEntry.Category("freeCamModule")
@@ -123,7 +123,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromKeyCode(InputUtil.KEY_GRAVE_ACCENT_CODE), Modifier.none());
 
 		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-		public PerspectiveMode mode = PerspectiveMode.HOLD;
+		public KeyBindMode mode = KeyBindMode.HOLD;
 	}
 
 	@Config(name = "antiBlindModule")
@@ -145,7 +145,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 	public static class AntiDistortionConfig implements ConfigData {
 		public boolean enabled = true;
 
-		@UsePercentage(prefix = "Opacity: ")
+		@Slider(prefix = "Opacity: ", suffix = "%", displayFactor = 100.0, step = 0.01)
 		public double nauseaOverlayScale = 0.6D;
 	}
 
@@ -153,7 +153,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 	public static class AntiOverlayConfig implements ConfigData {
 		public boolean enabled = true;
 
-		@UsePercentage(prefix = "Opacity: ")
+		@Slider(prefix = "Opacity: ", suffix = "%", displayFactor = 100.0, step = 0.01)
 		public double overlayOpacity = 0.4D;
 	}
 
@@ -238,14 +238,27 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 			return Collections.singletonList(entry);
 		}, field -> field.getType() == ModifierKeyCode.class);
 		guiRegistry.registerAnnotationProvider((i13n, field, config, defaults, guiProvider) -> {
-			UsePercentage bounds = field.getAnnotation(UsePercentage.class);
+			Slider bounds = field.getAnnotation(Slider.class);
+			var displayFactor = (bounds.displayFactor() * bounds.step());
 			return Collections.singletonList(ConfigEntryBuilder.create()
-				.startIntSlider(MutableText.create(new TranslatableComponent(i13n)), MathHelper.ceil(Utils.getUnsafely(field, config, 0.0) * 100), MathHelper.ceil(bounds.min() * 100), MathHelper.ceil(bounds.max() * 100))
-				.setDefaultValue(() -> MathHelper.ceil((double) getUnsafely(field, defaults) * 100))
-				.setSaveConsumer((newValue) -> setUnsafely(field, config, newValue / 100D))
-				.setTextGetter(integer -> MutableText.create(new LiteralComponent(bounds.prefix() + String.format("%d%%", integer))))
+				.startIntSlider(MutableText.create(
+					new TranslatableComponent(i13n)),
+					MathHelper.ceil(Utils.getUnsafely(field, config, 0.0) / bounds.step()),
+					MathHelper.ceil(bounds.min() / bounds.step()),
+					MathHelper.ceil(bounds.max() / bounds.step()))
+				.setDefaultValue(() -> MathHelper.ceil((double) getUnsafely(field, defaults) / bounds.step()))
+				.setSaveConsumer((newValue) -> setUnsafely(field, config, newValue * bounds.step()))
+				.setTextGetter(intValue -> {
+					var value = intValue * displayFactor;
+					return MutableText.create(
+						new LiteralComponent(
+							bounds.prefix() + (value % 1 > 0 ? String.valueOf(value) : String.valueOf((int) value)) + bounds.suffix()
+						)
+					);
+				})
+				.setErrorSupplier(value -> field.isAnnotationPresent(NonZero.class) && value == 0 ? Optional.of(MutableText.create(new TranslatableComponent("text.chatlog.config.error.nonZero"))) : Optional.empty())
 				.build());
-		}, (field) -> field.getType() == Double.TYPE || field.getType() == Double.class, UsePercentage.class);
+		}, (field) -> field.getType() == Double.TYPE || field.getType() == Double.class, Slider.class);
 		guiRegistry.registerAnnotationProvider((i13n, field, config, defaults, guiProvider) ->
 			Collections.singletonList(ConfigEntryBuilder.create()
 				.startStrField(
@@ -284,12 +297,23 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ElementType.FIELD})
-	@interface UsePercentage {
-		double min() default 0.0F;
+	@interface NonZero {
+	}
 
-		double max() default 1.0F;
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ElementType.FIELD})
+	@interface Slider {
+		double min() default 0.0;
 
-		String prefix() default "Size: ";
+		double max() default 1.0;
+
+		String prefix() default "";
+
+		String suffix() default "";
+
+		double displayFactor() default 1.0;
+
+		double step() default 1.0;
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)

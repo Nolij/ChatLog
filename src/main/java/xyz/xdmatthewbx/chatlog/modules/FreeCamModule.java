@@ -16,7 +16,7 @@ public class FreeCamModule extends BaseModule {
 	public static final String MODULE_ID = "freecam";
 	public static FreeCamModule INSTANCE;
 
-	private static KeyBind keyBind;
+	private KeyBind keyBind;
 
 	public boolean enabled = false;
 	private Perspective actualPerspective = null;
