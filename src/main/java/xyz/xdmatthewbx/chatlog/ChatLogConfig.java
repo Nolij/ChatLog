@@ -97,6 +97,10 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		@ConfigEntry.Category("freeCamModule")
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
 		public FreeCamConfig freeCamModule = new FreeCamConfig();
+
+		@ConfigEntry.Category("autoClickerModule")
+		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+		public AutoClickerConfig autoClickerModule = new AutoClickerConfig();
 	}
 
 	@Config(name = "general")
@@ -222,6 +226,21 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromKeyCode(InputUtil.KEY_RIGHT_CONTROL_CODE), Modifier.none());
 
 		public boolean renderHand = false;
+	}
+
+	@Config(name = "autoClickerModule")
+	public static class AutoClickerConfig implements ConfigData {
+		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromKeyCode(InputUtil.MOUSE_LEFT_BUTTON_CODE), Modifier.none());
+
+		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+		public KeyBindMode mode = KeyBindMode.HOLD;
+
+		@NonZero
+		@Slider(min = 0.0, max = 20.0, suffix = " CPS", step = 0.25)
+		public double cps = 7.0;
+
+		@Slider(min = 0.0, max = 100.0, suffix = "ms", step = 5)
+		public double maxJitter = 50.0;
 	}
 
 	public ChatLogConfig() {
