@@ -1,7 +1,5 @@
 package xyz.xdmatthewbx.chatlog.mixin;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.Mouse;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 
-@Environment(EnvType.CLIENT)
 @Mixin(Mouse.class)
 public class MouseMixin {
 

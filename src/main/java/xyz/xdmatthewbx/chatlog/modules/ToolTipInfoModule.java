@@ -33,14 +33,6 @@ public class ToolTipInfoModule extends BaseModule {
 		});
 	}
 
-	public void textFormatter(MutableText text) {
-		text.setStyle(styleFormatter(text.getStyle()));
-	}
-
-	public Style styleFormatter(Style style) {
-		return style.withHoverEvent(getHoverEvent(style));
-	}
-
 	public MutableText generateClickInfo(ClickEvent clickEvent) {
 		return MutableText.create(new TranslatableComponent("text.chatlog.tooltipinfo.display", clickEvent.getAction().getName().toUpperCase(), clickEvent.getValue()))
 			.formatted(Formatting.DARK_GRAY);
@@ -65,10 +57,12 @@ public class ToolTipInfoModule extends BaseModule {
 				try {
 					if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ENTITY) {
 						LOGGER.debug("SHOW_ENTITY");
+						//noinspection DataFlowIssue
 						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ENTITY).asTooltip();
 					} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ITEM) {
 						LOGGER.debug("SHOW_ITEM");
-						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ITEM).asStack().getTooltip(CLIENT.player, CLIENT.options.advancedItemTooltips ? TooltipContext.Default.ADVANCED : TooltipContext.Default.NORMAL);
+						//noinspection DataFlowIssue
+						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ITEM).asStack().getTooltip(CLIENT.player, CLIENT.options.advancedItemTooltips ? TooltipContext.Default.f_zuchejxz : TooltipContext.Default.f_yceowjjc);
 					}
 				} catch (NullPointerException ex) {
 					LOGGER.debug(ex.toString());

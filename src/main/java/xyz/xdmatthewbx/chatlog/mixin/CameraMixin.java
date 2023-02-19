@@ -1,7 +1,5 @@
 package xyz.xdmatthewbx.chatlog.mixin;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
@@ -15,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 
-@Environment(EnvType.CLIENT)
 @Mixin(Camera.class)
 public class CameraMixin {
 

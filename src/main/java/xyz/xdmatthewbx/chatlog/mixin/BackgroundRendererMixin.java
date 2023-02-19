@@ -1,8 +1,5 @@
 package xyz.xdmatthewbx.chatlog.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.CameraSubmersionType;
@@ -20,7 +17,6 @@ import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.modules.AntiBlindModule;
 import xyz.xdmatthewbx.chatlog.modules.AntiFogModule;
 
-@Environment(EnvType.CLIENT)
 @Mixin(BackgroundRenderer.class)
 public class BackgroundRendererMixin {
 
@@ -74,6 +70,7 @@ public class BackgroundRendererMixin {
 		}
 	}
 
+	@SuppressWarnings("InvalidInjectorMethodSignature") // not sure why this shows in the first place
 	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/util/CubicSampler;sampleVec3d(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$Vec3dFetcher;)Lnet/minecraft/util/math/Vec3d;"), ordinal = 2, require = 1, allow = 1)
 	private static Vec3d onSampleColor(Vec3d value) {
 		assert ChatLog.CLIENT.world != null;
@@ -83,7 +80,7 @@ public class BackgroundRendererMixin {
 		return value;
 	}
 
-	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/util/math/Vec3f;dot(Lnet/minecraft/util/math/Vec3f;)F"), ordinal = 7, require = 1, allow = 1)
+	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lorg/joml/Vector3f;dot(Lorg/joml/Vector3fc;)F", remap = false), ordinal = 7, require = 1, allow = 1)
 	private static float afterPlaneDot(float dotProduct) {
 		if (AntiFogModule.INSTANCE.enabled) {
 			return 0;

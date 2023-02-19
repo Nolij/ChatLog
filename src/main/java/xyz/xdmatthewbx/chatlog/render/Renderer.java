@@ -35,7 +35,7 @@ public abstract class Renderer {
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 		RenderSystem.enableBlend();
-		RenderSystem.blendFuncSeparate(GlStateManager.class_4535.SRC_ALPHA, GlStateManager.class_4534.ONE_MINUS_SRC_ALPHA, GlStateManager.class_4535.ONE, GlStateManager.class_4534.ZERO);
+		RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		RenderSystem.lineWidth(ChatLog.CONFIG.get().main.render.lineWidth);
 
 		BUFFER.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
@@ -63,7 +63,7 @@ public abstract class Renderer {
 
 		buffer
 			.vertex(
-				matrix.peek().getPosition(),
+				matrix.peek().getModel(),
 				(float) (a.x - pos.x),
 				(float) (a.y - pos.y),
 				(float) (a.z - pos.z)
@@ -73,7 +73,7 @@ public abstract class Renderer {
 			.next();
 		buffer
 			.vertex(
-				matrix.peek().getPosition(),
+				matrix.peek().getModel(),
 				(float) (b.x - pos.x),
 				(float) (b.y - pos.y),
 				(float) (b.z - pos.z)

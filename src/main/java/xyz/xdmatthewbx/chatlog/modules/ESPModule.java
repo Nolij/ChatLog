@@ -128,7 +128,7 @@ public class ESPModule extends BaseModule {
 		blockPredicateCache.clear();
 		cachedWorld.set(ChatLog.CLIENT.world);
 		if (!enabled || blockFilters.isEmpty() || ChatLog.CLIENT.world == null) return;
-		var commandBuildContext = new CommandBuildContext(ChatLog.CLIENT.world.getRegistryManager());
+		var commandBuildContext = CommandBuildContext.createConfigurable(ChatLog.CLIENT.world.getRegistryManager(), ChatLog.CLIENT.world.getEnabledFlags());
 		blockPredicateArgumentType = BlockPredicateArgumentType.blockPredicate(commandBuildContext);
 		var chunks = ChatLog.CLIENT.world.getChunkManager().chunks.chunks;
 		for (int i = 0; i < chunks.length(); i++) {
