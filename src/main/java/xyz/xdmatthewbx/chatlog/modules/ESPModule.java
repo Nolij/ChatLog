@@ -32,6 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static xyz.xdmatthewbx.chatlog.ChatLog.*;
 
@@ -49,11 +51,12 @@ public class ESPModule extends BaseModule {
 	}
 
 	private final ConcurrentHashMap<BlockPos, Integer> blockCache = new ConcurrentHashMap<>();
+	private final List<Pair<Entity, Integer>> entityCache = new ArrayList<>();
 	private final ConcurrentHashMap<String, Predicate<CachedBlockPosition>> blockPredicateCache = new ConcurrentHashMap<>();
 	private final AtomicReference<ClientWorld> cachedWorld = new AtomicReference<>();
 
-	public List<Pair<Predicate<CachedBlockPosition>, Integer>> blockFilters = new LinkedList<>();
-	public List<ImmutableTriple<EntitySelector, ChatLogConfig.EntityColorMode, Integer>> entityFilters = new LinkedList<>();
+	public List<Pair<Predicate<CachedBlockPosition>, Integer>> blockFilters = new ArrayList<>();
+	public List<ImmutableTriple<EntitySelector, ChatLogConfig.EntityColorMode, Integer>> entityFilters = new ArrayList<>();
 
 	private BlockPredicateArgumentType blockPredicateArgumentType;
 
@@ -147,34 +150,36 @@ public class ESPModule extends BaseModule {
 		}
 	}
 
-	public List<Pair<? extends Entity, Integer>> getEntities() {
-		if (CLIENT.world == null || CLIENT.player == null || entityFilters.isEmpty()) return List.of();
-		List<Pair<? extends Entity, Integer>> result = new LinkedList<>();
+	public void updateEntityCache() {
+		entityCache.clear();
+
+		if (CLIENT.world == null || CLIENT.player == null || entityFilters.isEmpty())
+			return;
+
 		for (var filter : entityFilters) {
 			var entityFilter = filter.getLeft();
-			Vec3d checkPos = entityFilter.positionOffset.apply(CLIENT.player.getPos());
-			Predicate<Entity> predicate = entityFilter.getPositionPredicate(checkPos);
-			if (entityFilter.box != null) {
-				predicate = predicate.and(entity -> entityFilter.box.intersects(entity.getBoundingBox()));
-			}
-			predicate = predicate.and(entity -> entityFilter.entityFilter.downcast(entity) != null);
-			List<Entity> entities = new LinkedList<>();
-			for (Entity entity : CLIENT.world.getEntities()) {
-				if (predicate.test(entity)) {
-					entities.add(entity);
-				}
-			}
-			for (Entity entity : entityFilter.getEntities(checkPos, entities)) {
+
+			var offsetPosition = entityFilter.positionOffset.apply(CLIENT.player.getPos());
+			var positionPredicate = entityFilter.getPositionPredicate(offsetPosition);
+			var boundsBox = entityFilter.box != null ? entityFilter.box.offset(offsetPosition) : null;
+			var unsortedEntities =
+				StreamSupport.stream(CLIENT.world.getEntities().spliterator(), true)
+					.filter(x -> entityFilter.box == null || boundsBox.contains(x.getPos()))
+					.filter(positionPredicate)
+					.collect(Collectors.toList());
+			var entities = entityFilter.getEntities(offsetPosition, unsortedEntities);
+
+			for (Entity entity : entities) {
 				int color;
 				switch (filter.getMiddle()) {
 					case MANUAL -> color = filter.getRight();
 					case TEAM -> color = entity.getTeamColorValue();
 					default -> throw new IllegalStateException();
 				}
-				result.add(new Pair<>(entity, color));
+
+				entityCache.add(new Pair<>(entity, color));
 			}
 		}
-		return result;
 	}
 
 	private final ForkJoinPool SCAN_POOL = new ForkJoinPool();
@@ -183,6 +188,7 @@ public class ESPModule extends BaseModule {
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
 			enabled = chatLogConfig.main.espModule.enabled;
+
 			var legacyBlockFilters = CONFIG.get().main.espModule.blockFilters;
 			if (!legacyBlockFilters.isEmpty()) {
 				var legacyGroup = new ChatLogConfig.BlockESPFilterGroup();
@@ -192,6 +198,7 @@ public class ESPModule extends BaseModule {
 				chatLogConfig.main.espModule.blockFilterGroups.add(legacyGroup);
 				chatLogConfig.main.espModule.blockFilters = List.of();
 			}
+
 			var legacyEntityFilters = CONFIG.get().main.espModule.entityFilters;
 			if (!legacyEntityFilters.isEmpty()) {
 				var legacyGroup = new ChatLogConfig.EntityESPFilterGroup();
@@ -201,35 +208,61 @@ public class ESPModule extends BaseModule {
 				chatLogConfig.main.espModule.entityFilterGroups.add(legacyGroup);
 				chatLogConfig.main.espModule.entityFilters = List.of();
 			}
+
 			blockFilters.clear();
 			for (var filterGroup : chatLogConfig.main.espModule.blockFilterGroups) {
-				if (filterGroup.enabled) {
-					for (var filter : filterGroup.filters) {
-						if (filter.enabled) {
-							blockFilters.add(new Pair<>(getBlockPredicate(filter.blockFilter), filter.color));
-						}
-					}
+				if (!filterGroup.enabled)
+					continue;
+
+				for (var filter : filterGroup.filters) {
+					if (!filter.enabled)
+						continue;
+
+					blockFilters.add(new Pair<>(getBlockPredicate(filter.blockFilter), filter.color));
 				}
 			}
+
 			entityFilters.clear();
 			for (var filterGroup : chatLogConfig.main.espModule.entityFilterGroups) {
-				if (filterGroup.enabled) {
-					for (var filter : filterGroup.filters) {
-						if (filter.enabled) {
-							try {
-								entityFilters.add(new ImmutableTriple<>(new EntitySelectorReader(new StringReader(filter.entityFilter)).read(), filter.entityColorMode, filter.color));
-							} catch (CommandSyntaxException ignored) {
-							}
-						}
-					}
+				if (!filterGroup.enabled)
+					continue;
+
+				for (var filter : filterGroup.filters) {
+					if (!filter.enabled)
+						continue;
+
+					try {
+						entityFilters.add(
+							new ImmutableTriple<>(
+								new EntitySelectorReader(
+									new StringReader(filter.entityFilter)
+								).read(),
+								filter.entityColorMode,
+								filter.color));
+					} catch (CommandSyntaxException ignored) {}
 				}
 			}
+
 			resetBlockCache();
+
 			return ActionResult.PASS;
 		});
 
 		ClientTickEvents.START.register(client -> {
-			if (ChatLog.CLIENT.world == null) return;
+			if (ChatLog.CLIENT.world == null)
+				return;
+
+			assert CLIENT.world != null;
+			var chunks = CLIENT.world.getChunkManager().chunks.chunks;
+			for (int i = 0; i < chunks.length(); i++) {
+				var chunk = chunks.get(i);
+				if (chunk == null) continue;
+				try {
+					SCAN_POOL.submit(() ->
+						chunk.getBlockEntities().keySet().forEach(this::cacheBlockPos));
+				} catch (ConcurrentModificationException ignored) { }
+			}
+
 			while (!blockCacheQueue.isEmpty()) {
 				BlockPos block = blockCacheQueue.pop();
 //				cacheBlockPos(block);
@@ -237,6 +270,7 @@ public class ESPModule extends BaseModule {
 //				BlockPos subChunkOrigin = new BlockPos(block.getX() & ~(0xf), block.getY() & ~(0xf), block.getZ() & ~(0xf)).toImmutable();
 //				cacheChunkAsync(subChunkOrigin);
 			}
+
 			while (!subChunkCacheQueue.isEmpty()) {
 				BlockPos origin = subChunkCacheQueue.pop();
 				ChunkCache chunkCache = new ChunkCache(ChatLog.CLIENT.world, origin, origin.add(15, 15, 15));
@@ -250,6 +284,8 @@ public class ESPModule extends BaseModule {
 					}
 				});
 			}
+
+			this.updateEntityCache();
 		});
 
 		new Renderer() {
@@ -258,14 +294,6 @@ public class ESPModule extends BaseModule {
 				if (enabled && CLIENT.world != null && CLIENT.player != null) {
 					final float tickDelta = getTickDelta();
 					if (cachedWorld.get() != CLIENT.world) resetBlockCache();
-					var chunks = CLIENT.world.getChunkManager().chunks.chunks;
-					for (int i = 0; i < chunks.length(); i++) {
-						var chunk = chunks.get(i);
-						if (chunk == null) continue;
-						try {
-							chunk.getBlockEntities().keySet().forEach(blockPos -> cacheBlockPos(blockPos));
-						} catch (ConcurrentModificationException ignored) { }
-					}
 					for (var blockPos : blockCache.keySet()) {
 						Integer color = blockCache.get(blockPos);
 						if (color != null && CLIENT.world.getChunkManager().isChunkLoaded(ChunkSectionPos.getSectionCoord(blockPos.getX()), ChunkSectionPos.getSectionCoord(blockPos.getZ()))) {
@@ -284,9 +312,9 @@ public class ESPModule extends BaseModule {
 							}
 						}
 					}
-					for (var entry : getEntities()) {
+					for (var entry : entityCache) {
 						Entity entity = entry.getLeft();
-						Box hitbox = entry.getLeft().getBoundingBox();
+						Box hitbox = entity.getBoundingBox();
 						hitbox = hitbox
 							.offset(hitbox.getCenter().multiply(-1, 0, -1))
 							.offset(0, -hitbox.minY, 0)
