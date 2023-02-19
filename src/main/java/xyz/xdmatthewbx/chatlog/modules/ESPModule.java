@@ -164,6 +164,7 @@ public class ESPModule extends BaseModule {
 			var boundsBox = entityFilter.box != null ? entityFilter.box.offset(offsetPosition) : null;
 			var unsortedEntities =
 				StreamSupport.stream(CLIENT.world.getEntities().spliterator(), true)
+					.filter(x -> entityFilter.entityFilter.downcast(x) != null)
 					.filter(x -> entityFilter.box == null || boundsBox.contains(x.getPos()))
 					.filter(positionPredicate)
 					.collect(Collectors.toList());
