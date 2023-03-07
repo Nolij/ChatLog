@@ -1,10 +1,10 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.Vec3d;
-import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.KeyBind;
 
@@ -37,7 +37,7 @@ public class FreeCamModule extends BaseModule {
 			return ActionResult.PASS;
 		});
 
-		ClientTickEvents.START.register(client -> {
+		ClientTickEvents.START_CLIENT_TICK.register(client -> {
 			if (CLIENT.player != null) {
 				if (keyBind.wasPressed() && cameraLock.isLocked() == enabled && movementLock.isLocked() == enabled) {
 					enabled = !enabled;

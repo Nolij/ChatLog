@@ -34,7 +34,7 @@ public class ToolTipInfoModule extends BaseModule {
 	}
 
 	public MutableText generateClickInfo(ClickEvent clickEvent) {
-		return MutableText.create(new TranslatableComponent("text.chatlog.tooltipinfo.display", clickEvent.getAction().getName().toUpperCase(), clickEvent.getValue()))
+		return MutableText.create(new TranslatableComponent("text.chatlog.tooltipinfo.display", null, new Object[] { clickEvent.getAction().getName().toUpperCase(), clickEvent.getValue() }))
 			.formatted(Formatting.DARK_GRAY);
 	}
 
@@ -62,7 +62,7 @@ public class ToolTipInfoModule extends BaseModule {
 					} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ITEM) {
 						LOGGER.debug("SHOW_ITEM");
 						//noinspection DataFlowIssue
-						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ITEM).asStack().getTooltip(CLIENT.player, CLIENT.options.advancedItemTooltips ? TooltipContext.Default.f_zuchejxz : TooltipContext.Default.f_yceowjjc);
+						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ITEM).asStack().getTooltip(CLIENT.player, CLIENT.options.advancedItemTooltips ? TooltipContext.Default.SHOW_ADVANCED_DETAILS : TooltipContext.Default.HIDE_ADVANCED_DETAILS);
 					}
 				} catch (NullPointerException ex) {
 					LOGGER.debug(ex.toString());

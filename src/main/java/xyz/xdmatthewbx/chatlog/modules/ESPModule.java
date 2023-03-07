@@ -3,6 +3,7 @@ package xyz.xdmatthewbx.chatlog.modules;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.pattern.CachedBlockPosition;
@@ -22,7 +23,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.chunk.ChunkCache;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.ChatLogConfig;
 import xyz.xdmatthewbx.chatlog.render.Renderer;
@@ -246,7 +246,7 @@ public class ESPModule extends BaseModule {
 			return ActionResult.PASS;
 		});
 
-		ClientTickEvents.START.register(client -> {
+		ClientTickEvents.START_CLIENT_TICK.register(client -> {
 			if (ChatLog.CLIENT.world == null)
 				return;
 

@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "chatlog",
+    "license": "OSL-3.0",
+	"version": "${version}",
+	"name": "ChatLog",
+	"description": "Just a chat logging mod. Trust me.",
+	"authors": [
+		"xdMatthewbx#1337"
+	],
+	"entrypoints": {
+	  "client": [
+		"xyz.xdmatthewbx.chatlog.ChatLog"
+	  ],
+	  "modmenu": [
+		"xyz.xdmatthewbx.chatlog.integration.ModMenuConfig"
+	  ]
+	},
+	"depends": {
+	  "fabricloader": ">=0.14.10",
+	  "minecraft": ">=1.19.3",
+	  "fabric": "*",
+	  "cloth-config2": ">=9.0.94"
+	},
+	"accessWidener": "chatlog.accesswidener",
+	"mixins": [
+	  "chatlog.mixins.json"
+	]
+}
