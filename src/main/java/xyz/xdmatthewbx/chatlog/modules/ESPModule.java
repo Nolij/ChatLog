@@ -62,18 +62,23 @@ public class ESPModule extends BaseModule {
 
 	private Predicate<CachedBlockPosition> getBlockPredicate(String selector) {
 		return cachedBlockPosition -> {
-			if (cachedBlockPosition.getWorld() == null) return false;
-			try {
-				Predicate<CachedBlockPosition> predicate = blockPredicateCache.get(selector);
-				if (predicate == null) {
-					predicate = blockPredicateArgumentType.parse(new StringReader(selector));
-					blockPredicateCache.put(selector, predicate);
-				}
-
-				return predicate.test(cachedBlockPosition);
-			} catch (CommandSyntaxException e) {
+			if (cachedBlockPosition.getWorld() == null)
 				return false;
-			}
+
+			Predicate<CachedBlockPosition> predicate =
+				blockPredicateCache
+					.computeIfAbsent(
+						selector,
+						s -> {
+							try {
+								return blockPredicateArgumentType.parse(new StringReader(s));
+							} catch (CommandSyntaxException e) {
+								return ignored -> false;
+							}
+						}
+					);
+
+			return predicate.test(cachedBlockPosition);
 		};
 	}
 
@@ -134,14 +139,6 @@ public class ESPModule extends BaseModule {
 		for (int i = 0; i < chunks.length(); i++) {
 			var chunk = chunks.get(i);
 			if (chunk == null) continue;
-//			for (int x = 0; x < 16; x++) {
-//				for (int y = chunk.getBottomY(); y < chunk.getTopY(); y++) {
-//					for (int z = 0; z < 16; z++) {
-//						BlockPos blockPos = chunk.getPos().getBlockPos(x, y, z);
-//						cacheBlockPos(blockPos);
-//					}
-//				}
-//			}
 			SCAN_POOL.submit(() -> {
 				for (int y = chunk.getBottomY(); y < chunk.getTopY(); y += 16) {
 					cacheChunkAsync(chunk.getPos().getBlockPos(0, y, 0).toImmutable());
@@ -254,6 +251,10 @@ public class ESPModule extends BaseModule {
 				return;
 
 			assert CLIENT.world != null;
+
+			if (cachedWorld.get() != CLIENT.world)
+				resetBlockCache();
+
 			var chunks = CLIENT.world.getChunkManager().chunks.chunks;
 			for (int i = 0; i < chunks.length(); i++) {
 				var chunk = chunks.get(i);
@@ -294,22 +295,24 @@ public class ESPModule extends BaseModule {
 			public void render(MatrixStack matrix, BufferBuilder buffer, Camera camera) {
 				if (enabled && CLIENT.world != null && CLIENT.player != null) {
 					final float tickDelta = getTickDelta();
-					if (cachedWorld.get() != CLIENT.world) resetBlockCache();
-					for (var blockPos : blockCache.keySet()) {
-						Integer color = blockCache.get(blockPos);
+					final ShapeContext shapeContext = ShapeContext.of(CLIENT.player);
+					for (var entry : blockCache.entrySet()) {
+						var blockPos = entry.getKey();
+						var color = entry.getValue();
 						if (color != null && CLIENT.world.getChunkManager().isChunkLoaded(ChunkSectionPos.getSectionCoord(blockPos.getX()), ChunkSectionPos.getSectionCoord(blockPos.getZ()))) {
 							var chunk = CLIENT.world.getChunkManager().getChunk(ChunkSectionPos.getSectionCoord(blockPos.getX()), ChunkSectionPos.getSectionCoord(blockPos.getZ()));
 							if (chunk != null) {
-								BlockState state = chunk.getBlockState(blockPos);
-								VoxelShape shape = state.getOutlineShape(CLIENT.world, blockPos, ShapeContext.of(CLIENT.player));
+								BlockState blockState = chunk.getBlockState(blockPos);
+								VoxelShape shape =
+									blockState.getOutlineShape(
+										CLIENT.world,
+										blockPos,
+										shapeContext
+									);
 								float red = (color >> 16 & 0xFF) / 255F;
 								float green = (color >> 8 & 0xFF) / 255F;
 								float blue = (color & 0xFF) / 255F;
 								WorldRenderer.drawShapeOutline(matrix, buffer, shape, blockPos.getX() - camera.getPos().x, blockPos.getY() - camera.getPos().y, blockPos.getZ() - camera.getPos().z, red, green, blue, 1F);
-							} else {
-								throw new IllegalStateException();
-//								Vec3d a = new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-//								renderCuboid(matrix, buffer, camera, a, a.add(1, 1, 1), blockCache.get(blockPos), 255);
 							}
 						}
 					}
