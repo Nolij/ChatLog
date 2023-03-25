@@ -250,7 +250,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 				return Collections.emptyList();
 			}
 			KeyCodeEntry entry = ConfigEntryBuilder.create()
-				.startModifierKeyCodeField(MutableText.create(new TranslatableComponent(i13n, null, new Object[0])), getUnsafely(field, config, ModifierKeyCode.unknown()))
+				.startModifierKeyCodeField(MutableText.create(new TranslatableComponent(i13n, null, TranslatableComponent.EMPTY_ARGS)), getUnsafely(field, config, ModifierKeyCode.unknown()))
 				.setModifierDefaultValue(() -> getUnsafely(field, defaults))
 				.setModifierSaveConsumer(newValue -> setUnsafely(field, config, newValue.clearModifier()))
 				.build();
@@ -261,7 +261,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 			var displayFactor = (bounds.displayFactor() * bounds.step());
 			return Collections.singletonList(ConfigEntryBuilder.create()
 				.startIntSlider(MutableText.create(
-					new TranslatableComponent(i13n, null, new Object[0])),
+					new TranslatableComponent(i13n, null, TranslatableComponent.EMPTY_ARGS)),
 					MathHelper.ceil(Utils.getUnsafely(field, config, 0.0) / bounds.step()),
 					MathHelper.ceil(bounds.min() / bounds.step()),
 					MathHelper.ceil(bounds.max() / bounds.step()))
@@ -275,13 +275,13 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 						)
 					);
 				})
-				.setErrorSupplier(value -> field.isAnnotationPresent(NonZero.class) && value == 0 ? Optional.of(MutableText.create(new TranslatableComponent("text.chatlog.config.error.nonZero", null, new Object[0]))) : Optional.empty())
+				.setErrorSupplier(value -> field.isAnnotationPresent(NonZero.class) && value == 0 ? Optional.of(MutableText.create(new TranslatableComponent("text.chatlog.config.error.nonZero", null, TranslatableComponent.EMPTY_ARGS))) : Optional.empty())
 				.build());
 		}, (field) -> field.getType() == Double.TYPE || field.getType() == Double.class, Slider.class);
 		guiRegistry.registerAnnotationProvider((i13n, field, config, defaults, guiProvider) ->
 			Collections.singletonList(ConfigEntryBuilder.create()
 				.startStrField(
-					MutableText.create(new TranslatableComponent(i13n, null, new Object[0])),
+					MutableText.create(new TranslatableComponent(i13n, null, TranslatableComponent.EMPTY_ARGS)),
 					getUnsafely(field, config, ""))
 				.setDefaultValue(() -> getUnsafely(field, defaults))
 				.setSaveConsumer((newValue) -> setUnsafely(field, config, newValue))
@@ -298,7 +298,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		guiRegistry.registerAnnotationProvider((i13n, field, config, defaults, guiProvider) ->
 			Collections.singletonList(ConfigEntryBuilder.create()
 				.startStrField(
-					MutableText.create(new TranslatableComponent(i13n, null, new Object[0])),
+					MutableText.create(new TranslatableComponent(i13n, null, TranslatableComponent.EMPTY_ARGS)),
 					getUnsafely(field, config, ""))
 				.setDefaultValue(() -> getUnsafely(field, defaults))
 				.setSaveConsumer((newValue) -> setUnsafely(field, config, newValue))
