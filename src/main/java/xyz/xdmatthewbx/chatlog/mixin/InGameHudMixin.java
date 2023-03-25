@@ -2,6 +2,7 @@ package xyz.xdmatthewbx.chatlog.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.util.math.MatrixStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -28,7 +29,7 @@ public class InGameHudMixin {
 	}
 
 	@Inject(method = "renderSpyglassOverlay", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V"))
-	public void renderSpyglassOverlay(float scale, CallbackInfo ci) {
+	public void renderSpyglassOverlay(MatrixStack matrices, float scale, CallbackInfo ci) {
 		if (AntiOverlayModule.INSTANCE.enabled) {
 			RenderSystem.setShaderColor(1F, 1F, 1F, (float) ChatLog.CONFIG.get().main.antiOverlayModule.overlayOpacity);
 		}

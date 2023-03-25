@@ -31,14 +31,11 @@ A: I will definitely consider it. Please submit a feature request or a pull requ
 #### Q: The chat logging got me banned and was visible to the server!
 A: I provide no guarantee of functionality or safety, nor warranty, as per our license, so please don't yell at me. However, I do wish to fix this issue, as it means something this mod does is visible to the server, so please submit an issue report if this happens to you with the server in question, a full list of modifications, and their versions.
 
-#### Q: Can you port this to Fabric?
-A: I won't, but you're welcome to! I made this in Quilt because I wanted to use Quilt mappings and to be better compatible with Quilt mods. It should be relatively straightforward to port this to Fabric, but I just don't care to. Though, if someone submits a PR which does this, and I merge it, I will maintain it.
-
 #### Q: Will you port this to Forge/some other modloader?
-A: I have no plans to as of now. Quilt (and Fabric) currently do not send a mod list to the server, and I wish to log chat in peace. I have no interest in circumventing the mod list sent to the server in Forge or any other modloader, so this will remain Quilt for the time being. However, you are welcome to submit a pull request with support so long as all modifications are invisible to the server. This will be your responsibility to maintain.
+A: I have no plans to as of now. Fabric (and Quilt) currently do not send a mod list to the server, and I wish to log chat in peace. I have no interest in circumventing the mod list sent to the server in Forge or any other modloader, so this will remain Fabric for the time being. However, you are welcome to submit a pull request with support so long as all modifications are invisible to the server. This will be your responsibility to maintain.
 
 #### Q: Will you port to version X.X.X?
-A: Unlike some other developers I have full intention to support older versions. It is worth noting that it will still be in Quilt, which may be problematic for those who use 1.8 where Forge is still the only usable option as of writing this, but we do have plans to support it in the future (don't ask for an ETA, it will happen when it will happen. The progress will be visible in the version's corresponding branch and you are welcome to contribute to it to speed up the process).
+A: Unlike some other developers I have full intention to support older versions. It is worth noting that it will still be in Fabric, which may be problematic for those who use 1.8 where Forge is still the only usable option as of writing this, but we do have plans to support it in the future (don't ask for an ETA, it will happen when it will happen. The progress will be visible in the version's corresponding branch and you are welcome to contribute to it to speed up the process).
 
 #### Q: There seem to be some non-chat logging features in this mod...
 A: It's just a chat logging mod, really!

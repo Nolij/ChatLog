@@ -1,8 +1,8 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.util.ActionResult;
-import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.ChatLogConfig;
 import xyz.xdmatthewbx.chatlog.KeyBind;
@@ -35,7 +35,7 @@ public class PerspectiveModule extends BaseModule {
 			return ActionResult.PASS;
 		});
 
-		ClientTickEvents.START.register(e -> {
+		ClientTickEvents.START_CLIENT_TICK.register(e -> {
 			if (CLIENT != null && CLIENT.player != null) {
 				if (ChatLog.CONFIG.get().main.perspectiveModule.mode == ChatLogConfig.KeyBindMode.HOLD) {
 					if (!enabled && keyBind.isPressed()) actualPerspective = CLIENT.options.getPerspective();
