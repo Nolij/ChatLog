@@ -1,6 +1,7 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
@@ -9,8 +10,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.pattern.CachedBlockPosition;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.Frustum;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.command.CommandBuildContext;
 import net.minecraft.command.EntitySelector;
@@ -23,10 +27,13 @@ import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.chunk.ChunkCache;
+import net.minecraft.world.chunk.ChunkStatus;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.joml.Matrix4f;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.ChatLogConfig;
 import xyz.xdmatthewbx.chatlog.render.Renderer;
+import xyz.xdmatthewbx.chatlog.util.SimplePalettedContainer;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,7 +58,7 @@ public class ESPModule extends BaseModule {
 		INSTANCE = this;
 	}
 
-	private final ConcurrentHashMap<BlockPos, Integer> blockCache = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<BlockPos, SubChunkCache> blockCache = new ConcurrentHashMap<>();
 	private final List<Pair<Entity, Integer>> entityCache = new ArrayList<>();
 	private final ConcurrentHashMap<String, Predicate<CachedBlockPosition>> blockPredicateCache = new ConcurrentHashMap<>();
 	private final AtomicReference<ClientWorld> cachedWorld = new AtomicReference<>();
@@ -101,12 +108,17 @@ public class ESPModule extends BaseModule {
 				break;
 			}
 		}
+		BlockPos subChunkOrigin = new BlockPos(blockPos.getX() & ~(0xf), blockPos.getY() & ~(0xf), blockPos.getZ() & ~(0xf));
 		synchronized (blockCache) {
-			boolean isCached = blockCache.containsKey(blockPos) && blockCache.get(blockPos) != null;
-			if (!isCached && match != null) {
-				blockCache.put(blockPos, match.getRight());
-			} else if (isCached && match == null) {
-				blockCache.remove(blockPos, blockCache.get(blockPos)); // yes the get is necessary. Removing it causes scenarios where the cache is cleared
+			SubChunkCache subChunk = blockCache.get(subChunkOrigin);
+			if (match != null) {
+				if (subChunk == null) {
+					subChunk = new SubChunkCache();
+					blockCache.put(subChunkOrigin, subChunk);
+				}
+				subChunk.setColorForBlockPos(blockPos, match.getRight());
+			} else if (subChunk != null) {
+				subChunk.setColorForBlockPos(blockPos, null);
 			}
 		}
 	}
@@ -182,6 +194,46 @@ public class ESPModule extends BaseModule {
 	}
 
 	private final ForkJoinPool SCAN_POOL = new ForkJoinPool();
+
+	/**
+	 * Generate a buffer of the required outlines for the given subchunk.
+	 * @param cache subchunk cache object that contains block colors adn shapes
+	 * @param chunkOrigin position of this subchunk (given by block with lowest XYZ coordinates)
+	 * @return the compiled buffer, or null if it couldn't be compiled due to
+	 * chunk not existing
+	 */
+	private VertexBuffer generateBuffer(SubChunkCache cache, BlockPos chunkOrigin) {
+		ClientChunkManager chunkManager = CLIENT.world.getChunkManager();
+		var chunk = chunkManager.getChunk(ChunkSectionPos.getSectionCoord(chunkOrigin.getX()), ChunkSectionPos.getSectionCoord(chunkOrigin.getZ()), ChunkStatus.FULL, false);
+		if (chunk == null)
+			return null;
+		final ShapeContext shapeContext = ShapeContext.of(CLIENT.player);
+		MatrixStack stack = new MatrixStack();
+		VertexBuffer buffer = new VertexBuffer();
+		BufferBuilder builder = new BufferBuilder(256);
+		builder.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+		for (BlockPos blockPos : BlockPos.iterate(chunkOrigin, chunkOrigin.add(15, 15, 15))) {
+			var color = cache.getColorForBlockPos(blockPos);
+			if (color != null) {
+				BlockState blockState = chunk.getBlockState(blockPos);
+				VoxelShape shape =
+					blockState.getOutlineShape(
+						CLIENT.world,
+						blockPos,
+						shapeContext
+					);
+				float red = (color >> 16 & 0xFF) / 255F;
+				float green = (color >> 8 & 0xFF) / 255F;
+				float blue = (color & 0xFF) / 255F;
+				WorldRenderer.drawShapeOutline(stack, builder, shape, blockPos.getX(), blockPos.getY(), blockPos.getZ(), red, green, blue, 1F);
+			}
+		}
+		BufferBuilder.RenderedBuffer rendered = builder.end();
+		buffer.bind();
+		buffer.upload(rendered);
+		// no need to unbind here as we are about to render it
+		return buffer;
+	}
 
 	@Override
 	public void onInitializeClient() {
@@ -304,27 +356,43 @@ public class ESPModule extends BaseModule {
 			public void render(MatrixStack matrix, BufferBuilder buffer, Camera camera) {
 				if (enabled && CLIENT.world != null && CLIENT.player != null) {
 					final float tickDelta = getTickDelta();
-					final ShapeContext shapeContext = ShapeContext.of(CLIENT.player);
-					for (var entry : blockCache.entrySet()) {
-						var blockPos = entry.getKey();
-						var color = entry.getValue();
-						if (color != null && CLIENT.world.getChunkManager().isChunkLoaded(ChunkSectionPos.getSectionCoord(blockPos.getX()), ChunkSectionPos.getSectionCoord(blockPos.getZ()))) {
-							var chunk = CLIENT.world.getChunkManager().getChunk(ChunkSectionPos.getSectionCoord(blockPos.getX()), ChunkSectionPos.getSectionCoord(blockPos.getZ()));
-							if (chunk != null) {
-								BlockState blockState = chunk.getBlockState(blockPos);
-								VoxelShape shape =
-									blockState.getOutlineShape(
-										CLIENT.world,
-										blockPos,
-										shapeContext
-									);
-								float red = (color >> 16 & 0xFF) / 255F;
-								float green = (color >> 8 & 0xFF) / 255F;
-								float blue = (color & 0xFF) / 255F;
-								WorldRenderer.drawShapeOutline(matrix, buffer, shape, blockPos.getX() - camera.getPos().x, blockPos.getY() - camera.getPos().y, blockPos.getZ() - camera.getPos().z, red, green, blue, 1F);
+					Frustum frustum = new Frustum(matrix.peek().getModel(), CLIENT.gameRenderer.getBasicProjectionMatrix(CLIENT.options.getFov().get()));
+					Vec3d cameraPos = camera.getPos();
+					frustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
+					frustum.offsetToIncludeCamera(8);
+					matrix.push();
+					matrix.translate(-camera.getPos().x, -camera.getPos().y, -camera.getPos().z);
+					Matrix4f projMatrix = RenderSystem.getProjectionMatrix();
+					Matrix4f viewMatrix = matrix.peek().getModel();
+					// loop over every subchunk in the cache
+					// this is a hot path (runs every frame) so keep it fast
+					for (Map.Entry<BlockPos, SubChunkCache> entry : blockCache.entrySet()) {
+						var cache = entry.getValue();
+						// only render visible subchunks
+						if (cache.isVisible(frustum, entry.getKey())) {
+							VertexBuffer cacheBuffer;
+							// synchronize so that we do not miss any incoming
+							// block changes (which would cause an old cache
+							// to be stored)
+							// in most cases this will be instant since the
+							// cache will be built
+							synchronized (cache) {
+								cacheBuffer = cache.currentBuffer;
+								if (cacheBuffer == null) {
+									cacheBuffer = generateBuffer(cache, entry.getKey());
+									if (cacheBuffer == null)
+										continue;
+									cache.currentBuffer = cacheBuffer;
+									// buffer is bound in generateBuffer
+								} else
+									cacheBuffer.bind();
 							}
+							cacheBuffer.draw(viewMatrix, projMatrix, GameRenderer.getRenderTypeLinesShader());
 						}
 					}
+					// now unbind
+					VertexBuffer.unbind();
+					matrix.pop();
 					for (var entry : entityCache) {
 						Entity entity = entry.getLeft();
 						Box hitbox = entity.getBoundingBox();
@@ -343,4 +411,57 @@ public class ESPModule extends BaseModule {
 		};
 	}
 
+	static final class SubChunkCache {
+		private SimplePalettedContainer<Integer> colorPalette;
+
+		private byte[] colorByLocalBlockPos;
+		private VertexBuffer currentBuffer;
+		private int frameFrustumLastChecked = 0;
+		private boolean isFrustumVisible = true;
+
+		public SubChunkCache() {
+			this.colorPalette = new SimplePalettedContainer<>(16);
+			/* use ID 0 to represent no color */
+			this.colorPalette.put(null);
+			this.colorByLocalBlockPos = null;
+			this.currentBuffer = null;
+		}
+
+		public boolean isVisible(Frustum frustum, BlockPos origin) {
+			boolean performFrustumCheck = !isFrustumVisible || (frameFrustumLastChecked % 4) == 0;
+			if (performFrustumCheck) {
+				Box box = new Box(origin, origin.add(16, 16, 16));
+				isFrustumVisible = frustum.isVisible(box);
+			}
+			frameFrustumLastChecked++;
+			return isFrustumVisible;
+		}
+
+		private static int arrayIndex(BlockPos pos) {
+			return ((pos.getY() & 15) << 8) | ((pos.getZ() & 15) << 4) | (pos.getX() & 15);
+		}
+
+		public Integer getColorForBlockPos(BlockPos pos) {
+			if (this.colorByLocalBlockPos == null)
+				return null;
+			int idx = colorByLocalBlockPos[arrayIndex(pos)];
+			return colorPalette.get(idx);
+		}
+
+		public void setColorForBlockPos(BlockPos pos, Integer i) {
+			synchronized (this) {
+				if (this.colorByLocalBlockPos == null) {
+					if (i == null)
+						return;
+					this.colorByLocalBlockPos = new byte[4096];
+				}
+				try {
+					this.colorByLocalBlockPos[arrayIndex(pos)] = i != null ? (byte)this.colorPalette.put(i) : 0;
+					this.currentBuffer = null;
+				} catch (IndexOutOfBoundsException e) {
+					ChatLog.LOGGER.error("Couldn't set color for pos", e);
+				}
+			}
+		}
+	}
 }
