@@ -319,16 +319,6 @@ public class ESPModule extends BaseModule {
 			if (cachedWorld.get() != CLIENT.world)
 				resetBlockCache();
 
-			var chunks = CLIENT.world.getChunkManager().chunks.chunks;
-			for (int i = 0; i < chunks.length(); i++) {
-				var chunk = chunks.get(i);
-				if (chunk == null) continue;
-				try {
-					SCAN_POOL.submit(() ->
-						chunk.getBlockEntities().keySet().forEach(this::cacheBlockPos));
-				} catch (ConcurrentModificationException ignored) { }
-			}
-
 			while (!blockCacheQueue.isEmpty()) {
 				BlockPos block = blockCacheQueue.pop();
 //				cacheBlockPos(block);
