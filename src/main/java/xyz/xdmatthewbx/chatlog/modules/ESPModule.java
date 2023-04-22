@@ -225,7 +225,10 @@ public class ESPModule extends BaseModule {
 				float red = (color >> 16 & 0xFF) / 255F;
 				float green = (color >> 8 & 0xFF) / 255F;
 				float blue = (color & 0xFF) / 255F;
-				WorldRenderer.drawShapeOutline(stack, builder, shape, blockPos.getX(), blockPos.getY(), blockPos.getZ(), red, green, blue, 1F);
+				var x = blockPos.getX() - chunkOrigin.getX();
+				var y = blockPos.getY() - chunkOrigin.getY();
+				var z = blockPos.getZ() - chunkOrigin.getZ();
+				WorldRenderer.drawShapeOutline(stack, builder, shape, x, y, z, red, green, blue, 1F);
 			}
 		}
 		BufferBuilder.RenderedBuffer rendered = builder.end();
@@ -360,10 +363,7 @@ public class ESPModule extends BaseModule {
 					Vec3d cameraPos = camera.getPos();
 					frustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 					frustum.offsetToIncludeCamera(8);
-					matrix.push();
-					matrix.translate(-camera.getPos().x, -camera.getPos().y, -camera.getPos().z);
 					Matrix4f projMatrix = RenderSystem.getProjectionMatrix();
-					Matrix4f viewMatrix = matrix.peek().getModel();
 					// loop over every subchunk in the cache
 					// this is a hot path (runs every frame) so keep it fast
 					for (Map.Entry<BlockPos, SubChunkCache> entry : blockCache.entrySet()) {
@@ -387,12 +387,15 @@ public class ESPModule extends BaseModule {
 								} else
 									cacheBuffer.bind();
 							}
-							cacheBuffer.draw(viewMatrix, projMatrix, GameRenderer.getRenderTypeLinesShader());
+							matrix.push();
+							// move to subchunk-relative position
+							matrix.translate(entry.getKey().getX() - (float)cameraPos.x, entry.getKey().getY() - (float)cameraPos.y, entry.getKey().getZ() - (float)cameraPos.z);
+							cacheBuffer.draw(matrix.peek().getModel(), projMatrix, GameRenderer.getPositionColorShader());
+							matrix.pop();
 						}
 					}
 					// now unbind
 					VertexBuffer.unbind();
-					matrix.pop();
 					for (var entry : entityCache) {
 						Entity entity = entry.getLeft();
 						Box hitbox = entity.getBoundingBox();
