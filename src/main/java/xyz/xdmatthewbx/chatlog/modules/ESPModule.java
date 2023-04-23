@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.pattern.CachedBlockPosition;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.GameRenderer;
@@ -460,7 +461,11 @@ public class ESPModule extends BaseModule {
 				}
 				try {
 					this.colorByLocalBlockPos[arrayIndex(pos)] = i != null ? (byte)this.colorPalette.put(i) : 0;
-					this.currentBuffer = null;
+					if (this.currentBuffer != null) {
+						VertexBuffer buffer = this.currentBuffer;
+						this.currentBuffer = null;
+						MinecraftClient.getInstance().execute(buffer::close);
+					}
 				} catch (IndexOutOfBoundsException e) {
 					ChatLog.LOGGER.error("Couldn't set color for pos", e);
 				}
