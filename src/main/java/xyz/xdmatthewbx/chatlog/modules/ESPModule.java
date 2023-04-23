@@ -354,7 +354,7 @@ public class ESPModule extends BaseModule {
 			synchronized (subChunkCacheQueue) {
 				ChunkCache chunkCache = null;
 				BlockPos prevOrigin = null;
-				for(BlockPos origin : subChunkCacheQueue) {
+				for (BlockPos origin : subChunkCacheQueue) {
 					// ChunkCache uses full world height, avoid recreating new one
 					// for each subchunk
 					if (prevOrigin == null || prevOrigin.getX() != origin.getX() || prevOrigin.getZ() != origin.getZ()) {
@@ -484,7 +484,7 @@ public class ESPModule extends BaseModule {
 				buffer = this.currentBuffer;
 				this.currentBuffer = null;
 			}
-			if(buffer != null)
+			if (buffer != null)
 				MinecraftClient.getInstance().execute(buffer::close);
 		}
 
