@@ -442,6 +442,16 @@ public class ESPModule extends BaseModule {
 			return colorPalette.get(idx);
 		}
 
+		public void freeCurrentBuffer() {
+			VertexBuffer buffer;
+			synchronized (this) {
+				buffer = this.currentBuffer;
+				this.currentBuffer = null;
+			}
+			if(buffer != null)
+				MinecraftClient.getInstance().execute(buffer::close);
+		}
+
 		public void setColorForBlockPos(BlockPos pos, Integer i) {
 			synchronized (this) {
 				if (this.colorByLocalBlockPos == null) {
@@ -452,9 +462,7 @@ public class ESPModule extends BaseModule {
 				try {
 					this.colorByLocalBlockPos[arrayIndex(pos)] = i != null ? (byte)this.colorPalette.put(i) : 0;
 					if (this.currentBuffer != null) {
-						VertexBuffer buffer = this.currentBuffer;
-						this.currentBuffer = null;
-						MinecraftClient.getInstance().execute(buffer::close);
+						this.freeCurrentBuffer();
 					}
 				} catch (IndexOutOfBoundsException e) {
 					ChatLog.LOGGER.error("Couldn't set color for pos", e);
