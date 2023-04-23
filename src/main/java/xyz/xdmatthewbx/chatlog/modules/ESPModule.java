@@ -39,6 +39,7 @@ import xyz.xdmatthewbx.chatlog.util.SimplePalettedContainer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -124,27 +125,45 @@ public class ESPModule extends BaseModule {
 		}
 	}
 
-	private final Stack<BlockPos> blockCacheQueue = new Stack<>();
+	private final LinkedHashSet<BlockPos> blockCacheQueue = new LinkedHashSet<>();
 	public void cacheBlockPosAsync(BlockPos blockPos) {
-		if (blockCacheQueue.contains(blockPos))
-			return;
+		synchronized (blockCacheQueue) {
+			if (blockCacheQueue.contains(blockPos))
+				return;
 
-		blockCacheQueue.push(blockPos);
+			blockCacheQueue.add(blockPos);
+		}
 	}
 
-	private final Stack<BlockPos> subChunkCacheQueue = new Stack<>();
+	private final LinkedHashSet<BlockPos> subChunkCacheQueue = new LinkedHashSet<>();
 	public void cacheChunkAsync(BlockPos origin) {
-		if (subChunkCacheQueue.contains(origin))
-			return;
+		synchronized (subChunkCacheQueue) {
+			origin = origin.toImmutable();
+			if (subChunkCacheQueue.contains(origin))
+				return;
 
-		subChunkCacheQueue.push(origin.toImmutable());
+			subChunkCacheQueue.add(origin);
+		}
 	}
 
 	private void resetBlockCache() {
+		// make sure all scans stop
+		SCAN_POOL.shutdownNow();
+		try {
+			SCAN_POOL.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		blockCache.values().forEach(SubChunkCache::freeCurrentBuffer);
 		blockCache.clear();
-		blockCacheQueue.clear();
-		subChunkCacheQueue.clear();
+		synchronized (blockCacheQueue) {
+			blockCacheQueue.clear();
+		}
+		synchronized (subChunkCacheQueue) {
+			subChunkCacheQueue.clear();
+		}
 		blockPredicateCache.clear();
+		SCAN_POOL = new ForkJoinPool();
 		cachedWorld.set(ChatLog.CLIENT.world);
 		if (!enabled || blockFilters.isEmpty() || ChatLog.CLIENT.world == null) return;
 		var commandBuildContext = CommandBuildContext.createConfigurable(ChatLog.CLIENT.world.getRegistryManager(), ChatLog.CLIENT.world.getEnabledFlags());
@@ -153,11 +172,9 @@ public class ESPModule extends BaseModule {
 		for (int i = 0; i < chunks.length(); i++) {
 			var chunk = chunks.get(i);
 			if (chunk == null) continue;
-			SCAN_POOL.submit(() -> {
-				for (int y = chunk.getBottomY(); y < chunk.getTopY(); y += 16) {
-					cacheChunkAsync(chunk.getPos().getBlockPos(0, y, 0).toImmutable());
-				}
-			});
+			for (int y = chunk.getBottomY(); y < chunk.getTopY(); y += 16) {
+				cacheChunkAsync(chunk.getPos().getBlockPos(0, y, 0).toImmutable());
+			}
 		}
 	}
 
@@ -194,7 +211,7 @@ public class ESPModule extends BaseModule {
 		}
 	}
 
-	private final ForkJoinPool SCAN_POOL = new ForkJoinPool();
+	private ForkJoinPool SCAN_POOL = new ForkJoinPool();
 
 	/**
 	 * Generate a buffer of the required outlines for the given subchunk.
@@ -304,11 +321,17 @@ public class ESPModule extends BaseModule {
 		});
 
 		ClientChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
-			SCAN_POOL.submit(() -> {
-				for (int y = chunk.getBottomY(); y < chunk.getTopY(); y += 16) {
-					cacheChunkAsync(chunk.getPos().getBlockPos(0, y, 0).toImmutable());
-				}
-			});
+			for (int y = chunk.getBottomY(); y < chunk.getTopY(); y += 16) {
+				cacheChunkAsync(chunk.getPos().getBlockPos(0, y, 0).toImmutable());
+			}
+		});
+
+		ClientChunkEvents.CHUNK_UNLOAD.register((world, chunk) -> {
+			for (int y = chunk.getBottomY(); y < chunk.getTopY(); y += 16) {
+				SubChunkCache cache = blockCache.remove(chunk.getPos().getBlockPos(0, y, 0).toImmutable());
+				if (cache != null)
+					cache.freeCurrentBuffer();
+			}
 		});
 
 		ClientTickEvents.END_WORLD_TICK.register(client -> {
@@ -320,26 +343,39 @@ public class ESPModule extends BaseModule {
 			if (cachedWorld.get() != CLIENT.world)
 				resetBlockCache();
 
-			while (!blockCacheQueue.isEmpty()) {
-				BlockPos block = blockCacheQueue.pop();
-//				cacheBlockPos(block);
-				SCAN_POOL.submit(() -> cacheBlockPos(block));
-//				BlockPos subChunkOrigin = new BlockPos(block.getX() & ~(0xf), block.getY() & ~(0xf), block.getZ() & ~(0xf)).toImmutable();
-//				cacheChunkAsync(subChunkOrigin);
+			synchronized (blockCacheQueue) {
+				for (BlockPos block : blockCacheQueue) {
+					ChunkCache chunkCache = new ChunkCache(ChatLog.CLIENT.world, block, block);
+					SCAN_POOL.submit(() -> cacheBlockPos(chunkCache, block));
+				}
+				blockCacheQueue.clear();
 			}
 
-			while (!subChunkCacheQueue.isEmpty()) {
-				BlockPos origin = subChunkCacheQueue.pop();
-				ChunkCache chunkCache = new ChunkCache(ChatLog.CLIENT.world, origin, origin.add(15, 15, 15));
-				SCAN_POOL.submit(() -> {
-					for (int x = 0; x < 16; x++) {
-						for (int z = 0; z < 16; z++) {
-							for (int y = 0; y < 16; y++) {
-								cacheBlockPos(chunkCache, origin.add(x, y, z));
+			synchronized (subChunkCacheQueue) {
+				ChunkCache chunkCache = null;
+				BlockPos prevOrigin = null;
+				for(BlockPos origin : subChunkCacheQueue) {
+					// ChunkCache uses full world height, avoid recreating new one
+					// for each subchunk
+					if (prevOrigin == null || prevOrigin.getX() != origin.getX() || prevOrigin.getZ() != origin.getZ()) {
+						prevOrigin = origin;
+						chunkCache = new ChunkCache(ChatLog.CLIENT.world,
+							new BlockPos(origin.getX(), ChatLog.CLIENT.world.getBottomY(), origin.getZ()),
+							new BlockPos(origin.getX(), ChatLog.CLIENT.world.getTopY(), origin.getZ())
+						);
+					}
+					final ChunkCache targetCache = chunkCache;
+					SCAN_POOL.submit(() -> {
+						for (int x = 0; x < 16; x++) {
+							for (int z = 0; z < 16; z++) {
+								for (int y = 0; y < 16; y++) {
+									cacheBlockPos(targetCache, origin.add(x, y, z));
+								}
 							}
 						}
-					}
-				});
+					});
+				}
+				subChunkCacheQueue.clear();
 			}
 
 			this.updateEntityCache();
