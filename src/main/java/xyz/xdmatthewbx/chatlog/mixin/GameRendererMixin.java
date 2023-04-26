@@ -1,11 +1,11 @@
 package xyz.xdmatthewbx.chatlog.mixin;
 
-import net.minecraft.client.option.GameOptions;
-import net.minecraft.client.option.Option;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Camera;
+import net.minecraft.client.OptionInstance;
+import net.minecraft.client.Options;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,12 +19,12 @@ import xyz.xdmatthewbx.chatlog.render.Renderer;
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
 
-	@Shadow @Final private Camera camera;
+	@Shadow @Final private Camera mainCamera;
 
 	@Shadow
 	private boolean renderHand;
 
-	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderNauseaOverlay(F)V"))
+	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderConfusionOverlay(F)V"))
 	public float setShaderColor(float opacity) {
 		if (AntiDistortionModule.INSTANCE.enabled) {
 			return Math.min(opacity, (float) ChatLog.CONFIG.get().main.antiDistortionModule.nauseaOverlayScale);
@@ -32,49 +32,49 @@ public class GameRendererMixin {
 		return opacity;
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/GameOptions;getDistortionEffectScale()Lnet/minecraft/client/option/Option;"))
-	public Option<Double> renderDistortionEffectScale(GameOptions instance) {
+	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;screenEffectScale()Lnet/minecraft/client/OptionInstance;"))
+	public OptionInstance<Double> renderDistortionEffectScale(Options instance) {
 		if (AntiDistortionModule.INSTANCE.enabled) {
-			return new Option<>(
+			return new OptionInstance<>(
 				"options.screenEffectScale",
-				Option.emptyTooltip(),
-				(text, value) -> Text.empty(),
-				Option.UnitDoubleValueSet.INSTANCE,
+				OptionInstance.noTooltip(),
+				(text, value) -> Component.empty(),
+				OptionInstance.UnitDouble.INSTANCE,
 				0D,
 				value -> {}
 			);
 		}
-		return instance.getDistortionEffectScale();
+		return instance.screenEffectScale();
 	}
 
-	@Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/GameOptions;getDistortionEffectScale()Lnet/minecraft/client/option/Option;"))
-	public Option<Double> renderWorldDistortionEffectScale(GameOptions instance) {
+	@Redirect(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;screenEffectScale()Lnet/minecraft/client/OptionInstance;"))
+	public OptionInstance<Double> renderWorldDistortionEffectScale(Options instance) {
 		if (AntiDistortionModule.INSTANCE.enabled) {
-			return new Option<>(
+			return new OptionInstance<>(
 				"options.screenEffectScale",
-				Option.emptyTooltip(),
-				(text, value) -> Text.empty(),
-				Option.UnitDoubleValueSet.INSTANCE,
+				OptionInstance.noTooltip(),
+				(text, value) -> Component.empty(),
+				OptionInstance.UnitDouble.INSTANCE,
 				0D,
 				value -> {}
 			); // TODO: deduplicate
 		}
-		return instance.getDistortionEffectScale();
+		return instance.screenEffectScale();
 	}
 
-	@Inject(method = "renderWorld", at = @At(value = "INVOKE_STRING", target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V", args = {"ldc=hand"}))
-	private void renderWorld(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo ci) {
-		Renderer.renderAll(matrix, camera);
+	@Inject(method = "renderLevel", at = @At(value = "INVOKE_STRING", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", args = {"ldc=hand"}))
+	private void renderWorld(float tickDelta, long limitTime, PoseStack matrix, CallbackInfo ci) {
+		Renderer.renderAll(matrix, mainCamera);
 	}
 
 	@Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
-	private void bobView(MatrixStack matrices, float f, CallbackInfo ci) {
+	private void bobView(PoseStack matrices, float f, CallbackInfo ci) {
 		if (ChatLog.cameraLock.isLocked() && ChatLog.CONFIG.get().main.render.disableBobbingWhenCameraLocked) {
 			ci.cancel();
 		}
 	}
 
-	@Redirect(method = "renderWorld", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/GameRenderer;renderHand:Z"))
+	@Redirect(method = "renderLevel", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/GameRenderer;renderHand:Z"))
 	private boolean shouldRenderHand(GameRenderer instance) {
 		if (FreeCamModule.INSTANCE.enabled && !ChatLog.CONFIG.get().main.freeCamModule.renderHand) {
 			return false;

@@ -1,7 +1,7 @@
 package xyz.xdmatthewbx.chatlog;
 
 import com.google.common.collect.*;
-import com.mojang.blaze3d.platform.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 import me.shedaniel.clothconfig2.api.Modifier;
 import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 
@@ -77,11 +77,11 @@ public class KeyBind {
 	}
 
 	public boolean matches(int key, int scancode, short modifiers) {
-		return boundKey == ModifierKeyCode.of(InputUtil.fromKeyCode(key, scancode), Modifier.of(modifiers));
+		return boundKey == ModifierKeyCode.of(InputConstants.getKey(key, scancode), Modifier.of(modifiers));
 	}
 
 	public boolean matches(int key, int scancode) {
-		return boundKey.getKeyCode().getKeyCode() == key;
+		return boundKey.getKeyCode().getValue() == key;
 	}
 
 }

@@ -10,7 +10,7 @@ import xyz.xdmatthewbx.chatlog.modules.InputUnlockModule;
 @Mixin(SharedConstants.class)
 public class SharedConstantsMixin {
 
-	@Inject(method = "isValidChar", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "isAllowedChatCharacter", at = @At("HEAD"), cancellable = true)
 	private static void isValidChar(char chr, CallbackInfoReturnable<Boolean> cir) {
 		//noinspection UnnecessaryUnicodeEscape
 		if (InputUnlockModule.INSTANCE.enabled && chr == '\u00a7') {

@@ -1,10 +1,10 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.option.Perspective;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.CameraType;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.KeyBind;
 
@@ -19,10 +19,10 @@ public class FreeCamModule extends BaseModule {
 	private KeyBind keyBind;
 
 	public boolean enabled = false;
-	private Perspective actualPerspective = null;
-	private final Perspective ACTIVE_PERSPECTIVE = Perspective.FIRST_PERSON;
+	private CameraType actualPerspective = null;
+	private final CameraType ACTIVE_PERSPECTIVE = CameraType.FIRST_PERSON;
 
-	private Vec3d cameraVelocity = Vec3d.ZERO;
+	private Vec3 cameraVelocity = Vec3.ZERO;
 
 	public FreeCamModule() {
 		super(MODULE_ID);
@@ -34,7 +34,7 @@ public class FreeCamModule extends BaseModule {
 		keyBind = new KeyBind(CONFIG.get().main.freeCamModule.keyBind);
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
 			keyBind.setBoundKey(chatLogConfig.main.freeCamModule.keyBind);
-			return ActionResult.PASS;
+			return InteractionResult.PASS;
 		});
 
 		ClientTickEvents.START_CLIENT_TICK.register(client -> {
@@ -47,14 +47,14 @@ public class FreeCamModule extends BaseModule {
 						movementLock.obtain();
 						Entity cameraEntity = CLIENT.cameraEntity;
 						if (cameraEntity == null) cameraEntity = CLIENT.player;
-						cameraPos = cameraEntity.getClientCameraPosVec(ChatLog.getTickDelta());
-						cameraYaw = CLIENT.player.getYaw(getTickDelta());
-						cameraPitch = CLIENT.player.getPitch(getTickDelta());
-						cameraVelocity = Vec3d.ZERO;
-						actualPerspective = CLIENT.options.getPerspective();
-						CLIENT.options.setPerspective(ACTIVE_PERSPECTIVE);
+						cameraPos = cameraEntity.getLightProbePosition(ChatLog.getTickDelta());
+						cameraYaw = CLIENT.player.getViewYRot(getTickDelta());
+						cameraPitch = CLIENT.player.getViewXRot(getTickDelta());
+						cameraVelocity = Vec3.ZERO;
+						actualPerspective = CLIENT.options.getCameraType();
+						CLIENT.options.setCameraType(ACTIVE_PERSPECTIVE);
 					} else {
-						CLIENT.options.setPerspective(actualPerspective);
+						CLIENT.options.setCameraType(actualPerspective);
 						actualPerspective = null;
 						cameraPos = null;
 						cameraLock.release();
@@ -67,27 +67,27 @@ public class FreeCamModule extends BaseModule {
 					float deltaY = 0F;
 					float deltaZ = 0F;
 
-					if (CLIENT.options.forwardKey.isPressed())
+					if (CLIENT.options.keyUp.isDown())
 						deltaZ++;
-					if (CLIENT.options.backKey.isPressed())
+					if (CLIENT.options.keyDown.isDown())
 						deltaZ--;
-					if (CLIENT.options.leftKey.isPressed())
+					if (CLIENT.options.keyLeft.isDown())
 						deltaX++;
-					if (CLIENT.options.rightKey.isPressed())
+					if (CLIENT.options.keyRight.isDown())
 						deltaX--;
-					if (CLIENT.options.jumpKey.isPressed())
+					if (CLIENT.options.keyJump.isDown())
 						deltaY++;
-					if (CLIENT.options.sneakKey.isPressed())
+					if (CLIENT.options.keyShift.isDown())
 						deltaY--;
-					var delta = new Vec3d(deltaX, deltaY, deltaZ);
+					var delta = new Vec3(deltaX, deltaY, deltaZ);
 
 					var speed = 1F;
-					if (CLIENT.options.sprintKey.isPressed())
+					if (CLIENT.options.keySprint.isDown())
 						speed *= 2F;
 
 					cameraVelocity = cameraVelocity
-						.add(Entity.movementInputToVelocity(delta, speed, cameraYaw))
-						.multiply(0.65F);
+						.add(Entity.getInputVector(delta, speed, cameraYaw))
+						.scale(0.65F);
 
 					cameraPos = cameraPos.add(cameraVelocity);
 				}

@@ -1,7 +1,7 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResult;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.ChatLogConfig;
 import xyz.xdmatthewbx.chatlog.KeyBind;
@@ -38,7 +38,7 @@ public class AutoClickerModule extends BaseModule {
 			pressDelay = Math.round((1 / chatLogConfig.main.autoClickerModule.cps) * 1000D);
 			releaseDelay = Math.round((50D / 7D) * (7 + (7 - chatLogConfig.main.autoClickerModule.cps)));
 			maxJitter = chatLogConfig.main.autoClickerModule.maxJitter;
-			return ActionResult.PASS;
+			return InteractionResult.PASS;
 		});
 
 		WorldRenderEvents.START.register(context -> {
@@ -55,13 +55,13 @@ public class AutoClickerModule extends BaseModule {
 
 				if (attacking && System.currentTimeMillis() >= nextRelease) {
 					attacking = false;
-					CLIENT.options.attackKey.setPressed(false);
+					CLIENT.options.keyAttack.setDown(false);
 				}
 				if (enabled && !attacking) {
 					if ((System.currentTimeMillis() - lastPress) > (pressDelay + jitter)) {
 						attacking = true;
-						CLIENT.options.attackKey.timesPressed++;
-						CLIENT.options.attackKey.setPressed(true);
+						CLIENT.options.keyAttack.clickCount++;
+						CLIENT.options.keyAttack.setDown(true);
 						lastPress = System.currentTimeMillis();
 						nextRelease = lastPress + releaseDelay + getJitter(maxJitter / 2D);
 					}

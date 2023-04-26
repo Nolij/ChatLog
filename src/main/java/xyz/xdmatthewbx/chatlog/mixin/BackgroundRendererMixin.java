@@ -1,13 +1,13 @@
 package xyz.xdmatthewbx.chatlog.mixin;
 
-import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.CameraSubmersionType;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.material.FogType;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -17,42 +17,42 @@ import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.modules.AntiBlindModule;
 import xyz.xdmatthewbx.chatlog.modules.AntiFogModule;
 
-@Mixin(BackgroundRenderer.class)
+@Mixin(FogRenderer.class)
 public class BackgroundRendererMixin {
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;hasStatusEffect(Lnet/minecraft/entity/effect/StatusEffect;)Z"))
-	private static boolean renderHasStatusEffect(LivingEntity instance, StatusEffect effect) {
-		if (AntiBlindModule.INSTANCE.enabled && effect == StatusEffects.BLINDNESS) {
+	@Redirect(method = "setupColor", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hasEffect(Lnet/minecraft/world/effect/MobEffect;)Z"))
+	private static boolean renderHasStatusEffect(LivingEntity instance, MobEffect effect) {
+		if (AntiBlindModule.INSTANCE.enabled && effect == MobEffects.BLINDNESS) {
 			return false;
 		}
-		return instance.hasStatusEffect(effect);
+		return instance.hasEffect(effect);
 	}
 
-	@Redirect(method = "applyFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;hasStatusEffect(Lnet/minecraft/entity/effect/StatusEffect;)Z"))
-	private static boolean applyFogHasStatusEffect(LivingEntity instance, StatusEffect effect) {
-		if (AntiBlindModule.INSTANCE.enabled && effect == StatusEffects.BLINDNESS) {
+	@Redirect(method = "setupFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hasEffect(Lnet/minecraft/world/effect/MobEffect;)Z"))
+	private static boolean applyFogHasStatusEffect(LivingEntity instance, MobEffect effect) {
+		if (AntiBlindModule.INSTANCE.enabled && effect == MobEffects.BLINDNESS) {
 			return false;
 		}
-		return instance.hasStatusEffect(effect);
+		return instance.hasEffect(effect);
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;getSubmersionType()Lnet/minecraft/client/render/CameraSubmersionType;"))
-	private static CameraSubmersionType renderGetSubmersionType(Camera instance) {
+	@Redirect(method = "setupColor", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getFluidInCamera()Lnet/minecraft/world/level/material/FogType;"))
+	private static FogType renderGetSubmersionType(Camera instance) {
 		if (AntiBlindModule.INSTANCE.enabled) {
-			return CameraSubmersionType.NONE;
+			return FogType.NONE;
 		}
-		return instance.getSubmersionType();
+		return instance.getFluidInCamera();
 	}
 
-	@Redirect(method = "applyFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;getSubmersionType()Lnet/minecraft/client/render/CameraSubmersionType;"))
-	private static CameraSubmersionType applyFogGetSubmersionType(Camera instance) {
+	@Redirect(method = "setupFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getFluidInCamera()Lnet/minecraft/world/level/material/FogType;"))
+	private static FogType applyFogGetSubmersionType(Camera instance) {
 		if (AntiBlindModule.INSTANCE.enabled) {
-			return CameraSubmersionType.NONE;
+			return FogType.NONE;
 		}
-		return instance.getSubmersionType();
+		return instance.getFluidInCamera();
 	}
 
-	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogStart(F)V", remap = false))
+	@ModifyArg(method = "setupFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogStart(F)V", remap = false))
 	private static float setShaderFogStart(float f) {
 		if (AntiFogModule.INSTANCE.enabled) {
 			return -5F;
@@ -61,7 +61,7 @@ public class BackgroundRendererMixin {
 		}
 	}
 
-	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
+	@ModifyArg(method = "setupFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
 	private static float setShaderFogEnd(float f) {
 		if (AntiFogModule.INSTANCE.enabled) {
 			return 10000000F;
@@ -71,16 +71,16 @@ public class BackgroundRendererMixin {
 	}
 
 	@SuppressWarnings("InvalidInjectorMethodSignature") // not sure why this shows in the first place
-	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/util/CubicSampler;sampleVec3d(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$Vec3dFetcher;)Lnet/minecraft/util/math/Vec3d;"), ordinal = 2, require = 1, allow = 1)
-	private static Vec3d onSampleColor(Vec3d value) {
-		assert ChatLog.CLIENT.world != null;
-		if (AntiFogModule.INSTANCE.enabled && ChatLog.CLIENT.world.getDimension().hasSkyLight()) {
-			return ChatLog.CLIENT.world.getSkyColor(ChatLog.CLIENT.gameRenderer.getCamera().getPos(), ChatLog.CLIENT.getLastFrameDuration());
+	@ModifyVariable(method = "setupColor", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/util/CubicSampler;gaussianSampleVec3(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/util/CubicSampler$Vec3Fetcher;)Lnet/minecraft/world/phys/Vec3;"), ordinal = 2, require = 1, allow = 1)
+	private static Vec3 onSampleColor(Vec3 value) {
+		assert ChatLog.CLIENT.level != null;
+		if (AntiFogModule.INSTANCE.enabled && ChatLog.CLIENT.level.dimensionType().hasSkyLight()) {
+			return ChatLog.CLIENT.level.getSkyColor(ChatLog.CLIENT.gameRenderer.getMainCamera().getPosition(), ChatLog.CLIENT.getDeltaFrameTime());
 		}
 		return value;
 	}
 
-	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lorg/joml/Vector3f;dot(Lorg/joml/Vector3fc;)F", remap = false), ordinal = 7, require = 1, allow = 1)
+	@ModifyVariable(method = "setupColor", at = @At(value = "INVOKE_ASSIGN", target = "Lorg/joml/Vector3f;dot(Lorg/joml/Vector3fc;)F", remap = false), ordinal = 7, require = 1, allow = 1)
 	private static float afterPlaneDot(float dotProduct) {
 		if (AntiFogModule.INSTANCE.enabled) {
 			return 0;
@@ -88,20 +88,20 @@ public class BackgroundRendererMixin {
 		return dotProduct;
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"), require = 1, allow = 1)
-	private static float onGetRainGradient(ClientWorld instance, float tickDelta) {
+	@Redirect(method = "setupColor", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getRainLevel(F)F"), require = 1, allow = 1)
+	private static float onGetRainGradient(ClientLevel instance, float tickDelta) {
 		if (AntiFogModule.INSTANCE.enabled) {
 			return 0;
 		}
-		return instance.getRainGradient(tickDelta);
+		return instance.getRainLevel(tickDelta);
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getThunderGradient(F)F"), require = 1, allow = 1)
-	private static float onGetThunderGradient(ClientWorld instance, float tickDelta) {
+	@Redirect(method = "setupColor", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getThunderLevel(F)F"), require = 1, allow = 1)
+	private static float onGetThunderGradient(ClientLevel instance, float tickDelta) {
 		if (AntiFogModule.INSTANCE.enabled) {
 			return 0;
 		}
-		return instance.getThunderGradient(tickDelta);
+		return instance.getThunderLevel(tickDelta);
 	}
 
 }

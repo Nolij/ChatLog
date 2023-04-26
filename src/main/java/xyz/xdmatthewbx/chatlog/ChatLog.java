@@ -7,12 +7,12 @@ import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.ActionResult;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.phys.Vec3;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.minecraft.util.math.Vec3d;
 import xyz.xdmatthewbx.chatlog.modules.*;
 import xyz.xdmatthewbx.chatlog.modules.Module;
 import xyz.xdmatthewbx.chatlog.util.Lock;
@@ -30,7 +30,7 @@ public class ChatLog implements ClientModInitializer {
 	private static final Set<Class<? extends BaseModule>> MODULE_TYPES = new HashSet<>();
 	private final Set<BaseModule> MODULES;
 
-	public static MinecraftClient CLIENT;
+	public static Minecraft CLIENT;
 
 	public static ChatLog INSTANCE;
 
@@ -41,8 +41,8 @@ public class ChatLog implements ClientModInitializer {
 
 	public static Lock cameraLock = new Lock();
 
-	public static Vec3d prevCameraPos;
-	public static Vec3d cameraPos;
+	public static Vec3 prevCameraPos;
+	public static Vec3 cameraPos;
 	public static float cameraPitch;
 	public static float cameraYaw;
 
@@ -67,7 +67,7 @@ public class ChatLog implements ClientModInitializer {
 
 	public ChatLog() {
 		INSTANCE = this;
-		CLIENT = MinecraftClient.getInstance();
+		CLIENT = Minecraft.getInstance();
 
 		MODULES = new LinkedHashSet<>();
 
@@ -94,12 +94,12 @@ public class ChatLog implements ClientModInitializer {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
 			configKeyBind.setBoundKey(chatLogConfig.main.general.configKeyBind);
 			KeyBind.resetAll();
-			return ActionResult.PASS;
+			return InteractionResult.PASS;
 		});
 
 		ClientTickEvents.START_CLIENT_TICK.register(e -> {
 			if (configKeyBind.wasPressed()) {
-				CLIENT.setScreen(AutoConfig.getConfigScreen(ChatLogConfig.class, CLIENT.currentScreen).get());
+				CLIENT.setScreen(AutoConfig.getConfigScreen(ChatLogConfig.class, CLIENT.screen).get());
 			}
 			prevCameraPos = cameraPos;
 		});
@@ -113,7 +113,7 @@ public class ChatLog implements ClientModInitializer {
 
 	@FunctionalInterface
 	public interface ConfigChangeListener<T extends ConfigData> {
-		ActionResult onChange(ConfigHolder<T> configHolder, T config);
+		InteractionResult onChange(ConfigHolder<T> configHolder, T config);
 	}
 
 	public static <T extends ConfigData> void registerChangeListener(ConfigHolder<T> configHolder, ConfigChangeListener<T> listener) {
@@ -122,7 +122,7 @@ public class ChatLog implements ClientModInitializer {
 	}
 
 	public static float getTickDelta() {
-		return CLIENT.isPaused() ? CLIENT.pausedTickDelta : CLIENT.getTickDelta();
+		return CLIENT.isPaused() ? CLIENT.pausePartialTick : CLIENT.getFrameTime();
 	}
 
 }

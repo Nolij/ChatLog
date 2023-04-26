@@ -1,12 +1,15 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.text.*;
-import net.minecraft.text.component.LiteralComponent;
-import net.minecraft.text.component.TranslatableComponent;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.TooltipFlag;
 import java.util.List;
 
 import static xyz.xdmatthewbx.chatlog.ChatLog.CONFIG;
@@ -29,21 +32,21 @@ public class ToolTipInfoModule extends BaseModule {
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
 			enabled = chatLogConfig.main.toolTipInfoModule.enabled;
-			return ActionResult.PASS;
+			return InteractionResult.PASS;
 		});
 	}
 
-	public MutableText generateClickInfo(ClickEvent clickEvent) {
-		return MutableText.create(new TranslatableComponent("text.chatlog.tooltipinfo.display", null, new Object[] { clickEvent.getAction().getName().toUpperCase(), clickEvent.getValue() }))
-			.formatted(Formatting.DARK_GRAY);
+	public MutableComponent generateClickInfo(ClickEvent clickEvent) {
+		return MutableComponent.create(new TranslatableContents("text.chatlog.tooltipinfo.display", null, new Object[] { clickEvent.getAction().getName().toUpperCase(), clickEvent.getValue() }))
+			.withStyle(ChatFormatting.DARK_GRAY);
 	}
 
 	public HoverEvent getHoverEvent(Style style) {
 		ClickEvent clickEvent = style.getClickEvent();
 		if (clickEvent != null) {
 			HoverEvent hoverEvent = style.getHoverEvent();
-			MutableText hoverText = MutableText.create(new LiteralComponent(""));
-			MutableText clickInfoText = generateClickInfo(clickEvent);
+			MutableComponent hoverText = MutableComponent.create(new LiteralContents(""));
+			MutableComponent clickInfoText = generateClickInfo(clickEvent);
 			if (hoverEvent == null) {
 				LOGGER.debug("NO HOVEREVENT");
 				hoverText = clickInfoText;
@@ -51,24 +54,24 @@ public class ToolTipInfoModule extends BaseModule {
 				LOGGER.debug("SHOW_TEXT");
 				hoverText.append(hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT));
 //				if (hoverText.getString().contains(clickEvent.getValue())) return style;
-				hoverText.append(MutableText.create(new LiteralComponent("\n\n")).append(clickInfoText));
+				hoverText.append(MutableComponent.create(new LiteralContents("\n\n")).append(clickInfoText));
 			} else {
-				List<Text> lines = List.of();
+				List<Component> lines = List.of();
 				try {
 					if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ENTITY) {
 						LOGGER.debug("SHOW_ENTITY");
 						//noinspection DataFlowIssue
-						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ENTITY).asTooltip();
+						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ENTITY).getTooltipLines();
 					} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ITEM) {
 						LOGGER.debug("SHOW_ITEM");
 						//noinspection DataFlowIssue
-						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ITEM).asStack().getTooltip(CLIENT.player, CLIENT.options.advancedItemTooltips ? TooltipContext.Default.SHOW_ADVANCED_DETAILS : TooltipContext.Default.HIDE_ADVANCED_DETAILS);
+						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ITEM).getItemStack().getTooltipLines(CLIENT.player, CLIENT.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
 					}
 				} catch (NullPointerException ex) {
 					LOGGER.debug(ex.toString());
 				}
 				if (lines.size() > 0) {
-					for (Text line : lines) {
+					for (Component line : lines) {
 						LOGGER.debug(line.getString());
 						hoverText.append(line);
 						hoverText.append("\n");

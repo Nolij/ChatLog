@@ -3,6 +3,7 @@ package xyz.xdmatthewbx.chatlog;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -16,13 +17,11 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.api.Modifier;
 import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import me.shedaniel.clothconfig2.gui.entries.KeyCodeEntry;
-import com.mojang.blaze3d.platform.InputUtil;
-import net.minecraft.command.EntitySelectorReader;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.component.LiteralComponent;
-import net.minecraft.text.component.TranslatableComponent;
-import net.minecraft.util.math.MathHelper;
-
+import net.minecraft.commands.arguments.selector.EntitySelectorParser;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.util.Mth;
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -30,7 +29,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.List;
 
 @Config(name = "chatlog")
 @Config.Gui.Background(Config.Gui.Background.TRANSPARENT)
@@ -105,7 +103,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "general")
 	public static class GeneralConfig implements ConfigData {
-		public ModifierKeyCode configKeyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromKeyCode(InputUtil.KEY_RIGHT_SHIFT_CODE), Modifier.none());
+		public ModifierKeyCode configKeyBind = ModifierKeyCode.of(InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_RSHIFT), Modifier.none());
 	}
 
 	@Config(name = "render")
@@ -124,7 +122,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "perspectiveModule")
 	public static class PerspectiveConfig implements ConfigData {
-		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromKeyCode(InputUtil.KEY_GRAVE_ACCENT_CODE), Modifier.none());
+		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_GRAVE), Modifier.none());
 
 		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
 		public KeyBindMode mode = KeyBindMode.HOLD;
@@ -223,14 +221,14 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "freeCamModule")
 	public static class FreeCamConfig implements ConfigData {
-		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromKeyCode(InputUtil.KEY_RIGHT_CONTROL_CODE), Modifier.none());
+		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_RCONTROL), Modifier.none());
 
 		public boolean renderHand = false;
 	}
 
 	@Config(name = "autoClickerModule")
 	public static class AutoClickerConfig implements ConfigData {
-		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromKeyCode(InputUtil.MOUSE_LEFT_BUTTON_CODE), Modifier.none());
+		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputConstants.Type.KEYSYM.getOrCreate(InputConstants.MOUSE_BUTTON_LEFT), Modifier.none());
 
 		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
 		public KeyBindMode mode = KeyBindMode.HOLD;
@@ -250,7 +248,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 				return Collections.emptyList();
 			}
 			KeyCodeEntry entry = ConfigEntryBuilder.create()
-				.startModifierKeyCodeField(MutableText.create(new TranslatableComponent(i13n, null, TranslatableComponent.EMPTY_ARGS)), getUnsafely(field, config, ModifierKeyCode.unknown()))
+				.startModifierKeyCodeField(MutableComponent.create(new TranslatableContents(i13n, null, TranslatableContents.NO_ARGS)), getUnsafely(field, config, ModifierKeyCode.unknown()))
 				.setModifierDefaultValue(() -> getUnsafely(field, defaults))
 				.setModifierSaveConsumer(newValue -> setUnsafely(field, config, newValue.clearModifier()))
 				.build();
@@ -260,28 +258,28 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 			Slider bounds = field.getAnnotation(Slider.class);
 			var displayFactor = (bounds.displayFactor() * bounds.step());
 			return Collections.singletonList(ConfigEntryBuilder.create()
-				.startIntSlider(MutableText.create(
-					new TranslatableComponent(i13n, null, TranslatableComponent.EMPTY_ARGS)),
-					MathHelper.ceil(Utils.getUnsafely(field, config, 0.0) / bounds.step()),
-					MathHelper.ceil(bounds.min() / bounds.step()),
-					MathHelper.ceil(bounds.max() / bounds.step()))
-				.setDefaultValue(() -> MathHelper.ceil((double) getUnsafely(field, defaults) / bounds.step()))
+				.startIntSlider(MutableComponent.create(
+					new TranslatableContents(i13n, null, TranslatableContents.NO_ARGS)),
+					Mth.ceil(Utils.getUnsafely(field, config, 0.0) / bounds.step()),
+					Mth.ceil(bounds.min() / bounds.step()),
+					Mth.ceil(bounds.max() / bounds.step()))
+				.setDefaultValue(() -> Mth.ceil((double) getUnsafely(field, defaults) / bounds.step()))
 				.setSaveConsumer((newValue) -> setUnsafely(field, config, newValue * bounds.step()))
 				.setTextGetter(intValue -> {
 					var value = intValue * displayFactor;
-					return MutableText.create(
-						new LiteralComponent(
+					return MutableComponent.create(
+						new LiteralContents(
 							bounds.prefix() + (value % 1 > 0 ? String.valueOf(value) : String.valueOf((int) value)) + bounds.suffix()
 						)
 					);
 				})
-				.setErrorSupplier(value -> field.isAnnotationPresent(NonZero.class) && value == 0 ? Optional.of(MutableText.create(new TranslatableComponent("text.chatlog.config.error.nonZero", null, TranslatableComponent.EMPTY_ARGS))) : Optional.empty())
+				.setErrorSupplier(value -> field.isAnnotationPresent(NonZero.class) && value == 0 ? Optional.of(MutableComponent.create(new TranslatableContents("text.chatlog.config.error.nonZero", null, TranslatableContents.NO_ARGS))) : Optional.empty())
 				.build());
 		}, (field) -> field.getType() == Double.TYPE || field.getType() == Double.class, Slider.class);
 		guiRegistry.registerAnnotationProvider((i13n, field, config, defaults, guiProvider) ->
 			Collections.singletonList(ConfigEntryBuilder.create()
 				.startStrField(
-					MutableText.create(new TranslatableComponent(i13n, null, TranslatableComponent.EMPTY_ARGS)),
+					MutableComponent.create(new TranslatableContents(i13n, null, TranslatableContents.NO_ARGS)),
 					getUnsafely(field, config, ""))
 				.setDefaultValue(() -> getUnsafely(field, defaults))
 				.setSaveConsumer((newValue) -> setUnsafely(field, config, newValue))
@@ -298,16 +296,16 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		guiRegistry.registerAnnotationProvider((i13n, field, config, defaults, guiProvider) ->
 			Collections.singletonList(ConfigEntryBuilder.create()
 				.startStrField(
-					MutableText.create(new TranslatableComponent(i13n, null, TranslatableComponent.EMPTY_ARGS)),
+					MutableComponent.create(new TranslatableContents(i13n, null, TranslatableContents.NO_ARGS)),
 					getUnsafely(field, config, ""))
 				.setDefaultValue(() -> getUnsafely(field, defaults))
 				.setSaveConsumer((newValue) -> setUnsafely(field, config, newValue))
 				.setErrorSupplier(value -> {
 					if (value.length() == 0) return Optional.empty();
 					try {
-						new EntitySelectorReader(new StringReader(value)).read();
+						new EntitySelectorParser(new StringReader(value)).parse();
 					} catch (CommandSyntaxException ex) {
-						return Optional.of(MutableText.create(new LiteralComponent(ex.getMessage())));
+						return Optional.of(MutableComponent.create(new LiteralContents(ex.getMessage())));
 					}
 					return Optional.empty();
 				})
@@ -358,7 +356,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 				ModifierKeyCode modifierKeyCode = (ModifierKeyCode) value;
 				out
 					.beginObject()
-					.name("keyCode")	.value(modifierKeyCode.getKeyCode().getTranslationKey())
+					.name("keyCode")	.value(modifierKeyCode.getKeyCode().getName())
 					.name("modifier")	.value((int) modifierKeyCode.getModifier().getValue())
 					.endObject();
 			}
@@ -379,7 +377,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 				if (keyCode.endsWith(".unknown")) {
 					return ModifierKeyCode.unknown();
 				}
-				return ModifierKeyCode.of(InputUtil.fromTranslationKey(keyCode), Modifier.of(modifier));
+				return ModifierKeyCode.of(InputConstants.getKey(keyCode), Modifier.of(modifier));
 			}
 		});
 
