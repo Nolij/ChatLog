@@ -23,7 +23,7 @@ public class LightmapTextureManagerMixin {
 			return 1E7F;
 		}
 
-		return client.options.getGamma().get().floatValue();
+		return client.options.getGamma().getValue().floatValue();
 	}
 
 }

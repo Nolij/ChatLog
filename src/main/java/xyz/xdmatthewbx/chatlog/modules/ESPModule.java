@@ -1,7 +1,6 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
@@ -10,14 +9,19 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.pattern.CachedBlockPosition;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.command.CommandBuildContext;
+import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.command.CommandRegistryAccess.EntryListCreationPolicySettable;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.command.EntitySelectorReader;
 import net.minecraft.command.argument.BlockPredicateArgumentType;
@@ -30,16 +34,22 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.chunk.ChunkCache;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.joml.Matrix4f;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.ChatLogConfig;
+import xyz.xdmatthewbx.chatlog.ChatLogConfig.BlockESPFilter;
+import xyz.xdmatthewbx.chatlog.ChatLogConfig.BlockESPFilterGroup;
+import xyz.xdmatthewbx.chatlog.ChatLogConfig.EntityESPFilter;
+import xyz.xdmatthewbx.chatlog.ChatLogConfig.EntityESPFilterGroup;
 import xyz.xdmatthewbx.chatlog.render.Renderer;
 import xyz.xdmatthewbx.chatlog.util.SimplePalettedContainer;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -183,7 +193,7 @@ public class ESPModule extends BaseModule {
 		blockPredicateCache.clear();
 		cachedWorld.set(ChatLog.CLIENT.world);
 		if (!enabled || blockFilters.isEmpty() || ChatLog.CLIENT.world == null) return;
-		var commandBuildContext = CommandBuildContext.createConfigurable(ChatLog.CLIENT.world.getRegistryManager(), ChatLog.CLIENT.world.getEnabledFlags());
+		var commandBuildContext = CommandRegistryAccess.of(ChatLog.CLIENT.world.getRegistryManager(), ChatLog.CLIENT.world.getEnabledFeatures());
 		blockPredicateArgumentType = BlockPredicateArgumentType.blockPredicate(commandBuildContext);
 		var chunks = ChatLog.CLIENT.world.getChunkManager().chunks.chunks;
 		for (int i = 0; i < chunks.length(); i++) {
@@ -261,10 +271,10 @@ public class ESPModule extends BaseModule {
 				var x = blockPos.getX() - chunkOrigin.getX();
 				var y = blockPos.getY() - chunkOrigin.getY();
 				var z = blockPos.getZ() - chunkOrigin.getZ();
-				WorldRenderer.drawShapeOutline(stack, builder, shape, x, y, z, red, green, blue, 1F);
+				WorldRenderer.drawCuboidShapeOutline(stack, builder, shape, x, y, z, red, green, blue, 1F);
 			}
 		}
-		BufferBuilder.RenderedBuffer rendered = builder.end();
+		BufferBuilder.BuiltBuffer rendered = builder.end();
 		buffer.bind();
 		buffer.upload(rendered);
 		// no need to unbind here as we are about to render it
@@ -405,10 +415,11 @@ public class ESPModule extends BaseModule {
 			public void render(MatrixStack matrix, BufferBuilder buffer, Camera camera) {
 				if (enabled && CLIENT.world != null && CLIENT.player != null) {
 					final float tickDelta = getTickDelta();
-					Frustum frustum = new Frustum(matrix.peek().getModel(), CLIENT.gameRenderer.getBasicProjectionMatrix(CLIENT.options.getFov().get()));
+					Frustum frustum = new Frustum(matrix.peek().getPositionMatrix(), CLIENT.gameRenderer.getBasicProjectionMatrix(CLIENT.options.getFov().getValue()));
 					Vec3d cameraPos = camera.getPos();
 					frustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
-					frustum.offsetToIncludeCamera(8);
+					// fix camera box offset
+					frustum.method_38557(8);
 					Matrix4f projMatrix = RenderSystem.getProjectionMatrix();
 					// loop over every subchunk in the cache
 					// this is a hot path (runs every frame) so keep it fast
@@ -436,7 +447,7 @@ public class ESPModule extends BaseModule {
 							matrix.push();
 							// move to subchunk-relative position
 							matrix.translate(entry.getKey().getX() - (float)cameraPos.x, entry.getKey().getY() - (float)cameraPos.y, entry.getKey().getZ() - (float)cameraPos.z);
-							cacheBuffer.draw(matrix.peek().getModel(), projMatrix, GameRenderer.getPositionColorShader());
+							cacheBuffer.draw(matrix.peek().getPositionMatrix(), projMatrix, GameRenderer.getPositionColorProgram());
 							matrix.pop();
 						}
 					}

@@ -1,10 +1,9 @@
 package xyz.xdmatthewbx.chatlog;
 
 import com.google.common.collect.*;
-import com.mojang.blaze3d.platform.InputUtil;
 import me.shedaniel.clothconfig2.api.Modifier;
 import me.shedaniel.clothconfig2.api.ModifierKeyCode;
-
+import net.minecraft.client.util.InputUtil;
 import java.util.Collection;
 
 public class KeyBind {
@@ -81,7 +80,7 @@ public class KeyBind {
 	}
 
 	public boolean matches(int key, int scancode) {
-		return boundKey.getKeyCode().getKeyCode() == key;
+		return boundKey.getKeyCode().getCode() == key;
 	}
 
 }

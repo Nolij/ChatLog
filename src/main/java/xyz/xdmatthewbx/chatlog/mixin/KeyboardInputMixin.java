@@ -17,8 +17,8 @@ public class KeyboardInputMixin {
 			((KeyboardInput) (Object) this).pressingBack = false;
 			((KeyboardInput) (Object) this).pressingLeft = false;
 			((KeyboardInput) (Object) this).pressingRight = false;
-			((KeyboardInput) (Object) this).forwardMovement = 0;
-			((KeyboardInput) (Object) this).sidewaysMovement = 0;
+			((KeyboardInput) (Object) this).movementForward = 0;
+			((KeyboardInput) (Object) this).movementSideways = 0;
 			((KeyboardInput) (Object) this).jumping = false;
 			((KeyboardInput) (Object) this).sneaking = false;
 		}
