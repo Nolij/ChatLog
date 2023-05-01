@@ -1,7 +1,7 @@
 package xyz.xdmatthewbx.chatlog.mixin;
 
 import net.minecraft.client.option.GameOptions;
-import net.minecraft.client.option.Option;
+import net.minecraft.client.option.SimpleOption;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -24,7 +24,7 @@ public class GameRendererMixin {
 	@Shadow
 	private boolean renderHand;
 
-	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderNauseaOverlay(F)V"))
+	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderNausea(F)V"))
 	public float setShaderColor(float opacity) {
 		if (AntiDistortionModule.INSTANCE.enabled) {
 			return Math.min(opacity, (float) ChatLog.CONFIG.get().main.antiDistortionModule.nauseaOverlayScale);
@@ -32,14 +32,14 @@ public class GameRendererMixin {
 		return opacity;
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/GameOptions;getDistortionEffectScale()Lnet/minecraft/client/option/Option;"))
-	public Option<Double> renderDistortionEffectScale(GameOptions instance) {
+	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/GameOptions;getDistortionEffectScale()Lnet/minecraft/client/option/SimpleOption;"))
+	public SimpleOption<Double> renderDistortionEffectScale(GameOptions instance) {
 		if (AntiDistortionModule.INSTANCE.enabled) {
-			return new Option<>(
+			return new SimpleOption<>(
 				"options.screenEffectScale",
-				Option.emptyTooltip(),
+				SimpleOption.emptyTooltip(),
 				(text, value) -> Text.empty(),
-				Option.UnitDoubleValueSet.INSTANCE,
+				SimpleOption.DoubleSliderCallbacks.INSTANCE,
 				0D,
 				value -> {}
 			);
@@ -47,14 +47,14 @@ public class GameRendererMixin {
 		return instance.getDistortionEffectScale();
 	}
 
-	@Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/GameOptions;getDistortionEffectScale()Lnet/minecraft/client/option/Option;"))
-	public Option<Double> renderWorldDistortionEffectScale(GameOptions instance) {
+	@Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/GameOptions;getDistortionEffectScale()Lnet/minecraft/client/option/SimpleOption;"))
+	public SimpleOption<Double> renderWorldDistortionEffectScale(GameOptions instance) {
 		if (AntiDistortionModule.INSTANCE.enabled) {
-			return new Option<>(
+			return new SimpleOption<>(
 				"options.screenEffectScale",
-				Option.emptyTooltip(),
+				SimpleOption.emptyTooltip(),
 				(text, value) -> Text.empty(),
-				Option.UnitDoubleValueSet.INSTANCE,
+				SimpleOption.DoubleSliderCallbacks.INSTANCE,
 				0D,
 				value -> {}
 			); // TODO: deduplicate

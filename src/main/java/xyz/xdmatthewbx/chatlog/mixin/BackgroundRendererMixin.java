@@ -71,7 +71,7 @@ public class BackgroundRendererMixin {
 	}
 
 	@SuppressWarnings("InvalidInjectorMethodSignature") // not sure why this shows in the first place
-	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/util/CubicSampler;sampleVec3d(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$Vec3dFetcher;)Lnet/minecraft/util/math/Vec3d;"), ordinal = 2, require = 1, allow = 1)
+	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/util/CubicSampler;sampleColor(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$RgbFetcher;)Lnet/minecraft/util/math/Vec3d;"), ordinal = 2, require = 1, allow = 1)
 	private static Vec3d onSampleColor(Vec3d value) {
 		assert ChatLog.CLIENT.world != null;
 		if (AntiFogModule.INSTANCE.enabled && ChatLog.CLIENT.world.getDimension().hasSkyLight()) {

@@ -2,10 +2,6 @@ package xyz.xdmatthewbx.chatlog.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.Tessellator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormats;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -17,7 +13,7 @@ import java.util.List;
 public abstract class Renderer {
 
 	public static final Tessellator TESSELLATOR = Tessellator.getInstance();
-	public static final BufferBuilder BUFFER = TESSELLATOR.getBufferBuilder();
+	public static final BufferBuilder BUFFER = TESSELLATOR.getBuffer();
 
 	private static final List<Renderer> RENDERERS = new LinkedList<>();
 
@@ -33,9 +29,9 @@ public abstract class Renderer {
 			RenderSystem.disableDepthTest();
 		}
 		RenderSystem.setShaderColor(1, 1, 1, 1);
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		RenderSystem.enableBlend();
-		RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
 		RenderSystem.lineWidth(ChatLog.CONFIG.get().main.render.lineWidth);
 
 		BUFFER.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
@@ -63,7 +59,7 @@ public abstract class Renderer {
 
 		buffer
 			.vertex(
-				matrix.peek().getModel(),
+				matrix.peek().getPositionMatrix(),
 				(float) (a.x - pos.x),
 				(float) (a.y - pos.y),
 				(float) (a.z - pos.z)
@@ -73,7 +69,7 @@ public abstract class Renderer {
 			.next();
 		buffer
 			.vertex(
-				matrix.peek().getModel(),
+				matrix.peek().getPositionMatrix(),
 				(float) (b.x - pos.x),
 				(float) (b.y - pos.y),
 				(float) (b.z - pos.z)

@@ -2,8 +2,6 @@ package xyz.xdmatthewbx.chatlog.modules;
 
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.text.*;
-import net.minecraft.text.component.LiteralComponent;
-import net.minecraft.text.component.TranslatableComponent;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 
@@ -34,7 +32,7 @@ public class ToolTipInfoModule extends BaseModule {
 	}
 
 	public MutableText generateClickInfo(ClickEvent clickEvent) {
-		return MutableText.create(new TranslatableComponent("text.chatlog.tooltipinfo.display", null, new Object[] { clickEvent.getAction().getName().toUpperCase(), clickEvent.getValue() }))
+		return MutableText.of(new TranslatableTextContent("text.chatlog.tooltipinfo.display", null, new Object[] { clickEvent.getAction().getName().toUpperCase(), clickEvent.getValue() }))
 			.formatted(Formatting.DARK_GRAY);
 	}
 
@@ -42,7 +40,7 @@ public class ToolTipInfoModule extends BaseModule {
 		ClickEvent clickEvent = style.getClickEvent();
 		if (clickEvent != null) {
 			HoverEvent hoverEvent = style.getHoverEvent();
-			MutableText hoverText = MutableText.create(new LiteralComponent(""));
+			MutableText hoverText = MutableText.of(new LiteralTextContent(""));
 			MutableText clickInfoText = generateClickInfo(clickEvent);
 			if (hoverEvent == null) {
 				LOGGER.debug("NO HOVEREVENT");
@@ -51,7 +49,7 @@ public class ToolTipInfoModule extends BaseModule {
 				LOGGER.debug("SHOW_TEXT");
 				hoverText.append(hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT));
 //				if (hoverText.getString().contains(clickEvent.getValue())) return style;
-				hoverText.append(MutableText.create(new LiteralComponent("\n\n")).append(clickInfoText));
+				hoverText.append(MutableText.of(new LiteralTextContent("\n\n")).append(clickInfoText));
 			} else {
 				List<Text> lines = List.of();
 				try {
@@ -62,7 +60,7 @@ public class ToolTipInfoModule extends BaseModule {
 					} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ITEM) {
 						LOGGER.debug("SHOW_ITEM");
 						//noinspection DataFlowIssue
-						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ITEM).asStack().getTooltip(CLIENT.player, CLIENT.options.advancedItemTooltips ? TooltipContext.Default.SHOW_ADVANCED_DETAILS : TooltipContext.Default.HIDE_ADVANCED_DETAILS);
+						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ITEM).asStack().getTooltip(CLIENT.player, CLIENT.options.advancedItemTooltips ? TooltipContext.Default.ADVANCED : TooltipContext.Default.BASIC);
 					}
 				} catch (NullPointerException ex) {
 					LOGGER.debug(ex.toString());
