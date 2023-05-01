@@ -19,7 +19,6 @@ accessible	field	net/minecraft/client/MinecraftClient									renderTickCounter	
 accessible	field	net/minecraft/client/MinecraftClient									pausedTickDelta			F
 accessible	method	net/minecraft/client/render/WorldRenderer								drawCuboidShapeOutline	(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;Lnet/minecraft/util/shape/VoxelShape;DDDFFFF)V
 accessible	field	net/minecraft/client/MinecraftClient									fpsCounter				I
-accessible	method	net/minecraft/client/render/RenderLayer									of						(Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$DrawMode;ILnet/minecraft/client/render/RenderLayer$MultiPhaseParameters;)Lnet/minecraft/client/render/RenderLayer$MultiPhase;
 accessible	field	net/minecraft/block/pattern/CachedBlockPosition							state					Lnet/minecraft/block/BlockState;
 accessible	field	net/minecraft/block/pattern/CachedBlockPosition							blockEntity				Lnet/minecraft/block/entity/BlockEntity;
 accessible	field	net/minecraft/block/pattern/CachedBlockPosition							cachedEntity			Z
