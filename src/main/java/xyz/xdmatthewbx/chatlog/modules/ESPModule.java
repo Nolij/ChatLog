@@ -24,6 +24,7 @@ import net.minecraft.command.argument.BlockPredicateArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Pair;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
@@ -37,9 +38,7 @@ import xyz.xdmatthewbx.chatlog.render.Renderer;
 import xyz.xdmatthewbx.chatlog.util.SimplePalettedContainer;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -68,7 +67,21 @@ public class ESPModule extends BaseModule {
 	public List<Pair<Predicate<CachedBlockPosition>, Integer>> blockFilters = new ArrayList<>();
 	public List<ImmutableTriple<EntitySelector, ChatLogConfig.EntityColorMode, Integer>> entityFilters = new ArrayList<>();
 
+	private final List<ForkJoinTask<?>> submittedScans = new LinkedList<>();
+
 	private BlockPredicateArgumentType blockPredicateArgumentType;
+
+	private void submitAsyncTask(Runnable r) {
+		ExecutorService service = Util.getMainWorkerExecutor();
+		if (service instanceof ForkJoinPool) {
+			synchronized (submittedScans) {
+				submittedScans.add(((ForkJoinPool)service).submit(r));
+			}
+		} else {
+			/* assume direct executor */
+			service.submit(r);
+		}
+	}
 
 	private Predicate<CachedBlockPosition> getBlockPredicate(String selector) {
 		return cachedBlockPosition -> {
@@ -148,11 +161,16 @@ public class ESPModule extends BaseModule {
 
 	private void resetBlockCache() {
 		// make sure all scans stop
-		SCAN_POOL.shutdownNow();
-		try {
-			SCAN_POOL.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
+		synchronized (submittedScans) {
+			/* cancel all current scans first */
+			for (ForkJoinTask<?> task : submittedScans) {
+				task.cancel(true);
+			}
+			/* now join to ensure they all actually aren't running */
+			for (ForkJoinTask<?> task : submittedScans) {
+				task.quietlyJoin();
+			}
+			submittedScans.clear();
 		}
 		blockCache.values().forEach(SubChunkCache::freeCurrentBuffer);
 		blockCache.clear();
@@ -163,7 +181,6 @@ public class ESPModule extends BaseModule {
 			subChunkCacheQueue.clear();
 		}
 		blockPredicateCache.clear();
-		SCAN_POOL = new ForkJoinPool();
 		cachedWorld.set(ChatLog.CLIENT.world);
 		if (!enabled || blockFilters.isEmpty() || ChatLog.CLIENT.world == null) return;
 		var commandBuildContext = CommandBuildContext.createConfigurable(ChatLog.CLIENT.world.getRegistryManager(), ChatLog.CLIENT.world.getEnabledFlags());
@@ -210,8 +227,6 @@ public class ESPModule extends BaseModule {
 			}
 		}
 	}
-
-	private ForkJoinPool SCAN_POOL = new ForkJoinPool();
 
 	/**
 	 * Generate a buffer of the required outlines for the given subchunk.
@@ -340,13 +355,17 @@ public class ESPModule extends BaseModule {
 
 			assert CLIENT.world != null;
 
+			synchronized (submittedScans) {
+				submittedScans.removeIf(ForkJoinTask::isDone);
+			}
+
 			if (cachedWorld.get() != CLIENT.world)
 				resetBlockCache();
 
 			synchronized (blockCacheQueue) {
 				for (BlockPos block : blockCacheQueue) {
 					ChunkCache chunkCache = new ChunkCache(ChatLog.CLIENT.world, block, block);
-					SCAN_POOL.submit(() -> cacheBlockPos(chunkCache, block));
+					submitAsyncTask(() -> cacheBlockPos(chunkCache, block));
 				}
 				blockCacheQueue.clear();
 			}
@@ -365,7 +384,7 @@ public class ESPModule extends BaseModule {
 						);
 					}
 					final ChunkCache targetCache = chunkCache;
-					SCAN_POOL.submit(() -> {
+					submitAsyncTask(() -> {
 						for (int x = 0; x < 16; x++) {
 							for (int z = 0; z < 16; z++) {
 								for (int y = 0; y < 16; y++) {
