@@ -252,7 +252,7 @@ public class ESPModule extends BaseModule {
 			return null;
 		final ShapeContext shapeContext = ShapeContext.of(CLIENT.player);
 		MatrixStack stack = new MatrixStack();
-		VertexBuffer buffer = new VertexBuffer();
+		VertexBuffer buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
 		BufferBuilder builder = new BufferBuilder(256);
 		builder.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
 		for (BlockPos blockPos : BlockPos.iterate(chunkOrigin, chunkOrigin.add(15, 15, 15))) {

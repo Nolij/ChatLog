@@ -20,7 +20,7 @@ public class KeyboardMixin {
 	public void onKey(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
 		if (window != this.client.getWindow().getHandle()) return;
 		Screen currentScreen = this.client.currentScreen;
-		if (action == 0 || currentScreen == null || currentScreen.passEvents) {
+		if (action == 0 || currentScreen == null) {
 			for (KeyBind bind : KeyBind.getAllBinds()) {
 				if (bind.matches(key, scancode)) {
 					bind.setPressed(action != 0);

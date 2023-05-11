@@ -16,7 +16,7 @@
 		"LightmapTextureManagerMixin",
 		"MinecraftClientMixin",
 		"MouseMixin",
-		"ScreenMixin",
+      "DrawContextMixin",
 		"SharedConstantsMixin",
 		"VoxelShapeMixin",
 		"WorldChunkMixin",
