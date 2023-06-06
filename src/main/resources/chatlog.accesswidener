@@ -3,7 +3,6 @@ accessWidener v2	named
 accessible	field	net/minecraft/client/gui/screen/ingame/BookScreen						contents				Lnet/minecraft/client/gui/screen/ingame/BookScreen$Contents;
 accessible	field	net/minecraft/client/gui/screen/ingame/BookScreen$WrittenBookContents	pages					Ljava/util/List;
 mutable		field	net/minecraft/client/gui/screen/ingame/BookScreen$WrittenBookContents	pages					Ljava/util/List;
-accessible	method	net/minecraft/client/gui/screen/Screen									renderTextHoverEffect	(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/text/Style;II)V
 accessible	method	net/minecraft/client/render/Camera										setRotation				(FF)V
 accessible	field	net/minecraft/client/render/WorldRenderer								chunks					Lnet/minecraft/client/render/BuiltChunkStorage;
 accessible	field	net/minecraft/client/render/WorldRenderer$ChunkInfo						chunk					Lnet/minecraft/client/render/chunk/ChunkBuilder$BuiltChunk;
