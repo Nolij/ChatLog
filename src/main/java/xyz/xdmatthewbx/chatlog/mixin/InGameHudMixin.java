@@ -22,7 +22,7 @@ public class InGameHudMixin {
 		return opacity;
 	}
 
-	@ModifyArgs(method = "renderPortalOverlay", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;setShaderColor(FFFF)V", remap = false))
+	@ModifyArgs(method = "renderPortalOverlay", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;setShaderColor(FFFF)V"))
 	public void renderPortalOverlay(Args args) {
 		if (AntiOverlayModule.INSTANCE.enabled) {
 			args.set(3, Math.min(args.get(3), (float) ChatLog.CONFIG.get().main.antiOverlayModule.overlayOpacity * 0.7F));
