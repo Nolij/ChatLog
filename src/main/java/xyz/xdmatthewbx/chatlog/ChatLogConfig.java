@@ -100,6 +100,10 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		@ConfigEntry.Category("autoClickerModule")
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
 		public AutoClickerConfig autoClickerModule = new AutoClickerConfig();
+
+		@ConfigEntry.Category("packetIgnoreModule")
+		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+		public PacketIgnoreConfig packetIgnoreModule = new PacketIgnoreConfig();
 	}
 
 	@Config(name = "general")
@@ -240,6 +244,11 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 		@Slider(min = 0.0, max = 100.0, suffix = "ms", step = 5)
 		public double maxJitter = 50.0;
+	}
+
+	@Config(name = "packetIgnoreModule")
+	public static class PacketIgnoreConfig implements ConfigData {
+		public boolean enabled = true;
 	}
 
 	public ChatLogConfig() {

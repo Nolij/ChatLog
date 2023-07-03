@@ -74,5 +74,8 @@
 	"text.autoconfig.chatlog.option.main.autoClickerModule.keyBind": "Keybind",
 	"text.autoconfig.chatlog.option.main.autoClickerModule.mode": "Mode",
 	"text.autoconfig.chatlog.option.main.autoClickerModule.cps": "Clicks Per Second",
-	"text.autoconfig.chatlog.option.main.autoClickerModule.maxJitter": "Maximum Jitter"
+	"text.autoconfig.chatlog.option.main.autoClickerModule.maxJitter": "Maximum Jitter",
+
+	"text.autoconfig.chatlog.option.main.packetIgnoreModule": "Packet Ignore Module",
+	"text.autoconfig.chatlog.option.main.packetIgnoreModule.enabled": "Enable Module"
 }
