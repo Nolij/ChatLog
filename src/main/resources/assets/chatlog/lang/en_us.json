@@ -77,5 +77,5 @@
 	"text.autoconfig.chatlog.option.main.autoClickerModule.maxJitter": "Maximum Jitter",
 
 	"text.autoconfig.chatlog.option.main.packetIgnoreModule": "Packet Ignore Module",
-	"text.autoconfig.chatlog.option.main.packetIgnoreModule.enabled": "Enable Module"
+	"text.autoconfig.chatlog.option.main.packetIgnoreModule.ignoreCloseScreenPackets": "Ignore Close Screen Packets"
 }

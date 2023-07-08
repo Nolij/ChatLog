@@ -1,5 +1,6 @@
 package xyz.xdmatthewbx.chatlog.mixin;
 
+import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CloseScreenS2CPacket;
@@ -7,6 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.modules.ESPModule;
 import xyz.xdmatthewbx.chatlog.modules.PacketIgnoreModule;
 
@@ -21,8 +23,14 @@ public class ClientPlayNetworkHandlerMixin {
 
 	@Inject(method = "onCloseScreen", at = @At("HEAD"), cancellable = true)
 	public void onCloseScreen(CloseScreenS2CPacket packet, CallbackInfo ci) {
-		if (PacketIgnoreModule.INSTANCE.enabled)
-			ci.cancel();
+		switch (PacketIgnoreModule.INSTANCE.ignoreCloseScreenPackets) {
+			case OFF -> {}
+			case SAFE -> {
+				if (!(ChatLog.CLIENT.currentScreen instanceof GenericContainerScreen))
+					ci.cancel();
+			}
+			case UNSAFE -> ci.cancel();
+		}
 	}
 
 }

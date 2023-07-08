@@ -47,6 +47,10 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		MANUAL, TEAM
 	}
 
+	public enum OffSafeUnsafe {
+		OFF, SAFE, UNSAFE
+	}
+
 	@Config(name = "main")
 	public static class CategoryMain implements ConfigData {
 		@ConfigEntry.Category("general")
@@ -248,7 +252,8 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "packetIgnoreModule")
 	public static class PacketIgnoreConfig implements ConfigData {
-		public boolean enabled = true;
+		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+		public OffSafeUnsafe ignoreCloseScreenPackets = OffSafeUnsafe.SAFE;
 	}
 
 	public ChatLogConfig() {

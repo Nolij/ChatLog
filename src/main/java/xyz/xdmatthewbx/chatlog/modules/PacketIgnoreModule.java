@@ -1,6 +1,7 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
 import net.minecraft.util.ActionResult;
+import xyz.xdmatthewbx.chatlog.ChatLogConfig;
 
 import static xyz.xdmatthewbx.chatlog.ChatLog.CONFIG;
 import static xyz.xdmatthewbx.chatlog.ChatLog.registerChangeListener;
@@ -11,7 +12,7 @@ public class PacketIgnoreModule extends BaseModule {
 	public static final String MODULE_ID = "packet_ignore";
 	public static PacketIgnoreModule INSTANCE;
 
-	public boolean enabled = true;
+	public ChatLogConfig.OffSafeUnsafe ignoreCloseScreenPackets = ChatLogConfig.OffSafeUnsafe.SAFE;
 
 	public PacketIgnoreModule() {
 		super(MODULE_ID);
@@ -21,7 +22,7 @@ public class PacketIgnoreModule extends BaseModule {
 	@Override
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			enabled = chatLogConfig.main.packetIgnoreModule.enabled;
+			ignoreCloseScreenPackets = chatLogConfig.main.packetIgnoreModule.ignoreCloseScreenPackets;
 			return ActionResult.PASS;
 		});
 	}
