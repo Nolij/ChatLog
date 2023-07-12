@@ -3,6 +3,7 @@ package xyz.xdmatthewbx.chatlog.mixin;
 import net.minecraft.util.shape.VoxelSet;
 import net.minecraft.util.shape.VoxelShape;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 @Mixin(VoxelShape.class)
 public class VoxelShapeMixin {
 
+	@Unique
 	private ArrayList<Integer[]> edgeCache = null;
 
 	@Redirect(method = "forEachEdge", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/shape/VoxelSet;forEachEdge(Lnet/minecraft/util/shape/VoxelSet$PositionBiConsumer;Z)V"))
