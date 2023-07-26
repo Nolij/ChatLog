@@ -21,7 +21,7 @@ public class InputUnlockModule extends BaseModule {
 	@Override
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			enabled = chatLogConfig.main.inputUnlockModule.enabled;
+			enabled = chatLogConfig.main.inputUnlockModule.enabled && chatLogConfig.main.general.enabled;
 			return ActionResult.PASS;
 		});
 	}

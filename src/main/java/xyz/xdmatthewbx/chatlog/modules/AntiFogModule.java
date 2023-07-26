@@ -21,7 +21,7 @@ public class AntiFogModule extends BaseModule {
 	@Override
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			enabled = chatLogConfig.main.antiFogModule.enabled;
+			enabled = chatLogConfig.main.antiFogModule.enabled && chatLogConfig.main.general.enabled;
 			return ActionResult.PASS;
 		});
 	}

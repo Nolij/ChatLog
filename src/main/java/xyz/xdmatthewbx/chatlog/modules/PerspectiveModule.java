@@ -1,5 +1,6 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
+import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.util.ActionResult;
@@ -31,7 +32,10 @@ public class PerspectiveModule extends BaseModule {
 	public void onInitializeClient() {
 		keyBind = new KeyBind(ChatLog.CONFIG.get().main.perspectiveModule.keyBind);
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			keyBind.setBoundKey(chatLogConfig.main.perspectiveModule.keyBind);
+			keyBind.setBoundKey(
+				chatLogConfig.main.general.enabled
+				? chatLogConfig.main.perspectiveModule.keyBind
+				: ModifierKeyCode.unknown());
 			return ActionResult.PASS;
 		});
 

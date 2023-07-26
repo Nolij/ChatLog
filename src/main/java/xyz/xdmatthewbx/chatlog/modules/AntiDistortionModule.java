@@ -21,7 +21,7 @@ public class AntiDistortionModule extends BaseModule {
 	@Override
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			enabled = chatLogConfig.main.antiDistortionModule.enabled;
+			enabled = chatLogConfig.main.antiDistortionModule.enabled && chatLogConfig.main.general.enabled;
 			return ActionResult.PASS;
 		});
 	}

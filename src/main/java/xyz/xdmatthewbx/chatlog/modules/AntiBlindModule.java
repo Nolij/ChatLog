@@ -21,7 +21,7 @@ public class AntiBlindModule extends BaseModule {
 	@Override
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			enabled = chatLogConfig.main.antiBlindModule.enabled;
+			enabled = chatLogConfig.main.antiBlindModule.enabled && chatLogConfig.main.general.enabled;
 			return ActionResult.PASS;
 		});
 	}

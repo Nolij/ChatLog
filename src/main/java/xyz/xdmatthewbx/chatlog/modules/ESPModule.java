@@ -291,7 +291,7 @@ public class ESPModule extends BaseModule {
 	@Override
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			enabled = chatLogConfig.main.espModule.enabled;
+			enabled = chatLogConfig.main.espModule.enabled && chatLogConfig.main.general.enabled;
 
 			var legacyBlockFilters = CONFIG.get().main.espModule.blockFilters;
 			if (!legacyBlockFilters.isEmpty()) {

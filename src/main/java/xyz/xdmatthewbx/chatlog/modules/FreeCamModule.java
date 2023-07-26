@@ -1,5 +1,6 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
+import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.Entity;
@@ -33,7 +34,10 @@ public class FreeCamModule extends BaseModule {
 	public void onInitializeClient() {
 		keyBind = new KeyBind(CONFIG.get().main.freeCamModule.keyBind);
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			keyBind.setBoundKey(chatLogConfig.main.freeCamModule.keyBind);
+			keyBind.setBoundKey(
+				chatLogConfig.main.general.enabled
+				? chatLogConfig.main.freeCamModule.keyBind
+				: ModifierKeyCode.unknown());
 			return ActionResult.PASS;
 		});
 

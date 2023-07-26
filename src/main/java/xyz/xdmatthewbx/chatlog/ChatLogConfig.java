@@ -112,6 +112,8 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "general")
 	public static class GeneralConfig implements ConfigData {
+		public boolean enabled = true;
+
 		public ModifierKeyCode configKeyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(InputUtil.GLFW_KEY_RIGHT_SHIFT), Modifier.none());
 	}
 

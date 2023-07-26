@@ -22,7 +22,10 @@ public class PacketIgnoreModule extends BaseModule {
 	@Override
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			ignoreCloseScreenPackets = chatLogConfig.main.packetIgnoreModule.ignoreCloseScreenPackets;
+			ignoreCloseScreenPackets =
+				chatLogConfig.main.general.enabled
+				? chatLogConfig.main.packetIgnoreModule.ignoreCloseScreenPackets
+				: ChatLogConfig.OffSafeUnsafe.OFF;
 			return ActionResult.PASS;
 		});
 	}

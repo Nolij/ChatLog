@@ -26,7 +26,7 @@ public class ToolTipInfoModule extends BaseModule {
 	@Override
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			enabled = chatLogConfig.main.toolTipInfoModule.enabled;
+			enabled = chatLogConfig.main.toolTipInfoModule.enabled && chatLogConfig.main.general.enabled;
 			return ActionResult.PASS;
 		});
 	}

@@ -1,5 +1,6 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
+import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.util.ActionResult;
 import xyz.xdmatthewbx.chatlog.ChatLog;
@@ -34,7 +35,10 @@ public class AutoClickerModule extends BaseModule {
 	public void onInitializeClient() {
 		keyBind = new KeyBind(CONFIG.get().main.autoClickerModule.keyBind);
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			keyBind.setBoundKey(chatLogConfig.main.autoClickerModule.keyBind);
+			keyBind.setBoundKey(
+				chatLogConfig.main.general.enabled
+				? chatLogConfig.main.autoClickerModule.keyBind
+				: ModifierKeyCode.unknown());
 			pressDelay = Math.round((1 / chatLogConfig.main.autoClickerModule.cps) * 1000D);
 			releaseDelay = Math.round((50D / 7D) * (7 + (7 - chatLogConfig.main.autoClickerModule.cps)));
 			maxJitter = chatLogConfig.main.autoClickerModule.maxJitter;

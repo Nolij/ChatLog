@@ -21,7 +21,7 @@ public class AntiOverlayModule extends BaseModule {
 	@Override
 	public void onInitializeClient() {
 		registerChangeListener(CONFIG, (configHolder, chatLogConfig) -> {
-			enabled = chatLogConfig.main.antiOverlayModule.enabled;
+			enabled = chatLogConfig.main.antiOverlayModule.enabled && chatLogConfig.main.general.enabled;
 			return ActionResult.PASS;
 		});
 	}

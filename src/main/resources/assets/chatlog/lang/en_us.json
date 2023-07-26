@@ -9,6 +9,7 @@
 	"text.autoconfig.chatlog.title": "Chat Log Settings",
 
 	"text.autoconfig.chatlog.option.main.general": "General Settings",
+	"text.autoconfig.chatlog.option.main.general.enabled": "Enable ChatLog",
 	"text.autoconfig.chatlog.option.main.general.configKeyBind": "Open Config Keybind",
 
 	"text.autoconfig.chatlog.option.main.render": "Render Settings",
