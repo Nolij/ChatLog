@@ -60,7 +60,15 @@ public class ToolTipInfoModule extends BaseModule {
 					} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ITEM) {
 						LOGGER.debug("SHOW_ITEM");
 						//noinspection DataFlowIssue
-						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ITEM).asStack().getTooltip(CLIENT.player, CLIENT.options.advancedItemTooltips ? TooltipContext.Default.ADVANCED : TooltipContext.Default.BASIC);
+						lines = hoverEvent
+							.getValue(HoverEvent.Action.SHOW_ITEM)
+							.asStack()
+							.getTooltip(
+								CLIENT.player,
+								CLIENT.options.advancedItemTooltips
+									? TooltipContext.Default.ADVANCED
+									: TooltipContext.Default.BASIC
+							);
 					}
 				} catch (NullPointerException ex) {
 					LOGGER.debug(ex.toString());
