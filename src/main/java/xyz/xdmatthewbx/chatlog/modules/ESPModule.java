@@ -21,7 +21,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.CommandRegistryAccess.EntryListCreationPolicySettable;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.command.EntitySelectorReader;
 import net.minecraft.command.argument.BlockPredicateArgumentType;
@@ -34,22 +33,17 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.chunk.ChunkCache;
 import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.WorldChunk;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.ChatLogConfig;
-import xyz.xdmatthewbx.chatlog.ChatLogConfig.BlockESPFilter;
-import xyz.xdmatthewbx.chatlog.ChatLogConfig.BlockESPFilterGroup;
-import xyz.xdmatthewbx.chatlog.ChatLogConfig.EntityESPFilter;
-import xyz.xdmatthewbx.chatlog.ChatLogConfig.EntityESPFilterGroup;
 import xyz.xdmatthewbx.chatlog.render.Renderer;
 import xyz.xdmatthewbx.chatlog.util.SimplePalettedContainer;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -122,17 +116,9 @@ public class ESPModule extends BaseModule {
 
 	public void cacheBlockPos(BlockView world, BlockPos blockPos) {
 		if (!enabled || ChatLog.CLIENT.world == null || blockFilters.isEmpty()) return;
-		CachedBlockPosition cachedBlockPosition = new CachedBlockPosition(ChatLog.CLIENT.world, blockPos, false);
-		cachedBlockPosition.state = world.getBlockState(blockPos);
-		cachedBlockPosition.blockEntity = world.getBlockEntity(blockPos);
-		cachedBlockPosition.cachedEntity = true;
-		Pair<Predicate<CachedBlockPosition>, Integer> match = null;
-		for (var filter : blockFilters) {
-			if (filter.getLeft().test(cachedBlockPosition)) {
-				match = filter;
-				break;
-			}
-		}
+
+		Pair<Predicate<CachedBlockPosition>, Integer> match = getMatch(world, blockPos);
+
 		BlockPos subChunkOrigin = new BlockPos(blockPos.getX() & ~(0xf), blockPos.getY() & ~(0xf), blockPos.getZ() & ~(0xf));
 		synchronized (blockCache) {
 			SubChunkCache subChunk = blockCache.get(subChunkOrigin);
@@ -146,6 +132,27 @@ public class ESPModule extends BaseModule {
 				subChunk.setColorForBlockPos(blockPos, null);
 			}
 		}
+	}
+
+	@Nullable
+	private Pair<Predicate<CachedBlockPosition>, Integer> getMatch(BlockView world, BlockPos blockPos) {
+		CachedBlockPosition cachedBlockPosition = new CachedBlockPosition(ChatLog.CLIENT.world, blockPos, false);
+
+		cachedBlockPosition.state = world.getBlockState(blockPos);
+		cachedBlockPosition.blockEntity = world.getBlockEntity(blockPos);
+		cachedBlockPosition.cachedEntity = true;
+
+		return getMatch(cachedBlockPosition);
+	}
+
+	@Nullable
+	private Pair<Predicate<CachedBlockPosition>, Integer> getMatch(CachedBlockPosition cachedBlockPosition) {
+		for (var filter : blockFilters) {
+			if (filter.getLeft().test(cachedBlockPosition)) {
+				return filter;
+			}
+		}
+		return null;
 	}
 
 	private final LinkedHashSet<BlockPos> blockCacheQueue = new LinkedHashSet<>();
