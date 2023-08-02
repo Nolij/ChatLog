@@ -55,7 +55,7 @@ dependencies {
 
 	include(implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:0.2.0-beta.8")))
 
-	//include(modRuntimeOnly("maven.modrinth:no-chat-reports:${project.no_chat_reports_version}"))
+	include(modRuntimeOnly("maven.modrinth:no-chat-reports:${project.no_chat_reports_version}"))
 }
 
 processResources {
