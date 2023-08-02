@@ -5,7 +5,10 @@ import net.minecraft.text.*;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import static xyz.xdmatthewbx.chatlog.ChatLog.CONFIG;
 import static xyz.xdmatthewbx.chatlog.ChatLog.registerChangeListener;
@@ -36,57 +39,60 @@ public class ToolTipInfoModule extends BaseModule {
 			.formatted(Formatting.DARK_GRAY);
 	}
 
-	public HoverEvent getHoverEvent(Style style) {
-		ClickEvent clickEvent = style.getClickEvent();
-		if (clickEvent != null) {
-			HoverEvent hoverEvent = style.getHoverEvent();
-			MutableText hoverText = MutableText.of(new LiteralTextContent(""));
-			MutableText clickInfoText = generateClickInfo(clickEvent);
-			if (hoverEvent == null) {
-				LOGGER.debug("NO HOVEREVENT");
-				hoverText = clickInfoText;
-			} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_TEXT) {
-				LOGGER.debug("SHOW_TEXT");
-				hoverText.append(hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT));
-//				if (hoverText.getString().contains(clickEvent.getValue())) return style;
-				hoverText.append(MutableText.of(new LiteralTextContent("\n\n")).append(clickInfoText));
-			} else {
-				List<Text> lines = List.of();
-				try {
-					if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ENTITY) {
-						LOGGER.debug("SHOW_ENTITY");
-						//noinspection DataFlowIssue
-						lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ENTITY).asTooltip();
-					} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ITEM) {
-						LOGGER.debug("SHOW_ITEM");
-						//noinspection DataFlowIssue
-						lines = hoverEvent
-							.getValue(HoverEvent.Action.SHOW_ITEM)
-							.asStack()
-							.getTooltip(
-								CLIENT.player,
-								CLIENT.options.advancedItemTooltips
-									? TooltipContext.Default.ADVANCED
-									: TooltipContext.Default.BASIC
-							);
+	private static final Map<Style, HoverEvent> hoverEventCache = Collections.synchronizedMap(new WeakHashMap<>());
+
+	public HoverEvent getHoverEvent(Style _style) {
+		return hoverEventCache.computeIfAbsent(_style, style -> {
+			ClickEvent clickEvent = style.getClickEvent();
+			if (clickEvent != null) {
+				HoverEvent hoverEvent = style.getHoverEvent();
+				MutableText hoverText = MutableText.of(new LiteralTextContent(""));
+				MutableText clickInfoText = generateClickInfo(clickEvent);
+				if (hoverEvent == null) {
+					LOGGER.debug("NO HOVEREVENT");
+					hoverText = clickInfoText;
+				} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_TEXT) {
+					LOGGER.debug("SHOW_TEXT");
+					hoverText.append(hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT));
+					hoverText.append(MutableText.of(new LiteralTextContent("\n\n")).append(clickInfoText));
+				} else {
+					List<Text> lines = List.of();
+					try {
+						if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ENTITY) {
+							LOGGER.debug("SHOW_ENTITY");
+							//noinspection DataFlowIssue
+							lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ENTITY).asTooltip();
+						} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ITEM) {
+							LOGGER.debug("SHOW_ITEM");
+							//noinspection DataFlowIssue
+							lines = hoverEvent
+								.getValue(HoverEvent.Action.SHOW_ITEM)
+								.asStack()
+								.getTooltip(
+									CLIENT.player,
+									CLIENT.options.advancedItemTooltips
+										? TooltipContext.Default.ADVANCED
+										: TooltipContext.Default.BASIC
+								);
+						}
+					} catch (NullPointerException ex) {
+						LOGGER.debug(ex.toString());
 					}
-				} catch (NullPointerException ex) {
-					LOGGER.debug(ex.toString());
-				}
-				if (lines.size() > 0) {
-					for (Text line : lines) {
-						LOGGER.debug(line.getString());
-						hoverText.append(line);
+					if (lines.size() > 0) {
+						for (Text line : lines) {
+							LOGGER.debug(line.getString());
+							hoverText.append(line);
+							hoverText.append("\n");
+						}
 						hoverText.append("\n");
 					}
-					hoverText.append("\n");
+					hoverText.append(clickInfoText);
 				}
-				hoverText.append(clickInfoText);
+				hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText);
+				return hoverEvent;
 			}
-			hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText);
-			return hoverEvent;
-		}
-		return style.getHoverEvent();
+			return style.getHoverEvent();
+		});
 	}
 
 }
