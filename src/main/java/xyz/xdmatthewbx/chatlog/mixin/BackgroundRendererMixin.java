@@ -1,5 +1,7 @@
 package xyz.xdmatthewbx.chatlog.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.CameraSubmersionType;
@@ -88,20 +90,20 @@ public class BackgroundRendererMixin {
 		return dotProduct;
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"), require = 1, allow = 1)
-	private static float onGetRainGradient(ClientWorld instance, float tickDelta) {
-		if (AntiFogModule.INSTANCE.enabled) {
+	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"), require = 1, allow = 1)
+	private static float onGetRainGradient(ClientWorld instance, float tickDelta, Operation<Float> original) {
+		if (AntiFogModule.INSTANCE.enabled)
 			return 0;
-		}
-		return instance.getRainGradient(tickDelta);
+
+		return original.call(instance, tickDelta);
 	}
 
-	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getThunderGradient(F)F"), require = 1, allow = 1)
-	private static float onGetThunderGradient(ClientWorld instance, float tickDelta) {
-		if (AntiFogModule.INSTANCE.enabled) {
+	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getThunderGradient(F)F"), require = 1, allow = 1)
+	private static float onGetThunderGradient(ClientWorld instance, float tickDelta, Operation<Float> original) {
+		if (AntiFogModule.INSTANCE.enabled)
 			return 0;
-		}
-		return instance.getThunderGradient(tickDelta);
+
+		return original.call(instance, tickDelta);
 	}
 
 }
