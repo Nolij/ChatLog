@@ -1,6 +1,13 @@
 package xyz.xdmatthewbx.chatlog.modules;
 
+import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screen.GameMenuScreen;
+import net.minecraft.client.gui.screen.ingame.*;
+import net.minecraft.client.gui.screen.option.GameOptionsScreen;
+import net.minecraft.client.gui.screen.option.OptionsScreen;
+import net.minecraft.network.packet.s2c.play.CloseScreenS2CPacket;
 import net.minecraft.util.ActionResult;
+import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.ChatLogConfig;
 
 import static xyz.xdmatthewbx.chatlog.ChatLog.CONFIG;
@@ -28,5 +35,33 @@ public class PacketIgnoreModule extends BaseModule {
 				: ChatLogConfig.OffSafeUnsafe.OFF;
 			return ActionResult.PASS;
 		});
+	}
+
+	public boolean shouldIgnorePacket(CloseScreenS2CPacket packet) {
+		switch (PacketIgnoreModule.INSTANCE.ignoreCloseScreenPackets) {
+			case OFF -> {
+				return false;
+			}
+			case UNSAFE -> {
+				return true;
+			}
+		}
+
+		var screen = ChatLog.CLIENT.currentScreen;
+		if (screen == null)
+			return false;
+
+		// block server closing these types of screens
+		if (screen instanceof AbstractInventoryScreen<?> || // player inventory
+			screen instanceof GameOptionsScreen || // menus
+			screen instanceof OptionsScreen ||
+			screen instanceof GameMenuScreen ||
+			screen instanceof ChatScreen) // chat
+			return true;
+
+		var packageName = screen.getClass().getPackageName();
+
+		// block server closing modded screens; allow it to close non-whitelisted vanilla screens
+		return !packageName.startsWith("net.minecraft.");
 	}
 }

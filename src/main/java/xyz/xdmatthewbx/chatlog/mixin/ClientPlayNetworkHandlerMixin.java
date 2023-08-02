@@ -23,14 +23,8 @@ public class ClientPlayNetworkHandlerMixin {
 
 	@Inject(method = "onCloseScreen", at = @At("HEAD"), cancellable = true)
 	public void onCloseScreen(CloseScreenS2CPacket packet, CallbackInfo ci) {
-		switch (PacketIgnoreModule.INSTANCE.ignoreCloseScreenPackets) {
-			case OFF -> {}
-			case SAFE -> {
-				if (!(ChatLog.CLIENT.currentScreen instanceof GenericContainerScreen))
-					ci.cancel();
-			}
-			case UNSAFE -> ci.cancel();
-		}
+		if (PacketIgnoreModule.INSTANCE.shouldIgnorePacket(packet))
+			ci.cancel();
 	}
 
 }
