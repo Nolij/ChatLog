@@ -31,7 +31,7 @@ public class BackgroundRendererMixin {
 	}
 
 	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogStart(F)V", remap = false))
-	private static float setShaderFogStart(float f) {
+	private static float applyFog$setShaderFogStart(float f) {
 		if (AntiFogModule.INSTANCE.enabled) {
 			return -5F;
 		} else {
@@ -40,7 +40,7 @@ public class BackgroundRendererMixin {
 	}
 
 	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
-	private static float setShaderFogEnd(float f) {
+	private static float applyFog$setShaderFogEnd(float f) {
 		if (AntiFogModule.INSTANCE.enabled) {
 			return 10000000F;
 		} else {
@@ -85,9 +85,9 @@ public class BackgroundRendererMixin {
 
 	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lorg/joml/Vector3f;dot(Lorg/joml/Vector3fc;)F", remap = false), ordinal = 7, require = 1, allow = 1)
 	private static float afterPlaneDot(float dotProduct) {
-		if (AntiFogModule.INSTANCE.enabled) {
+		if (AntiFogModule.INSTANCE.enabled)
 			return 0;
-		}
+
 		return dotProduct;
 	}
 
