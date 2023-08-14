@@ -59,9 +59,8 @@ public class PacketIgnoreModule extends BaseModule {
 			screen instanceof ChatScreen) // chat
 			return true;
 
-		var packageName = screen.getClass().getPackageName();
-
 		// block server closing modded screens; allow it to close non-whitelisted vanilla screens
-		return !packageName.startsWith("net.minecraft.");
+		var packageName = screen.getClass().getPackageName();
+		return !(packageName.equals("net.minecraft") || packageName.startsWith("net.minecraft."));
 	}
 }
