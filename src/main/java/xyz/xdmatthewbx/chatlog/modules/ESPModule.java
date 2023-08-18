@@ -108,12 +108,7 @@ public class ESPModule extends BaseModule {
 			return predicate.test(cachedBlockPosition);
 		};
 	}
-
-	public void cacheBlockPos(BlockPos blockPos) {
-		if (ChatLog.CLIENT.world == null) return;
-		cacheBlockPos(ChatLog.CLIENT.world, blockPos);
-	}
-
+	
 	public void cacheBlockPos(BlockView world, BlockPos blockPos) {
 		if (!enabled || ChatLog.CLIENT.world == null || blockFilters.isEmpty()) return;
 
@@ -253,6 +248,8 @@ public class ESPModule extends BaseModule {
 	 * chunk not existing
 	 */
 	private VertexBuffer generateBuffer(SubChunkCache cache, BlockPos chunkOrigin) {
+		assert CLIENT.world != null;
+		assert CLIENT.player != null;
 		ClientChunkManager chunkManager = CLIENT.world.getChunkManager();
 		var chunk = chunkManager.getChunk(ChunkSectionPos.getSectionCoord(chunkOrigin.getX()), ChunkSectionPos.getSectionCoord(chunkOrigin.getZ()), ChunkStatus.FULL, false);
 		if (chunk == null)
@@ -426,7 +423,7 @@ public class ESPModule extends BaseModule {
 					Vec3d cameraPos = camera.getPos();
 					frustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 					// fix camera box offset
-					frustum.method_38557(8);
+					frustum.coverBoxAroundSetPosition(8);
 					Matrix4f projMatrix = RenderSystem.getProjectionMatrix();
 					// loop over every subchunk in the cache
 					// this is a hot path (runs every frame) so keep it fast
@@ -440,6 +437,7 @@ public class ESPModule extends BaseModule {
 							// to be stored)
 							// in most cases this will be instant since the
 							// cache will be built
+							//noinspection SynchronizationOnLocalVariableOrMethodParameter
 							synchronized (cache) {
 								cacheBuffer = cache.currentBuffer;
 								if (cacheBuffer == null) {
@@ -479,8 +477,8 @@ public class ESPModule extends BaseModule {
 	}
 
 	static final class SubChunkCache {
-		private SimplePalettedContainer<Integer> colorPalette;
-
+		private final SimplePalettedContainer<Integer> colorPalette;
+		
 		private byte[] colorByLocalBlockPos;
 		private VertexBuffer currentBuffer;
 		private int frameFrustumLastChecked = 0;

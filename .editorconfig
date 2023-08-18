@@ -14,10 +14,13 @@ ij_formatter_off_tag = @formatter:off
 ij_formatter_on_tag = @formatter:on
 ij_formatter_tags_enabled = true
 ij_smart_tabs = true
-ij_visual_guides = none
-ij_wrap_on_typing = false
+ij_visual_guides = unset
+ij_wrap_on_typing = true
 ij_java_keep_indents_on_empty_lines = true
 ij_java_keep_line_breaks = true
+ij_any_space_within_empty_array_initializer_braces = true
+ij_any_space_before_array_initializer_left_brace = true
+ij_any_block_brace_style = gnu
 
 [*.java]
 ij_java_align_consecutive_assignments = false
@@ -247,8 +250,9 @@ ij_java_spaces_around_type_bounds_in_type_parameters = true
 ij_java_spaces_around_unary_operator = false
 ij_java_spaces_within_angle_brackets = false
 ij_java_spaces_within_annotation_parentheses = false
-ij_java_spaces_within_array_initializer_braces = false
-ij_java_spaces_within_braces = false
+ij_java_spaces_within_array_initializer_braces = true
+ij_java_spaces_within_braces = true
+ij_any_keep_simple_lambdas_in_one_line = true
 ij_java_spaces_within_brackets = false
 ij_java_spaces_within_cast_parentheses = false
 ij_java_spaces_within_catch_parentheses = false
@@ -475,7 +479,7 @@ ij_groovy_wrap_long_lines = false
 [{*.har,*.jsb2,*.jsb3,*.json,*.png.mcmeta,.babelrc,.eslintrc,.prettierrc,.stylelintrc,bowerrc,jest.config,mcmod.info,pack.mcmeta}]
 ij_smart_tabs = false
 ij_json_array_wrapping = split_into_lines
-ij_json_keep_blank_lines_in_code = 0
+ij_json_keep_blank_lines_in_code = 1
 ij_json_keep_line_breaks = true
 ij_json_keep_trailing_comma = true
 ij_json_object_wrapping = split_into_lines

@@ -1,24 +1,45 @@
 [versions]
-# The latest versions are available at https://lambdaurora.dev/tools/import_quilt.html
-minecraft = "1.20"
-yarn_mappings = "1.20+build.1"
-fabric_loader = "0.14.21"
+# Gradle Plugins
+fabric_loom = "1.2.+"
+vineflower = "1.11.+" # https://github.com/Juuxel/loom-vineflower/releases
 
-#quilted_fabric_api = "5.0.0-beta.7+0.75.1-1.19.4-SNAPSHOT"
-fabric_api="0.83.0+1.20"
+# Fabric
+minecraft = "1.20.1"
+yarn_mappings = "1.20.1+build.10" # https://fabricmc.net/versions.html
+fabric_loader = "0.14.22" # https://fabricmc.net/versions.html
+fabric_api = "0.87.0+1.20.1" # https://fabricmc.net/versions.html
+
+# Mod APIs
+cloth_config = "12.0.+" # https://maven.shedaniel.me/me/shedaniel/cloth/cloth-config-fabric/maven-metadata.xml
+mod_menu = "7.2.+" # https://maven.terraformersmc.com/releases/com/terraformersmc/modmenu/maven-metadata.xml
+mixin_extras = "0.2.+" # https://jitpack.io/com/github/llamalad7/mixinextras/maven-metadata.xml
+
+# Java APIs
+reflections = "0.10.+" # https://central.sonatype.com/artifact/org.reflections/reflections/
+javassist = "3.29.+" # https://central.sonatype.com/artifact/org.javassist/javassist/
+
+# Bundled Mods
+no_chat_reports = "Fabric-1.20.1-v2.2.2" # https://modrinth.com/mod/no-chat-reports/versions?l=fabric
 
 [libraries]
+# Fabric
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+yarn_mappings = { module = "net.fabricmc:yarn", version.ref = "yarn_mappings" }
 fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric_loader" }
-
-#quilted_fabric_api = { module = "org.quiltmc.quilted-fabric-api:quilted-fabric-api", version.ref = "quilted_fabric_api" }
-#quilted_fabric_api_deprecated = { module = "org.quiltmc.quilted-fabric-api:quilted-fabric-api-deprecated", version.ref = "quilted_fabric_api" }
-#quilt_standard_libraries = { module = "org.quiltmc:qsl", version.ref = "quilt_standard_libraries" }
 fabric_api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric_api" }
 
-# If you have multiple similar dependencies, you can declare a dependency bundle and reference it on the build script with "libs.bundles.example".
-[bundles]
-#quilted_fabric_api = ["quilted_fabric_api", "quilted_fabric_api_deprecated"]
+# Mod APIs
+mod_menu = { module = "com.terraformersmc:modmenu", version.ref = "mod_menu" }
+cloth_config = { module = "me.shedaniel.cloth:cloth-config-fabric", version.ref = "cloth_config" }
+mixin_extras = { module = "com.github.llamalad7.mixinextras:mixinextras-fabric", version.ref = "mixin_extras" }
+
+# Java APIs
+reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
+javassist = { module = "org.javassist:javassist", version.ref = "javassist" }
+
+# Bundled Mods
+no_chat_reports = { module = "maven.modrinth:no-chat-reports", version.ref = "no_chat_reports" }
 
 [plugins]
-fabric_loom = { id = "fabric-loom", version = "1.2.+" }
+fabric_loom = { id = "fabric-loom", version.ref = "fabric_loom" }
+vineflower = { id = "io.github.juuxel.loom-vineflower", version.ref = "vineflower" }
