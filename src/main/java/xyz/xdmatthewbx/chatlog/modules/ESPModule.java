@@ -20,7 +20,6 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.command.EntitySelectorReader;
 import net.minecraft.command.argument.BlockPredicateArgumentType;
@@ -29,13 +28,13 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Pair;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.*;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.chunk.ChunkCache;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.ChatLogConfig;
 import xyz.xdmatthewbx.chatlog.render.Renderer;
@@ -98,7 +97,7 @@ public class ESPModule extends BaseModule {
 						selector,
 						s -> {
 							try {
-								return blockPredicateArgumentType.parse(new StringReader(s));
+								return blockPredicateArgumentType.parse(new StringReader(s)).create(Registry.BLOCK);
 							} catch (CommandSyntaxException e) {
 								return ignored -> false;
 							}
@@ -195,8 +194,7 @@ public class ESPModule extends BaseModule {
 		blockPredicateCache.clear();
 		cachedWorld.set(ChatLog.CLIENT.world);
 		if (!enabled || blockFilters.isEmpty() || ChatLog.CLIENT.world == null) return;
-		var commandBuildContext = CommandRegistryAccess.of(ChatLog.CLIENT.world.getRegistryManager(), ChatLog.CLIENT.world.getEnabledFeatures());
-		blockPredicateArgumentType = BlockPredicateArgumentType.blockPredicate(commandBuildContext);
+		blockPredicateArgumentType = BlockPredicateArgumentType.blockPredicate();
 		var chunks = ChatLog.CLIENT.world.getChunkManager().chunks.chunks;
 		for (int i = 0; i < chunks.length(); i++) {
 			var chunk = chunks.get(i);
@@ -256,7 +254,7 @@ public class ESPModule extends BaseModule {
 			return null;
 		final ShapeContext shapeContext = ShapeContext.of(CLIENT.player);
 		MatrixStack stack = new MatrixStack();
-		VertexBuffer buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+		VertexBuffer buffer = new VertexBuffer();
 		BufferBuilder builder = new BufferBuilder(256);
 		builder.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
 		for (BlockPos blockPos : BlockPos.iterate(chunkOrigin, chunkOrigin.add(15, 15, 15))) {
@@ -275,12 +273,12 @@ public class ESPModule extends BaseModule {
 				var x = blockPos.getX() - chunkOrigin.getX();
 				var y = blockPos.getY() - chunkOrigin.getY();
 				var z = blockPos.getZ() - chunkOrigin.getZ();
-				WorldRenderer.drawCuboidShapeOutline(stack, builder, shape, x, y, z, red, green, blue, 1F);
+				WorldRenderer.drawShapeOutline(stack, builder, shape, x, y, z, red, green, blue, 1F);
 			}
 		}
-		BufferBuilder.BuiltBuffer rendered = builder.end();
+		builder.end();
 		buffer.bind();
-		buffer.upload(rendered);
+		buffer.upload(builder);
 		// no need to unbind here as we are about to render it
 		return buffer;
 	}
@@ -419,11 +417,11 @@ public class ESPModule extends BaseModule {
 			public void render(MatrixStack matrix, BufferBuilder buffer, Camera camera) {
 				if (enabled && CLIENT.world != null && CLIENT.player != null) {
 					final float tickDelta = getTickDelta();
-					Frustum frustum = new Frustum(matrix.peek().getPositionMatrix(), CLIENT.gameRenderer.getBasicProjectionMatrix(CLIENT.options.getFov().getValue()));
+					Frustum frustum = new Frustum(matrix.peek().getPositionMatrix(), CLIENT.gameRenderer.getBasicProjectionMatrix(CLIENT.options.fov));
 					Vec3d cameraPos = camera.getPos();
 					frustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 					// fix camera box offset
-					frustum.coverBoxAroundSetPosition(8);
+					frustum.method_38557(8);
 					Matrix4f projMatrix = RenderSystem.getProjectionMatrix();
 					// loop over every subchunk in the cache
 					// this is a hot path (runs every frame) so keep it fast
@@ -452,7 +450,7 @@ public class ESPModule extends BaseModule {
 							matrix.push();
 							// move to subchunk-relative position
 							matrix.translate(entry.getKey().getX() - (float)cameraPos.x, entry.getKey().getY() - (float)cameraPos.y, entry.getKey().getZ() - (float)cameraPos.z);
-							cacheBuffer.draw(matrix.peek().getPositionMatrix(), projMatrix, GameRenderer.getPositionColorProgram());
+							cacheBuffer.setShader(matrix.peek().getPositionMatrix(), projMatrix, GameRenderer.getPositionColorShader());
 							matrix.pop();
 						}
 					}

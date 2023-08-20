@@ -17,6 +17,8 @@ import xyz.xdmatthewbx.chatlog.modules.FullBrightModule;
 @Mixin(LightmapTextureManager.class)
 public class LightmapTextureManagerMixin {
 
+	/*
+
 	@WrapOperation(method = "update", at = @At(value = "INVOKE", target = "Ljava/lang/Double;floatValue()F"))
 	public float update(Double instance, Operation<Float> original) {
 		if (FullBrightModule.INSTANCE.enabled) {
@@ -26,6 +28,7 @@ public class LightmapTextureManagerMixin {
 		return original.call(instance);
 	}
 
+	
 	@Inject(method = "getDarkness", at = @At("HEAD"), cancellable = true)
 	public void getDarkness(LivingEntity entity, float factor, float delta, CallbackInfoReturnable<Float> cir) {
 		if (FullBrightModule.INSTANCE.enabled)
@@ -40,5 +43,7 @@ public class LightmapTextureManagerMixin {
 
 		return original.call(instance, statusEffect);
 	}
+
+	*/
 
 }

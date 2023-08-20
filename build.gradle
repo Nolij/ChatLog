@@ -46,7 +46,9 @@ dependencies {
 	include libs.javassist
 
 	// Bundled Mods
-	include modRuntimeOnly(libs.no.chat.reports.get())
+	// include modRuntimeOnly(libs.no.chat.reports.get())
+	
+	modRuntimeOnly(libs.lazy.dfu.get())
 }
 
 processResources {

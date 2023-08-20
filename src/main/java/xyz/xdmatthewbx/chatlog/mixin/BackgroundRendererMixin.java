@@ -1,5 +1,6 @@
 package xyz.xdmatthewbx.chatlog.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.render.BackgroundRenderer;
@@ -21,13 +22,12 @@ import xyz.xdmatthewbx.chatlog.modules.AntiFogModule;
 
 @Mixin(BackgroundRenderer.class)
 public class BackgroundRendererMixin {
-
-	@WrapOperation(method = "applyFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/BackgroundRenderer;getFogModifier(Lnet/minecraft/entity/Entity;F)Lnet/minecraft/client/render/BackgroundRenderer$StatusEffectFogModifier;"))
-	private static BackgroundRenderer.StatusEffectFogModifier applyFog$getFogModifier(Entity entity, float tickDelta, Operation<BackgroundRenderer.StatusEffectFogModifier> original) {
-		if (AntiBlindModule.INSTANCE.enabled)
-			return null;
-
-		return original.call(entity, tickDelta);
+	
+	@WrapOperation(method = "applyFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;hasStatusEffect(Lnet/minecraft/entity/effect/StatusEffect;)Z"))
+	private static boolean ignoreBlindness(LivingEntity e, StatusEffect effect, Operation<Boolean> operation) {
+		if(AntiFogModule.INSTANCE.enabled && effect == StatusEffects.BLINDNESS)
+			return false;
+		return operation.call(e, effect);
 	}
 
 	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogStart(F)V", remap = false))
@@ -64,6 +64,7 @@ public class BackgroundRendererMixin {
 		return original.call(instance);
 	}
 
+	/*
 	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;hasStatusEffect(Lnet/minecraft/entity/effect/StatusEffect;)Z"))
 	private static boolean render$hasStatusEffect(LivingEntity instance, StatusEffect effect, Operation<Boolean> original) {
 		if (AntiBlindModule.INSTANCE.enabled &&
@@ -72,6 +73,7 @@ public class BackgroundRendererMixin {
 
 		return original.call(instance, effect);
 	}
+	 */
 
 	@SuppressWarnings("InvalidInjectorMethodSignature") // not sure why this shows in the first place
 	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/util/CubicSampler;sampleColor(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$RgbFetcher;)Lnet/minecraft/util/math/Vec3d;"), ordinal = 2, require = 1, allow = 1)
@@ -83,7 +85,7 @@ public class BackgroundRendererMixin {
 		return value;
 	}
 
-	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lorg/joml/Vector3f;dot(Lorg/joml/Vector3fc;)F", remap = false), ordinal = 7, require = 1, allow = 1)
+	@ModifyVariable(method = "render", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/util/math/Vec3f;dot(Lnet/minecraft/util/math/Vec3f;)F", remap = false), ordinal = 7, require = 1, allow = 1)
 	private static float afterPlaneDot(float dotProduct) {
 		if (AntiFogModule.INSTANCE.enabled)
 			return 0;

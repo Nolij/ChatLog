@@ -11,7 +11,7 @@ import xyz.xdmatthewbx.chatlog.ChatLog;
 public class KeyboardInputMixin {
 
 	@Inject(method = "tick", at = @At("TAIL"))
-	public void verticalLock(boolean slowDown, float f, CallbackInfo ci) {
+	public void verticalLock(boolean slowDown, CallbackInfo ci) {
 		if (ChatLog.movementLock.isLocked()) {
 			((KeyboardInput) (Object) this).pressingForward = false;
 			((KeyboardInput) (Object) this).pressingBack = false;

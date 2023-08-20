@@ -35,7 +35,7 @@ public class ToolTipInfoModule extends BaseModule {
 	}
 
 	public MutableText generateClickInfo(ClickEvent clickEvent) {
-		return MutableText.of(new TranslatableTextContent("text.chatlog.tooltipinfo.display", null, new Object[] { clickEvent.getAction().getName().toUpperCase(), clickEvent.getValue() }))
+		return new TranslatableText("text.chatlog.tooltipinfo.display", clickEvent.getAction().getName().toUpperCase(), clickEvent.getValue())
 			.formatted(Formatting.DARK_GRAY);
 	}
 
@@ -46,7 +46,7 @@ public class ToolTipInfoModule extends BaseModule {
 			ClickEvent clickEvent = style.getClickEvent();
 			if (clickEvent != null) {
 				HoverEvent hoverEvent = style.getHoverEvent();
-				MutableText hoverText = MutableText.of(new LiteralTextContent(""));
+				MutableText hoverText = new LiteralText("");
 				MutableText clickInfoText = generateClickInfo(clickEvent);
 				if (hoverEvent == null) {
 					LOGGER.debug("NO HOVEREVENT");
@@ -54,7 +54,7 @@ public class ToolTipInfoModule extends BaseModule {
 				} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_TEXT) {
 					LOGGER.debug("SHOW_TEXT");
 					hoverText.append(hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT));
-					hoverText.append(MutableText.of(new LiteralTextContent("\n\n")).append(clickInfoText));
+					hoverText.append(new LiteralText("\n\n").append(clickInfoText));
 				} else {
 					List<Text> lines = List.of();
 					try {
@@ -72,7 +72,7 @@ public class ToolTipInfoModule extends BaseModule {
 									CLIENT.player,
 									CLIENT.options.advancedItemTooltips
 										? TooltipContext.Default.ADVANCED
-										: TooltipContext.Default.BASIC
+										: TooltipContext.Default.NORMAL
 								);
 						}
 					} catch (NullPointerException ex) {

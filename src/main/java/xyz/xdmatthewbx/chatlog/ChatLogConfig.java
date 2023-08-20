@@ -18,9 +18,9 @@ import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import me.shedaniel.clothconfig2.gui.entries.KeyCodeEntry;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.command.EntitySelectorReader;
-import net.minecraft.text.LiteralTextContent;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.TranslatableTextContent;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 
 import java.io.IOException;
@@ -265,7 +265,8 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 				return Collections.emptyList();
 			}
 			KeyCodeEntry entry = ConfigEntryBuilder.create()
-				.startModifierKeyCodeField(MutableText.of(new TranslatableTextContent(i13n, null, TranslatableTextContent.EMPTY_ARGUMENTS)), getUnsafely(field, config, ModifierKeyCode.unknown()))
+				.startModifierKeyCodeField(new TranslatableText(i13n)
+					, getUnsafely(field, config, ModifierKeyCode.unknown()))
 				.setModifierDefaultValue(() -> getUnsafely(field, defaults))
 				.setModifierSaveConsumer(newValue -> setUnsafely(field, config, newValue.clearModifier()))
 				.build();
@@ -275,8 +276,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 			Slider bounds = field.getAnnotation(Slider.class);
 			var displayFactor = (bounds.displayFactor() * bounds.step());
 			return Collections.singletonList(ConfigEntryBuilder.create()
-				.startIntSlider(MutableText.of(
-					new TranslatableTextContent(i13n, null, TranslatableTextContent.EMPTY_ARGUMENTS)),
+				.startIntSlider(new TranslatableText(i13n),
 					MathHelper.ceil(Utils.getUnsafely(field, config, 0.0) / bounds.step()),
 					MathHelper.ceil(bounds.min() / bounds.step()),
 					MathHelper.ceil(bounds.max() / bounds.step()))
@@ -284,19 +284,17 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 				.setSaveConsumer((newValue) -> setUnsafely(field, config, newValue * bounds.step()))
 				.setTextGetter(intValue -> {
 					var value = intValue * displayFactor;
-					return MutableText.of(
-						new LiteralTextContent(
-							bounds.prefix() + (value % 1 > 0 ? String.valueOf(value) : String.valueOf((int) value)) + bounds.suffix()
-						)
+					return new LiteralText(
+						bounds.prefix() + (value % 1 > 0 ? String.valueOf(value) : String.valueOf((int) value)) + bounds.suffix()
 					);
 				})
-				.setErrorSupplier(value -> field.isAnnotationPresent(NonZero.class) && value == 0 ? Optional.of(MutableText.of(new TranslatableTextContent("text.chatlog.config.error.nonZero", null, TranslatableTextContent.EMPTY_ARGUMENTS))) : Optional.empty())
+				.setErrorSupplier(value -> field.isAnnotationPresent(NonZero.class) && value == 0 ? Optional.of(new TranslatableText("text.chatlog.config.error.nonZero")) : Optional.empty())
 				.build());
 		}, (field) -> field.getType() == Double.TYPE || field.getType() == Double.class, Slider.class);
 		guiRegistry.registerAnnotationProvider((i13n, field, config, defaults, guiProvider) ->
 			Collections.singletonList(ConfigEntryBuilder.create()
 				.startStrField(
-					MutableText.of(new TranslatableTextContent(i13n, null, TranslatableTextContent.EMPTY_ARGUMENTS)),
+					new TranslatableText(i13n),
 					getUnsafely(field, config, ""))
 				.setDefaultValue(() -> getUnsafely(field, defaults))
 				.setSaveConsumer((newValue) -> setUnsafely(field, config, newValue))
@@ -313,7 +311,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		guiRegistry.registerAnnotationProvider((i13n, field, config, defaults, guiProvider) ->
 			Collections.singletonList(ConfigEntryBuilder.create()
 				.startStrField(
-					MutableText.of(new TranslatableTextContent(i13n, null, TranslatableTextContent.EMPTY_ARGUMENTS)),
+					new TranslatableText(i13n),
 					getUnsafely(field, config, ""))
 				.setDefaultValue(() -> getUnsafely(field, defaults))
 				.setSaveConsumer((newValue) -> setUnsafely(field, config, newValue))
@@ -322,7 +320,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 					try {
 						new EntitySelectorReader(new StringReader(value)).read();
 					} catch (CommandSyntaxException ex) {
-						return Optional.of(MutableText.of(new LiteralTextContent(ex.getMessage())));
+						return Optional.of(new LiteralText(ex.getMessage()));
 					}
 					return Optional.empty();
 				})
