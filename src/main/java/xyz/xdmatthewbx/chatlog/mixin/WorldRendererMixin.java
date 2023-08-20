@@ -23,10 +23,10 @@ public class WorldRendererMixin {
 		return original.call(instance);
 	}
 
-	@ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;ZZ)V"))
+	@ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupTerrain(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/Frustum;ZIZ)V"))
 	public void setupTerrain(Args args) {
 		if (FreeCamModule.INSTANCE.enabled && ChatLog.CONFIG.get().main.render.allowRenderThroughBlocks) {
-			args.set(3, true);
+			args.set(4, true);
 		}
 	}
 

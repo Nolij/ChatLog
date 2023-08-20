@@ -10,7 +10,7 @@ accessible field net/minecraft/client/render/WorldRenderer noCullingBlockEntitie
 accessible field net/minecraft/client/world/ClientChunkManager chunks Lnet/minecraft/client/world/ClientChunkManager$ClientChunkMap;
 accessible field net/minecraft/client/world/ClientChunkManager$ClientChunkMap chunks Ljava/util/concurrent/atomic/AtomicReferenceArray;
 accessible method net/minecraft/command/EntitySelector getPositionPredicate (Lnet/minecraft/util/math/Vec3d;)Ljava/util/function/Predicate;
-accessible field net/minecraft/command/EntitySelector entityFilter Lnet/minecraft/util/TypeFilter;
+accessible field net/minecraft/command/EntitySelector type Lnet/minecraft/entity/EntityType;
 accessible field net/minecraft/command/EntitySelector box Lnet/minecraft/util/math/Box;
 accessible field net/minecraft/command/EntitySelector positionOffset Ljava/util/function/Function;
 accessible method net/minecraft/command/EntitySelector getEntities (Lnet/minecraft/util/math/Vec3d;Ljava/util/List;)Ljava/util/List;
@@ -23,4 +23,3 @@ accessible field net/minecraft/block/pattern/CachedBlockPosition blockEntity Lne
 accessible field net/minecraft/block/pattern/CachedBlockPosition cachedEntity Z
 accessible method net/minecraft/entity/Entity movementInputToVelocity (Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;
 accessible field net/minecraft/client/option/KeyBinding timesPressed I
-accessible class net/minecraft/client/render/BackgroundRenderer$StatusEffectFogModifier

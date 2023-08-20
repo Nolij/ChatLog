@@ -99,7 +99,7 @@ public class ChatLog implements ClientModInitializer {
 
 		ClientTickEvents.START_CLIENT_TICK.register(e -> {
 			if (configKeyBind.wasPressed()) {
-				CLIENT.setScreen(AutoConfig.getConfigScreen(ChatLogConfig.class, CLIENT.currentScreen).get());
+				CLIENT.openScreen(AutoConfig.getConfigScreen(ChatLogConfig.class, CLIENT.currentScreen).get());
 			}
 			prevCameraPos = cameraPos;
 		});

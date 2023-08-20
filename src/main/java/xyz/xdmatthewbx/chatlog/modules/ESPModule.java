@@ -10,13 +10,7 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.block.pattern.CachedBlockPosition;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.Frustum;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
@@ -28,20 +22,24 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Pair;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.*;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkCache;
 import net.minecraft.world.chunk.ChunkStatus;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.ChatLogConfig;
 import xyz.xdmatthewbx.chatlog.render.Renderer;
 import xyz.xdmatthewbx.chatlog.util.SimplePalettedContainer;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -75,20 +73,20 @@ public class ESPModule extends BaseModule {
 	private BlockPredicateArgumentType blockPredicateArgumentType;
 
 	private void submitAsyncTask(Runnable r) {
-		ExecutorService service = Util.getMainWorkerExecutor();
+		Executor service = Util.getMainWorkerExecutor();
 		if (service instanceof ForkJoinPool) {
 			synchronized (submittedScans) {
 				submittedScans.add(((ForkJoinPool)service).submit(r));
 			}
 		} else {
 			/* assume direct executor */
-			service.submit(r);
+			service.execute(r);
 		}
 	}
 
 	private Predicate<CachedBlockPosition> getBlockPredicate(String selector) {
 		return cachedBlockPosition -> {
-			if (cachedBlockPosition.getWorld() == null)
+			if (!(cachedBlockPosition.getWorld() instanceof World))
 				return false;
 
 			Predicate<CachedBlockPosition> predicate =
@@ -97,7 +95,7 @@ public class ESPModule extends BaseModule {
 						selector,
 						s -> {
 							try {
-								return blockPredicateArgumentType.parse(new StringReader(s)).create(Registry.BLOCK);
+								return blockPredicateArgumentType.parse(new StringReader(s)).create(((World)cachedBlockPosition.getWorld()).getTagManager());
 							} catch (CommandSyntaxException e) {
 								return ignored -> false;
 							}
@@ -199,8 +197,9 @@ public class ESPModule extends BaseModule {
 		for (int i = 0; i < chunks.length(); i++) {
 			var chunk = chunks.get(i);
 			if (chunk == null) continue;
-			for (int y = chunk.getBottomY(); y < chunk.getTopY(); y += 16) {
-				cacheChunkAsync(chunk.getPos().getBlockPos(0, y, 0).toImmutable());
+			BlockPos startPos = chunk.getPos().getStartPos();
+			for (int y = 0; y < 256; y += 16) {
+				cacheChunkAsync(startPos.add(0, y, 0));
 			}
 		}
 	}
@@ -219,7 +218,6 @@ public class ESPModule extends BaseModule {
 			var boundsBox = entityFilter.box != null ? entityFilter.box.offset(offsetPosition) : null;
 			var unsortedEntities =
 				StreamSupport.stream(CLIENT.world.getEntities().spliterator(), true)
-					.filter(x -> entityFilter.entityFilter.downcast(x) != null)
 					.filter(x -> entityFilter.box == null || boundsBox.contains(x.getPos()))
 					.filter(positionPredicate)
 					.collect(Collectors.toList());
@@ -254,9 +252,10 @@ public class ESPModule extends BaseModule {
 			return null;
 		final ShapeContext shapeContext = ShapeContext.of(CLIENT.player);
 		MatrixStack stack = new MatrixStack();
-		VertexBuffer buffer = new VertexBuffer();
+		VertexBuffer buffer = new VertexBuffer(VertexFormats.POSITION_COLOR);
 		BufferBuilder builder = new BufferBuilder(256);
-		builder.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+		// drawMode 1 = DEBUG_LINES
+		builder.begin(GL11.GL_LINES, VertexFormats.POSITION_COLOR);
 		for (BlockPos blockPos : BlockPos.iterate(chunkOrigin, chunkOrigin.add(15, 15, 15))) {
 			var color = cache.getColorForBlockPos(blockPos);
 			if (color != null) {
@@ -277,9 +276,7 @@ public class ESPModule extends BaseModule {
 			}
 		}
 		builder.end();
-		buffer.bind();
 		buffer.upload(builder);
-		// no need to unbind here as we are about to render it
 		return buffer;
 	}
 
@@ -348,14 +345,16 @@ public class ESPModule extends BaseModule {
 		});
 
 		ClientChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
-			for (int y = chunk.getBottomY(); y < chunk.getTopY(); y += 16) {
-				cacheChunkAsync(chunk.getPos().getBlockPos(0, y, 0).toImmutable());
+			BlockPos startPos = chunk.getPos().getStartPos();
+			for (int y = 0; y < 256; y += 16) {
+				cacheChunkAsync(startPos.add(0, y, 0));
 			}
 		});
 
 		ClientChunkEvents.CHUNK_UNLOAD.register((world, chunk) -> {
-			for (int y = chunk.getBottomY(); y < chunk.getTopY(); y += 16) {
-				SubChunkCache cache = blockCache.remove(chunk.getPos().getBlockPos(0, y, 0).toImmutable());
+			BlockPos startPos = chunk.getPos().getStartPos();
+			for (int y = 0; y < 256; y += 16) {
+				SubChunkCache cache = blockCache.remove(startPos.add(0, y, 0));
 				if (cache != null)
 					cache.freeCurrentBuffer();
 			}
@@ -391,8 +390,8 @@ public class ESPModule extends BaseModule {
 					if (prevOrigin == null || prevOrigin.getX() != origin.getX() || prevOrigin.getZ() != origin.getZ()) {
 						prevOrigin = origin;
 						chunkCache = new ChunkCache(ChatLog.CLIENT.world,
-							new BlockPos(origin.getX(), ChatLog.CLIENT.world.getBottomY(), origin.getZ()),
-							new BlockPos(origin.getX(), ChatLog.CLIENT.world.getTopY(), origin.getZ())
+							new BlockPos(origin.getX(), 0, origin.getZ()),
+							new BlockPos(origin.getX(), 256, origin.getZ())
 						);
 					}
 					final ChunkCache targetCache = chunkCache;
@@ -416,13 +415,13 @@ public class ESPModule extends BaseModule {
 			@Override
 			public void render(MatrixStack matrix, BufferBuilder buffer, Camera camera) {
 				if (enabled && CLIENT.world != null && CLIENT.player != null) {
+					RenderSystem.disableBlend();
 					final float tickDelta = getTickDelta();
-					Frustum frustum = new Frustum(matrix.peek().getPositionMatrix(), CLIENT.gameRenderer.getBasicProjectionMatrix(CLIENT.options.fov));
+					Frustum frustum = new Frustum(matrix.peek().getModel(), CLIENT.gameRenderer.getBasicProjectionMatrix(camera, (float)CLIENT.options.fov, false));
 					Vec3d cameraPos = camera.getPos();
 					frustum.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 					// fix camera box offset
-					frustum.method_38557(8);
-					Matrix4f projMatrix = RenderSystem.getProjectionMatrix();
+					// frustum.method_38557(8);
 					// loop over every subchunk in the cache
 					// this is a hot path (runs every frame) so keep it fast
 					for (Map.Entry<BlockPos, SubChunkCache> entry : blockCache.entrySet()) {
@@ -443,14 +442,15 @@ public class ESPModule extends BaseModule {
 									if (cacheBuffer == null)
 										continue;
 									cache.currentBuffer = cacheBuffer;
-									// buffer is bound in generateBuffer
-								} else
-									cacheBuffer.bind();
+								}
+								cacheBuffer.bind();
 							}
 							matrix.push();
 							// move to subchunk-relative position
 							matrix.translate(entry.getKey().getX() - (float)cameraPos.x, entry.getKey().getY() - (float)cameraPos.y, entry.getKey().getZ() - (float)cameraPos.z);
-							cacheBuffer.setShader(matrix.peek().getPositionMatrix(), projMatrix, GameRenderer.getPositionColorShader());
+							VertexFormats.POSITION_COLOR.startDrawing(0L);
+							cacheBuffer.draw(matrix.peek().getModel(), 1);
+							VertexFormats.POSITION_COLOR.endDrawing();
 							matrix.pop();
 						}
 					}
@@ -467,8 +467,11 @@ public class ESPModule extends BaseModule {
 								MathHelper.lerp(tickDelta, entity.lastRenderY, entity.getY()),
 								MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ())
 							);
+						VertexFormats.POSITION_COLOR.startDrawing(0L);
 						renderCuboid(matrix, buffer, camera, new Vec3d(hitbox.minX, hitbox.minY, hitbox.minZ), new Vec3d(hitbox.maxX, hitbox.maxY, hitbox.maxZ), entry.getRight(), 255);
+						VertexFormats.POSITION_COLOR.endDrawing();
 					}
+					RenderSystem.enableBlend();
 				}
 			}
 		};

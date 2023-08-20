@@ -59,13 +59,13 @@ public class AutoClickerModule extends BaseModule {
 
 				if (attacking && System.currentTimeMillis() >= nextRelease) {
 					attacking = false;
-					CLIENT.options.attackKey.setPressed(false);
+					CLIENT.options.keyAttack.setPressed(false);
 				}
 				if (enabled && !attacking) {
 					if ((System.currentTimeMillis() - lastPress) > (pressDelay + jitter)) {
 						attacking = true;
-						CLIENT.options.attackKey.timesPressed++;
-						CLIENT.options.attackKey.setPressed(true);
+						CLIENT.options.keyAttack.timesPressed++;
+						CLIENT.options.keyAttack.setPressed(true);
 						lastPress = System.currentTimeMillis();
 						nextRelease = lastPress + releaseDelay + getJitter(maxJitter / 2D);
 					}

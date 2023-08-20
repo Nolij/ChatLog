@@ -71,22 +71,22 @@ public class FreeCamModule extends BaseModule {
 					float deltaY = 0F;
 					float deltaZ = 0F;
 
-					if (CLIENT.options.forwardKey.isPressed())
+					if (CLIENT.options.keyForward.isPressed())
 						deltaZ++;
-					if (CLIENT.options.backKey.isPressed())
+					if (CLIENT.options.keyBack.isPressed())
 						deltaZ--;
-					if (CLIENT.options.leftKey.isPressed())
+					if (CLIENT.options.keyLeft.isPressed())
 						deltaX++;
-					if (CLIENT.options.rightKey.isPressed())
+					if (CLIENT.options.keyRight.isPressed())
 						deltaX--;
-					if (CLIENT.options.jumpKey.isPressed())
+					if (CLIENT.options.keyJump.isPressed())
 						deltaY++;
-					if (CLIENT.options.sneakKey.isPressed())
+					if (CLIENT.options.keySneak.isPressed())
 						deltaY--;
 					var delta = new Vec3d(deltaX, deltaY, deltaZ);
 
 					var speed = 1F;
-					if (CLIENT.options.sprintKey.isPressed())
+					if (CLIENT.options.keySprint.isPressed())
 						speed *= 2F;
 
 					cameraVelocity = cameraVelocity

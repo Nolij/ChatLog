@@ -22,6 +22,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
+import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.lang.annotation.ElementType;
@@ -114,7 +115,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 	public static class GeneralConfig implements ConfigData {
 		public boolean enabled = true;
 
-		public ModifierKeyCode configKeyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(InputUtil.GLFW_KEY_RIGHT_SHIFT), Modifier.none());
+		public ModifierKeyCode configKeyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(GLFW.GLFW_KEY_RIGHT_SHIFT), Modifier.none());
 	}
 
 	@Config(name = "render")
@@ -133,7 +134,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "perspectiveModule")
 	public static class PerspectiveConfig implements ConfigData {
-		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(InputUtil.GLFW_KEY_GRAVE_ACCENT), Modifier.none());
+		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(GLFW.GLFW_KEY_GRAVE_ACCENT), Modifier.none());
 
 		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
 		public KeyBindMode mode = KeyBindMode.HOLD;
@@ -232,14 +233,14 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "freeCamModule")
 	public static class FreeCamConfig implements ConfigData {
-		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(InputUtil.GLFW_KEY_RIGHT_CONTROL), Modifier.none());
+		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(GLFW.GLFW_KEY_RIGHT_CONTROL), Modifier.none());
 
 		public boolean renderHand = false;
 	}
 
 	@Config(name = "autoClickerModule")
 	public static class AutoClickerConfig implements ConfigData {
-		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(InputUtil.field_32000), Modifier.none());
+		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(GLFW.GLFW_MOUSE_BUTTON_LEFT), Modifier.none());
 
 		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
 		public KeyBindMode mode = KeyBindMode.HOLD;

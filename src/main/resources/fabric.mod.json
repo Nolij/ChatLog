@@ -18,7 +18,7 @@
 	},
 	"depends": {
 		"fabricloader": ">=0.14.10",
-		"minecraft": "1.18.2",
+		"minecraft": "1.16.5",
 		"fabric": "*"
 	},
 	"accessWidener": "chatlog.accesswidener",

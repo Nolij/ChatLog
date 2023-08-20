@@ -1,18 +1,18 @@
 package xyz.xdmatthewbx.chatlog.mixin;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.CameraSubmersionType;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -30,7 +30,7 @@ public class BackgroundRendererMixin {
 		return operation.call(e, effect);
 	}
 
-	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogStart(F)V", remap = false))
+	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;fogStart(F)V", remap = false))
 	private static float applyFog$setShaderFogStart(float f) {
 		if (AntiFogModule.INSTANCE.enabled) {
 			return -5F;
@@ -39,7 +39,7 @@ public class BackgroundRendererMixin {
 		}
 	}
 
-	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderFogEnd(F)V", remap = false))
+	@ModifyArg(method = "applyFog", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;fogEnd(F)V", remap = false))
 	private static float applyFog$setShaderFogEnd(float f) {
 		if (AntiFogModule.INSTANCE.enabled) {
 			return 10000000F;
@@ -47,19 +47,22 @@ public class BackgroundRendererMixin {
 			return f;
 		}
 	}
+	
+	@Unique
+	private static final FluidState EMPTY_FLUID = Fluids.EMPTY.getDefaultState();
 
-	@WrapOperation(method = "applyFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;getSubmersionType()Lnet/minecraft/client/render/CameraSubmersionType;"))
-	private static CameraSubmersionType applyFog$getSubmersionType(Camera instance, Operation<CameraSubmersionType> original) {
+	@WrapOperation(method = "applyFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;getSubmergedFluidState()Lnet/minecraft/fluid/FluidState;"))
+	private static FluidState applyFog$getSubmersionType(Camera instance, Operation<FluidState> original) {
 		if (AntiBlindModule.INSTANCE.enabled) {
-			return CameraSubmersionType.NONE;
+			return EMPTY_FLUID;
 		}
 		return original.call(instance);
 	}
 
-	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;getSubmersionType()Lnet/minecraft/client/render/CameraSubmersionType;"))
-	private static CameraSubmersionType render$getSubmersionType(Camera instance, Operation<CameraSubmersionType> original) {
+	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;getSubmergedFluidState()Lnet/minecraft/fluid/FluidState;"))
+	private static FluidState render$getSubmersionType(Camera instance, Operation<FluidState> original) {
 		if (AntiBlindModule.INSTANCE.enabled) {
-			return CameraSubmersionType.NONE;
+			return EMPTY_FLUID;
 		}
 		return original.call(instance);
 	}
@@ -80,7 +83,7 @@ public class BackgroundRendererMixin {
 	private static Vec3d onSampleColor(Vec3d value) {
 		assert ChatLog.CLIENT.world != null;
 		if (AntiFogModule.INSTANCE.enabled && ChatLog.CLIENT.world.getDimension().hasSkyLight()) {
-			return ChatLog.CLIENT.world.getSkyColor(ChatLog.CLIENT.gameRenderer.getCamera().getPos(), ChatLog.CLIENT.getLastFrameDuration());
+			return ChatLog.CLIENT.world.method_23777(ChatLog.CLIENT.gameRenderer.getCamera().getBlockPos(), ChatLog.CLIENT.getLastFrameDuration());
 		}
 		return value;
 	}

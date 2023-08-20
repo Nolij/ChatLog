@@ -1,13 +1,14 @@
 package xyz.xdmatthewbx.chatlog.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameOverlayRenderer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 import xyz.xdmatthewbx.chatlog.modules.AntiOverlayModule;
@@ -23,17 +24,18 @@ public class InGameOverlayRendererMixin {
 	}
 
 	@Inject(method = "renderInWallOverlay", at = @At(value = "HEAD"), cancellable = true)
-	private static void renderInWallOverlay(Sprite sprite, MatrixStack matrices, CallbackInfo ci) {
+	private static void renderInWallOverlay(MinecraftClient minecraftClient, Sprite sprite, MatrixStack matrixStack, CallbackInfo ci) {
 		if (AntiOverlayModule.INSTANCE.enabled) {
 			ci.cancel();
 		}
 	}
 
-	@Inject(method = "renderFireOverlay", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V"))
-	private static void renderFireOverlay(MinecraftClient client, MatrixStack matrices, CallbackInfo ci) {
+	@ModifyConstant(method = "renderFireOverlay", constant = @Constant(floatValue = 0.9f))
+	private static float renderFireOverlay(float constant) {
 		if (AntiOverlayModule.INSTANCE.enabled) {
-			RenderSystem.setShaderColor(1F, 1F, 1F, (float) ChatLog.CONFIG.get().main.antiOverlayModule.overlayOpacity);
+			return (float)ChatLog.CONFIG.get().main.antiOverlayModule.overlayOpacity;
 		}
+		return constant;
 	}
 
 //	@ModifyArg(method = "renderUnderwaterOverlay", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V"), index = 3)

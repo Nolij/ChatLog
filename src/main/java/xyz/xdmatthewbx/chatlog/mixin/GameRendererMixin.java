@@ -22,7 +22,7 @@ public class GameRendererMixin {
 	@Shadow
 	private boolean renderHand;
 
-	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderNausea(F)V"), index = 0)
+	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;method_31136(F)V"), index = 0)
 	public float setShaderColor(float opacity) {
 		if (AntiDistortionModule.INSTANCE.enabled) {
 			return Math.min(opacity, (float) ChatLog.CONFIG.get().main.antiDistortionModule.nauseaOverlayScale);

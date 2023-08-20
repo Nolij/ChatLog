@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
+import org.lwjgl.opengl.GL11;
 import xyz.xdmatthewbx.chatlog.ChatLog;
 
 import java.util.LinkedList;
@@ -28,13 +29,14 @@ public abstract class Renderer {
 		if (ChatLog.CONFIG.get().main.render.allowRenderThroughBlocks) {
 			RenderSystem.disableDepthTest();
 		}
-		RenderSystem.setShaderColor(1, 1, 1, 1);
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		RenderSystem.defaultAlphaFunc();
+		RenderSystem.shadeModel(GL11.GL_FLAT);
+		RenderSystem.color4f(1f, 1f, 1f, 1f);
 		RenderSystem.enableBlend();
 		RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
 		RenderSystem.lineWidth(ChatLog.CONFIG.get().main.render.lineWidth);
 
-		BUFFER.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+		BUFFER.begin(1, VertexFormats.POSITION_COLOR);
 
 		callback.render(matrix, BUFFER, camera);
 
@@ -45,7 +47,7 @@ public abstract class Renderer {
 		RenderSystem.disableBlend();
 
 		matrix.pop();
-		RenderSystem.applyModelViewMatrix();
+		//RenderSystem.applyModelViewMatrix();
 	}
 
 	public static void renderAll(MatrixStack matrix, Camera camera) {
@@ -59,7 +61,7 @@ public abstract class Renderer {
 
 		buffer
 			.vertex(
-				matrix.peek().getPositionMatrix(),
+				matrix.peek().getModel(),
 				(float) (a.x - pos.x),
 				(float) (a.y - pos.y),
 				(float) (a.z - pos.z)
@@ -69,7 +71,7 @@ public abstract class Renderer {
 			.next();
 		buffer
 			.vertex(
-				matrix.peek().getPositionMatrix(),
+				matrix.peek().getModel(),
 				(float) (b.x - pos.x),
 				(float) (b.y - pos.y),
 				(float) (b.z - pos.z)

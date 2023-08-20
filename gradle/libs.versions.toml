@@ -4,14 +4,14 @@ fabric_loom = "1.2.+"
 vineflower = "1.11.+" # https://github.com/Juuxel/loom-vineflower/releases
 
 # Fabric
-minecraft = "1.18.2"
-yarn_mappings = "1.18.2+build.4" # https://fabricmc.net/versions.html
+minecraft = "1.16.5"
+yarn_mappings = "1.16.5+build.10" # https://fabricmc.net/versions.html
 fabric_loader = "0.14.22" # https://fabricmc.net/versions.html
-fabric_api = "0.76.0+1.18.2" # https://fabricmc.net/versions.html
+fabric_api = "0.42.0+1.16" # https://fabricmc.net/versions.html
 
 # Mod APIs
-cloth_config = "6.5.+" # https://maven.shedaniel.me/me/shedaniel/cloth/cloth-config-fabric/maven-metadata.xml
-mod_menu = "3.2.+" # https://maven.terraformersmc.com/releases/com/terraformersmc/modmenu/maven-metadata.xml
+cloth_config = "4.17.+" # https://maven.shedaniel.me/me/shedaniel/cloth/cloth-config-fabric/maven-metadata.xml
+mod_menu = "1.16.+" # https://maven.terraformersmc.com/releases/com/terraformersmc/modmenu/maven-metadata.xml
 mixin_extras = "0.2.+" # https://jitpack.io/com/github/llamalad7/mixinextras/maven-metadata.xml
 
 # Java APIs
