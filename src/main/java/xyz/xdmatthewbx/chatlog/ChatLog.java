@@ -17,10 +17,9 @@ import xyz.xdmatthewbx.chatlog.modules.*;
 import xyz.xdmatthewbx.chatlog.modules.Module;
 import xyz.xdmatthewbx.chatlog.util.Lock;
 
+import java.lang.ref.Reference;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ChatLog implements ClientModInitializer {
 
@@ -123,6 +122,10 @@ public class ChatLog implements ClientModInitializer {
 
 	public static float getTickDelta() {
 		return CLIENT.isPaused() ? CLIENT.pausedTickDelta : CLIENT.getTickDelta();
+	}
+	
+	public static <T, R extends Reference<T>> Collection<T> resolveValidReferences(Collection<R> references) {
+		return references.stream().map(Reference::get).filter(Objects::nonNull).toList();
 	}
 
 }
