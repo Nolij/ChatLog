@@ -101,9 +101,14 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
 		public FreeCamConfig freeCamModule = new FreeCamConfig();
 
+		@ConfigEntry.Gui.Excluded
 		@ConfigEntry.Category("autoClickerModule")
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
 		public AutoClickerConfig autoClickerModule = new AutoClickerConfig();
+		
+		@ConfigEntry.Category("autoInputModule")
+		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+		public AutoInputConfig autoInputModule = new AutoInputConfig();
 
 		@ConfigEntry.Category("packetIgnoreModule")
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
@@ -239,7 +244,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "autoClickerModule")
 	public static class AutoClickerConfig implements ConfigData {
-		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(InputUtil.field_32000), Modifier.none());
+		public ModifierKeyCode keyBind = ModifierKeyCode.unknown();
 
 		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
 		public KeyBindMode mode = KeyBindMode.HOLD;
@@ -248,6 +253,27 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		@Slider(min = 0.0, max = 20.0, suffix = " CPS", step = 0.25)
 		public double cps = 7.0;
 
+		@Slider(min = 0.0, max = 100.0, suffix = "ms", step = 5)
+		public double maxJitter = 50.0;
+	}
+
+	@Config(name = "autoInputModule")
+	public static class AutoInputConfig implements ConfigData {
+		public List<AutoInputEntry> entries = List.of();
+	}
+	
+	public static class AutoInputEntry {
+		public ModifierKeyCode targetKey = ModifierKeyCode.unknown();
+		
+		public ModifierKeyCode keyBind = ModifierKeyCode.unknown();
+		
+		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+		public KeyBindMode mode = KeyBindMode.HOLD;
+		
+		@NonZero
+		@Slider(min = 0.0, max = 20.0, suffix = " CPS", step = 0.25)
+		public double cps = 7.0;
+		
 		@Slider(min = 0.0, max = 100.0, suffix = "ms", step = 5)
 		public double maxJitter = 50.0;
 	}

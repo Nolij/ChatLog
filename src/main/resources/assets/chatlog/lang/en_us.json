@@ -71,11 +71,14 @@
 	"text.autoconfig.chatlog.option.main.freeCamModule.keyBind": "Keybind",
 	"text.autoconfig.chatlog.option.main.freeCamModule.renderHand": "Render Hand When Active",
 
-	"text.autoconfig.chatlog.option.main.autoClickerModule": "Auto-Clicker Module",
-	"text.autoconfig.chatlog.option.main.autoClickerModule.keyBind": "Keybind",
-	"text.autoconfig.chatlog.option.main.autoClickerModule.mode": "Mode",
-	"text.autoconfig.chatlog.option.main.autoClickerModule.cps": "Clicks Per Second",
-	"text.autoconfig.chatlog.option.main.autoClickerModule.maxJitter": "Maximum Jitter",
+	"text.autoconfig.chatlog.option.main.autoInputModule": "Auto-Input Module",
+	"text.autoconfig.chatlog.option.main.autoInputModule.entries": "Entries",
+	"text.autoconfig.chatlog.option.AutoInputEntry": "Entry",
+	"text.autoconfig.chatlog.option.AutoInputEntry.targetKey": "Target Key",
+	"text.autoconfig.chatlog.option.AutoInputEntry.keyBind": "Keybind",
+	"text.autoconfig.chatlog.option.AutoInputEntry.mode": "Mode",
+	"text.autoconfig.chatlog.option.AutoInputEntry.cps": "Clicks Per Second",
+	"text.autoconfig.chatlog.option.AutoInputEntry.maxJitter": "Maximum Jitter",
 
 	"text.autoconfig.chatlog.option.main.packetIgnoreModule": "Packet Ignore Module",
 	"text.autoconfig.chatlog.option.main.packetIgnoreModule.ignoreCloseScreenPackets": "Ignore Close Screen Packets"

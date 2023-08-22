@@ -4,28 +4,30 @@ import com.google.common.collect.*;
 import me.shedaniel.clothconfig2.api.Modifier;
 import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import net.minecraft.client.util.InputUtil;
-import java.util.Collection;
+
+import java.lang.ref.WeakReference;
+import java.util.*;
 
 public class KeyBind {
 
-	private static final Multimap<ModifierKeyCode, KeyBind> BINDS = LinkedListMultimap.create();
+	private static final Multimap<ModifierKeyCode, WeakReference<KeyBind>> BINDS = HashMultimap.create();
 
 	public static Collection<KeyBind> getBinds(ModifierKeyCode key) {
-		return BINDS.get(key);
+		return ChatLog.resolveValidReferences(BINDS.get(key));
 	}
 
 	public static Collection<KeyBind> getAllBinds() {
-		return BINDS.values();
+		return ChatLog.resolveValidReferences(BINDS.values());
 	}
 
 	public static void setPressed(ModifierKeyCode key, boolean value) {
-		for (KeyBind bind : BINDS.get(key)) {
+		for (KeyBind bind : ChatLog.resolveValidReferences(BINDS.get(key))) {
 			bind.setPressed(value);
 		}
 	}
 
 	public static void resetAll() {
-		for (KeyBind bind : BINDS.values()) {
+		for (KeyBind bind : ChatLog.resolveValidReferences(BINDS.values())) {
 			bind.reset();
 		}
 	}
@@ -35,7 +37,7 @@ public class KeyBind {
 	public int timesPressed;
 
 	public KeyBind(ModifierKeyCode key) {
-		BINDS.put(key, this);
+		BINDS.put(key, new WeakReference<>(this));
 		boundKey = key;
 	}
 
@@ -44,9 +46,14 @@ public class KeyBind {
 	}
 
 	public void setBoundKey(ModifierKeyCode value) {
-		BINDS.remove(boundKey, this);
+		for (var ref : BINDS.get(boundKey)) {
+			if (ref.get() == this) {
+				BINDS.remove(boundKey, ref);
+				break;
+			}
+		}
 		boundKey = value;
-		BINDS.put(boundKey, this);
+		BINDS.put(boundKey, new WeakReference<>(this));
 	}
 
 	public boolean isPressed() {
