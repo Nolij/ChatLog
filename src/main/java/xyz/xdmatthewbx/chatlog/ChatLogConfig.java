@@ -113,6 +113,10 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		@ConfigEntry.Category("packetIgnoreModule")
 		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
 		public PacketIgnoreConfig packetIgnoreModule = new PacketIgnoreConfig();
+
+		@ConfigEntry.Category("lagSwitchModule")
+		@ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+		public LagSwitchConfig lagSwitchModule = new LagSwitchConfig();
 	}
 
 	@Config(name = "general")
@@ -282,6 +286,14 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 	public static class PacketIgnoreConfig implements ConfigData {
 		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
 		public OffSafeUnsafe ignoreCloseScreenPackets = OffSafeUnsafe.SAFE;
+	}
+
+	@Config(name = "lagSwitchModule")
+	public static class LagSwitchConfig implements ConfigData {
+		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+		public KeyBindMode mode = KeyBindMode.TOGGLE;
+		
+		public ModifierKeyCode keyBind = ModifierKeyCode.unknown();
 	}
 
 	public ChatLogConfig() {
