@@ -274,8 +274,12 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		@Slider(min = 0.0, max = 20.0, suffix = " CPS", step = 0.25)
 		public double cps = 7.0;
 		
+		@NonZero
+		@Slider(min = 5.0, max = 200.0, suffix = "ms", step = 5)
+		public double releaseDelay = 50;
+		
 		@Slider(min = 0.0, max = 100.0, suffix = "ms", step = 5)
-		public double maxJitter = 50.0;
+		public double maxJitter = 50;
 	}
 
 	@Config(name = "packetIgnoreModule")

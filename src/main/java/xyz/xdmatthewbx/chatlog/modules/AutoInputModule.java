@@ -35,7 +35,7 @@ public class AutoInputModule extends BaseModule {
 		public long releaseDelay;
 		public long lastPress;
 		public long nextRelease;
-		public double maxJitter;
+		public int maxJitter;
 	}
 	
 	private final ArrayList<AutoInputEntry> entries = new ArrayList<>();
@@ -66,7 +66,7 @@ public class AutoInputModule extends BaseModule {
 				entry.keyBind = keyBind;
 				entry.mode = mode;
 				entry.cps = cps;
-				entry.maxJitter = maxJitter;
+				entry.maxJitter = (int) maxJitter;
 				chatLogConfig.main.autoInputModule.entries.add(entry);
 			}
 			
@@ -81,8 +81,8 @@ public class AutoInputModule extends BaseModule {
 					entry.keyBind.setBoundKey(configEntry.keyBind);
 					entry.mode = configEntry.mode;
 					entry.pressDelay = Math.round((1 / configEntry.cps) * 1000D);
-					entry.releaseDelay = Math.round((50D / 7D) * (7 + (7 - configEntry.cps)));
-					entry.maxJitter = configEntry.maxJitter;
+					entry.releaseDelay = (int) configEntry.releaseDelay;
+					entry.maxJitter = (int) configEntry.maxJitter;
 					entry.targets = Suppliers.memoize(() -> {
 						var targets = new ArrayList<KeyBinding>();
 						for (var keyBinding : CLIENT.options.allKeys) {

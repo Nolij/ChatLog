@@ -78,6 +78,7 @@
 	"text.autoconfig.chatlog.option.AutoInputEntry.keyBind": "Keybind",
 	"text.autoconfig.chatlog.option.AutoInputEntry.mode": "Mode",
 	"text.autoconfig.chatlog.option.AutoInputEntry.cps": "Clicks Per Second",
+	"text.autoconfig.chatlog.option.AutoInputEntry.releaseDelay": "Release Delay",
 	"text.autoconfig.chatlog.option.AutoInputEntry.maxJitter": "Maximum Jitter",
 
 	"text.autoconfig.chatlog.option.main.packetIgnoreModule": "Packet Ignore Module",
