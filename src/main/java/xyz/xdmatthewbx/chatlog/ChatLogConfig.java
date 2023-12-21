@@ -18,8 +18,8 @@ import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import me.shedaniel.clothconfig2.gui.entries.KeyCodeEntry;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.command.EntitySelectorReader;
-import net.minecraft.text.LiteralTextContent;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.math.MathHelper;
 
@@ -315,7 +315,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 				.setTextGetter(intValue -> {
 					var value = intValue * displayFactor;
 					return MutableText.of(
-						new LiteralTextContent(
+						PlainTextContent.of(
 							bounds.prefix() + (value % 1 > 0 ? String.valueOf(value) : String.valueOf((int) value)) + bounds.suffix()
 						)
 					);
@@ -352,7 +352,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 					try {
 						new EntitySelectorReader(new StringReader(value)).read();
 					} catch (CommandSyntaxException ex) {
-						return Optional.of(MutableText.of(new LiteralTextContent(ex.getMessage())));
+						return Optional.of(MutableText.of(PlainTextContent.of(ex.getMessage())));
 					}
 					return Optional.empty();
 				})

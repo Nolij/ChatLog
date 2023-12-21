@@ -1,7 +1,6 @@
 plugins {
 	id 'maven-publish'
 	alias libs.plugins.fabric.loom
-	alias libs.plugins.vineflower
 }
 
 archivesBaseName = project.archives_base_name
@@ -14,7 +13,6 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
-	maven { url "https://jitpack.io/" }
 	maven { url "https://maven.shedaniel.me/" }
 	maven { url "https://maven.terraformersmc.com/releases/" }
 	maven {
@@ -39,14 +37,13 @@ dependencies {
 	// Mod APIs
 	modImplementation libs.cloth.config
 	modImplementation libs.mod.menu
-	include(implementation(annotationProcessor(libs.mixin.extras.get())))
 
 	// Java APIs
 	include(implementation(libs.reflections.get()))
 	include libs.javassist
 
 	// Bundled Mods
-	// include modRuntimeOnly(libs.no.chat.reports.get())
+	include modRuntimeOnly(libs.no.chat.reports.get())
 }
 
 processResources {
