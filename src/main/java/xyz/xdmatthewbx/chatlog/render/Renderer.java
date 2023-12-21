@@ -11,10 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class Renderer {
-
-	public static final Tessellator TESSELLATOR = Tessellator.getInstance();
-	public static final BufferBuilder BUFFER = TESSELLATOR.getBuffer();
-
+	
 	private static final List<Renderer> RENDERERS = new LinkedList<>();
 
 	@FunctionalInterface
@@ -34,12 +31,13 @@ public abstract class Renderer {
 		RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
 		RenderSystem.lineWidth(ChatLog.CONFIG.get().main.render.lineWidth);
 
-		BUFFER.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
+		var buffer = Tessellator.getInstance().getBuffer();
+		buffer.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
 
-		callback.render(matrix, BUFFER, camera);
+		callback.render(matrix, buffer, camera);
 
-		if (BUFFER.isBuilding()) {
-			TESSELLATOR.draw();
+		if (buffer.isBuilding()) {
+			Tessellator.getInstance().draw();
 		}
 		RenderSystem.enableDepthTest();
 		RenderSystem.disableBlend();
