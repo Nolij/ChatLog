@@ -7,13 +7,9 @@ import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
-import net.fabricmc.loader.api.metadata.ModOrigin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.ActionResult;
 import org.reflections.Reflections;
-import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.minecraft.util.math.Vec3d;
@@ -23,11 +19,7 @@ import xyz.xdmatthewbx.chatlog.util.Lock;
 
 import java.lang.ref.Reference;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Stream;
 
 public class ChatLog implements ClientModInitializer {
 
@@ -59,22 +51,9 @@ public class ChatLog implements ClientModInitializer {
 	private static Class<? extends BaseModule> castToModuleType(Class<?> moduleType) throws ClassCastException {
 		return (Class<? extends BaseModule>) moduleType;
 	}
-	
-	private static List<URL> getModFileURLs() {
-		return FabricLoader.getInstance().getAllMods().stream()
-			.map(ModContainer::getOrigin)
-			.flatMap(o -> o.getPaths().stream())
-			.map(Path::toUri).flatMap(uri -> {
-				try {
-					return Stream.of(uri.toURL());
-				} catch(MalformedURLException e) {
-					return Stream.of();
-				}
-			}).toList();
-	}
 
 	static {
-		Reflections reflections = new Reflections(new ConfigurationBuilder().addUrls(getModFileURLs()));
+		Reflections reflections = new Reflections(BaseModule.class.getPackageName());
 		for (var MODULE_TYPE : reflections.getTypesAnnotatedWith(Module.class)) {
 			if (BaseModule.class.isAssignableFrom(MODULE_TYPE)) {
 				LOGGER.info("Found module {}", MODULE_TYPE.getTypeName());
