@@ -1,7 +1,7 @@
 {
 	"required": true,
 	"minVersion": "0.8",
-	"package": "xyz.xdmatthewbx.chatlog.mixin",
+	"package": "dev.nolij.chatlog.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [],
 	"client": [
