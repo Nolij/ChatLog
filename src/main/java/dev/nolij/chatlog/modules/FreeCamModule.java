@@ -2,9 +2,9 @@ package dev.nolij.chatlog.modules;
 
 import dev.nolij.chatlog.ChatLogConfig;
 import dev.nolij.chatlog.util.Lock;
-import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.option.Perspective;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.MathHelper;
@@ -46,7 +46,7 @@ public class FreeCamModule extends BaseModule {
 			keyBind.setBoundKey(
 				chatLogConfig.main.general.enabled
 				? chatLogConfig.main.freeCamModule.keyBind
-				: ModifierKeyCode.unknown());
+				: InputUtil.UNKNOWN_KEY);
 			return ActionResult.PASS;
 		});
 

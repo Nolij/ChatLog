@@ -2,6 +2,7 @@ package dev.nolij.chatlog;
 
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -13,8 +14,6 @@ import me.shedaniel.autoconfig.gui.registry.GuiRegistry;
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer;
 import me.shedaniel.autoconfig.util.Utils;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import me.shedaniel.clothconfig2.api.Modifier;
-import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import me.shedaniel.clothconfig2.gui.entries.KeyCodeEntry;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.command.EntitySelectorReader;
@@ -119,7 +118,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 	public static class GeneralConfig implements ConfigData {
 		public boolean enabled = true;
 
-		public ModifierKeyCode configKeyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(InputUtil.GLFW_KEY_RIGHT_SHIFT), Modifier.none());
+		public InputUtil.Key configKeyBind = InputUtil.Type.KEYSYM.createFromCode(InputUtil.GLFW_KEY_RIGHT_SHIFT);
 	}
 
 	@Config(name = "render")
@@ -138,7 +137,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "perspectiveModule")
 	public static class PerspectiveConfig implements ConfigData {
-		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(InputUtil.GLFW_KEY_GRAVE_ACCENT), Modifier.none());
+		public InputUtil.Key keyBind = InputUtil.Type.KEYSYM.createFromCode(InputUtil.GLFW_KEY_GRAVE_ACCENT);
 
 		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
 		public KeyBindMode mode = KeyBindMode.HOLD;
@@ -237,7 +236,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "freeCamModule")
 	public static class FreeCamConfig implements ConfigData {
-		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(InputUtil.GLFW_KEY_RIGHT_CONTROL), Modifier.none());
+		public InputUtil.Key keyBind = InputUtil.Type.KEYSYM.createFromCode(InputUtil.GLFW_KEY_RIGHT_CONTROL);
 		
 		@Slider(prefix = "Speed: ", suffix = "%", displayFactor = 100D, step = 0.05D, min = 0.05D, max = 0.5D)
 		public double accelerationSpeed = 0.2D;
@@ -253,7 +252,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 
 	@Config(name = "autoClickerModule")
 	public static class AutoClickerConfig implements ConfigData {
-		public ModifierKeyCode keyBind = ModifierKeyCode.unknown();
+		public InputUtil.Key keyBind = InputUtil.UNKNOWN_KEY;
 
 		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
 		public KeyBindMode mode = KeyBindMode.HOLD;
@@ -272,9 +271,9 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 	}
 	
 	public static class AutoInputEntry {
-		public ModifierKeyCode targetKey = ModifierKeyCode.unknown();
+		public InputUtil.Key targetKey = InputUtil.UNKNOWN_KEY;
 		
-		public ModifierKeyCode keyBind = ModifierKeyCode.unknown();
+		public InputUtil.Key keyBind = InputUtil.UNKNOWN_KEY;
 		
 		@ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
 		public KeyBindMode mode = KeyBindMode.HOLD;
@@ -304,12 +303,12 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 				return Collections.emptyList();
 			}
 			KeyCodeEntry entry = ConfigEntryBuilder.create()
-				.startModifierKeyCodeField(MutableText.of(new TranslatableTextContent(i13n, null, TranslatableTextContent.EMPTY_ARGUMENTS)), getUnsafely(field, config, ModifierKeyCode.unknown()))
-				.setModifierDefaultValue(() -> getUnsafely(field, defaults))
-				.setModifierSaveConsumer(newValue -> setUnsafely(field, config, newValue.clearModifier()))
+				.startKeyCodeField(MutableText.of(new TranslatableTextContent(i13n, null, TranslatableTextContent.EMPTY_ARGUMENTS)), getUnsafely(field, config, InputUtil.UNKNOWN_KEY))
+				.setDefaultValue(() -> getUnsafely(field, defaults))
+				.setKeySaveConsumer(newValue -> setUnsafely(field, config, newValue))
 				.build();
 			return Collections.singletonList(entry);
-		}, field -> field.getType() == ModifierKeyCode.class);
+		}, field -> field.getType() == InputUtil.Key.class);
 		guiRegistry.registerAnnotationProvider((i13n, field, config, defaults, guiProvider) -> {
 			Slider bounds = field.getAnnotation(Slider.class);
 			var displayFactor = (bounds.displayFactor() * bounds.step());
@@ -405,35 +404,33 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		builder.serializeNulls();
 		builder.setPrettyPrinting();
 
-		builder.registerTypeHierarchyAdapter(ModifierKeyCode.class, new TypeAdapter<>() {
+		builder.registerTypeHierarchyAdapter(InputUtil.Key.class, new TypeAdapter<InputUtil.Key>() {
 			@Override
-			public void write(JsonWriter out, Object value) throws IOException {
-				assert value instanceof ModifierKeyCode;
-				ModifierKeyCode modifierKeyCode = (ModifierKeyCode) value;
-				out
-					.beginObject()
-					.name("keyCode")	.value(modifierKeyCode.getKeyCode().getTranslationKey())
-					.name("modifier")	.value((int) modifierKeyCode.getModifier().getValue())
-					.endObject();
+			public void write(JsonWriter out, InputUtil.Key key) throws IOException {
+				out.value(key.getTranslationKey());
 			}
 
 			@Override
-			public Object read(JsonReader in) throws IOException {
-				in.beginObject();
-				String keyCode = null;
-				short modifier = 0;
-				while (in.hasNext()) {
-					switch (in.nextName()) {
-						case "keyCode"	-> keyCode = in.nextString();
-						case "modifier"	-> modifier = (short) in.nextInt();
+			public InputUtil.Key read(JsonReader in) throws IOException {
+				if (in.peek() == JsonToken.BEGIN_OBJECT) {
+					in.beginObject();
+					String keyCode = null;
+					while (in.hasNext()) {
+						switch (in.nextName()) {
+							case "keyCode"	-> keyCode = in.nextString();
+							case "modifier"	-> in.nextInt();
+						}
 					}
+					in.endObject();
+					if (keyCode == null || keyCode.endsWith(".unknown")) {
+						return InputUtil.UNKNOWN_KEY;
+					}
+					return InputUtil.fromTranslationKey(keyCode);
 				}
-				assert keyCode != null;
-				in.endObject();
-				if (keyCode.endsWith(".unknown")) {
-					return ModifierKeyCode.unknown();
-				}
-				return ModifierKeyCode.of(InputUtil.fromTranslationKey(keyCode), Modifier.of(modifier));
+				final String keyCode = in.nextString();
+				if (keyCode.endsWith(".unknown"))
+					return InputUtil.UNKNOWN_KEY;
+				return InputUtil.fromTranslationKey(keyCode);
 			}
 		});
 

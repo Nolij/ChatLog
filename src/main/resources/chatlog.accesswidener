@@ -22,3 +22,4 @@ accessible field net/minecraft/block/pattern/CachedBlockPosition cachedEntity Z
 accessible method net/minecraft/entity/Entity movementInputToVelocity (Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;
 accessible field net/minecraft/client/option/KeyBinding timesPressed I
 accessible class net/minecraft/client/render/BackgroundRenderer$StatusEffectFogModifier
+accessible field net/minecraft/client/option/KeyBinding boundKey Lnet/minecraft/client/util/InputUtil$Key;

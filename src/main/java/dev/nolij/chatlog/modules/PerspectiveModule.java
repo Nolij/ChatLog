@@ -1,9 +1,9 @@
 package dev.nolij.chatlog.modules;
 
 import dev.nolij.chatlog.util.Lock;
-import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.option.Perspective;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.ActionResult;
 import dev.nolij.chatlog.ChatLog;
 import dev.nolij.chatlog.KeyBind;
@@ -43,7 +43,7 @@ public class PerspectiveModule extends BaseModule {
 			keyBind.setBoundKey(
 				chatLogConfig.main.general.enabled
 				? chatLogConfig.main.perspectiveModule.keyBind
-				: ModifierKeyCode.unknown());
+				: InputUtil.UNKNOWN_KEY);
 			return ActionResult.PASS;
 		});
 
