@@ -30,6 +30,14 @@
 	"depends": {
 		"fabricloader": ">=${fabric_version}",
 		"minecraft": ">=${minecraft_version}",
-		"fabric": "*"
+		"fabric": "*",
+		"nochatreports": "*",
+		"moddetectionpreventer": "*"
+	},
+	"recommends": {
+		"zume": ">0.14.0",
+		"modernfix": "*",
+		"embeddium": "*",
+		"lithium": "*"
 	}
 }
