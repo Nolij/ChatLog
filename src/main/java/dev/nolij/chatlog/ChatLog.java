@@ -10,6 +10,7 @@ import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.Perspective;
 import net.minecraft.util.ActionResult;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -38,13 +39,20 @@ public class ChatLog implements ClientModInitializer {
 	public static KeyBind configKeyBind;
 
 	public static Lock cameraLock = new Lock();
-
 	public static Vec3d prevCameraPos;
 	public static Vec3d cameraPos;
 	public static float cameraPitch;
 	public static float cameraYaw;
-
+	
+	public static Lock perspectiveLock = new Lock();
+	public static Perspective perspective;
+	
+	public static Lock scrollLock = new Lock();
+	public static double scrollDelta;
+	
 	public static Lock movementLock = new Lock();
+	public static Lock interactionLock = new Lock();
+	
 
 	@SuppressWarnings("unchecked")
 	private static Class<? extends BaseModule> castToModuleType(Class<?> moduleType) throws ClassCastException {

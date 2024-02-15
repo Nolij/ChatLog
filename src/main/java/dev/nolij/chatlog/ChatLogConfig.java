@@ -238,7 +238,16 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 	@Config(name = "freeCamModule")
 	public static class FreeCamConfig implements ConfigData {
 		public ModifierKeyCode keyBind = ModifierKeyCode.of(InputUtil.Type.KEYSYM.createFromCode(InputUtil.GLFW_KEY_RIGHT_CONTROL), Modifier.none());
-
+		
+		@Slider(prefix = "Speed: ", suffix = "%", displayFactor = 100D, step = 0.05D, min = 0.05D, max = 0.5D)
+		public double accelerationSpeed = 0.2D;
+		
+		@Slider(prefix = "Minimum: ", step = 0.25D, min = 1.25D, max = 5D)
+		public double accelerationMin = 3D;
+		
+		@Slider(prefix = "Maximum: ", min = 10D, max = 30D)
+		public double accelerationMax = 15D;
+		
 		public boolean renderHand = false;
 	}
 

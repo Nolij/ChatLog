@@ -55,16 +55,14 @@ public class GameRendererMixin {
 
 	@Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
 	private void bobView(MatrixStack matrices, float f, CallbackInfo ci) {
-		if (ChatLog.cameraLock.isLocked() && ChatLog.CONFIG.get().main.render.disableBobbingWhenCameraLocked) {
+		if (ChatLog.cameraLock.isLocked() && ChatLog.CONFIG.get().main.render.disableBobbingWhenCameraLocked)
 			ci.cancel();
-		}
 	}
 
 	@ModifyExpressionValue(method = "renderWorld", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/GameRenderer;renderHand:Z"))
 	private boolean shouldRenderHand(boolean original) {
-		if (original && FreeCamModule.INSTANCE.enabled && !ChatLog.CONFIG.get().main.freeCamModule.renderHand) {
+		if (original && FreeCamModule.INSTANCE.enabled && !ChatLog.CONFIG.get().main.freeCamModule.renderHand)
 			return false;
-		}
 
 		return original;
 	}

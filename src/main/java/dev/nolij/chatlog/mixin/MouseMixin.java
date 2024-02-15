@@ -1,7 +1,10 @@
 package dev.nolij.chatlog.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import dev.nolij.chatlog.ChatLog;
 import net.minecraft.client.Mouse;
+import net.minecraft.entity.player.PlayerInventory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -28,6 +31,23 @@ public class MouseMixin {
 		if (ChatLog.cameraLock.isLocked()) {
 			ci.cancel();
 		}
+	}
+	
+	@ModifyExpressionValue(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSpectator()Z"))
+	public boolean onMouseScroll$isSpectator(boolean original) {
+		if (ChatLog.scrollLock.isLocked())
+			return false;
+		
+		return original;
+	}
+	
+	@WrapWithCondition(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;scrollInHotbar(D)V"))
+	public boolean onMouseScroll$scrollInHotbar(PlayerInventory instance, double scrollAmount) {
+		if (!ChatLog.scrollLock.isLocked())
+			return true;
+		
+		ChatLog.scrollDelta += scrollAmount;
+		return false;
 	}
 
 }

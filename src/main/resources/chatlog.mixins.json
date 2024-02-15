@@ -9,6 +9,7 @@
 		"CameraMixin",
 		"ClientPlayNetworkHandlerMixin",
 		"DrawContextMixin",
+		"GameOptionsMixin",
 		"GameRendererMixin",
 		"InGameHudMixin",
 		"InGameOverlayRendererMixin",

@@ -14,6 +14,7 @@ base {
 }
 
 repositories {
+	mavenLocal()
 	maven("https://maven.shedaniel.me/")
 	maven("https://maven.terraformersmc.com/releases/")
 	maven("https://api.modrinth.com/maven") {
@@ -51,6 +52,14 @@ dependencies {
 	// Bundled Mods
 	includeRuntime("maven.modrinth:no-chat-reports:${"no_chat_reports_version"()}")
 	includeRuntime("maven.modrinth:moddetectionpreventer:${"mod_detection_preventer_version"()}")
+	
+	// Mods for dev environment
+//	modRuntimeOnly("dev.nolij:zume:0.14.1-dev.2:modern")
+	modRuntimeOnly("maven.modrinth:zume:0.14.0")
+	modRuntimeOnly("maven.modrinth:modernfix:oJUG6agJ")
+	modRuntimeOnly("maven.modrinth:embeddium:JVm1F3Ne")
+	modRuntimeOnly("maven.modrinth:reeses-sodium-options:mc1.20.1-1.7.2")
+	modRuntimeOnly("maven.modrinth:sodium-extra:mc1.20.1-0.5.4")
 }
 
 tasks.processResources {

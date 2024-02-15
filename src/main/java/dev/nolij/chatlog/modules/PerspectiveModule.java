@@ -1,11 +1,11 @@
 package dev.nolij.chatlog.modules;
 
+import dev.nolij.chatlog.util.Lock;
 import me.shedaniel.clothconfig2.api.ModifierKeyCode;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.util.ActionResult;
 import dev.nolij.chatlog.ChatLog;
-import dev.nolij.chatlog.ChatLogConfig;
 import dev.nolij.chatlog.KeyBind;
 
 import static dev.nolij.chatlog.ChatLog.*;
@@ -15,17 +15,25 @@ public class PerspectiveModule extends BaseModule {
 
 	public static final String MODULE_ID = "perspective";
 	public static PerspectiveModule INSTANCE;
-
+	
+	private static final Perspective ACTIVE_PERSPECTIVE = Perspective.THIRD_PERSON_BACK;
+	
 	private KeyBind keyBind;
-
-	public boolean enabled;
+	private Lock.Lease lease = new Lock.NullLease();
 	private boolean held = false;
-	private Perspective actualPerspective = null;
-	private final Perspective ACTIVE_PERSPECTIVE = Perspective.THIRD_PERSON_BACK;
 
 	public PerspectiveModule() {
 		super(MODULE_ID);
 		INSTANCE = this;
+	}
+	
+	private void enable() throws Lock.LeaseFailedException {
+		assert CLIENT.player != null;
+		
+		lease = Lock.obtain(cameraLock, perspectiveLock);
+        cameraYaw = CLIENT.player.getYaw(getTickDelta());
+		cameraPitch = CLIENT.player.getPitch(getTickDelta());
+		perspective = ACTIVE_PERSPECTIVE;
 	}
 
 	@Override
@@ -40,50 +48,46 @@ public class PerspectiveModule extends BaseModule {
 		});
 
 		ClientTickEvents.START_CLIENT_TICK.register(e -> {
-			if (CLIENT != null && CLIENT.player != null) {
-				if (ChatLog.CONFIG.get().main.perspectiveModule.mode == ChatLogConfig.KeyBindMode.HOLD) {
-					if (!enabled && keyBind.isPressed()) actualPerspective = CLIENT.options.getPerspective();
-					if (cameraLock.isLocked() == enabled && (enabled = keyBind.isPressed()) && !held) {
-						cameraYaw = CLIENT.player.getYaw(getTickDelta());
-						cameraPitch = CLIENT.player.getPitch(getTickDelta());
-						cameraLock.obtain();
-						held = true;
-						CLIENT.options.setPerspective(ACTIVE_PERSPECTIVE);
-					}
-				} else if (ChatLog.CONFIG.get().main.perspectiveModule.mode == ChatLogConfig.KeyBindMode.TOGGLE) {
-					if (keyBind.wasPressed()) {
-						if (enabled || !cameraLock.isLocked()) {
-							if (!enabled) {
-								cameraYaw = CLIENT.player.getYaw(getTickDelta());
-								cameraPitch = CLIENT.player.getPitch(getTickDelta());
-								cameraLock.obtain();
-								actualPerspective = CLIENT.options.getPerspective();
-							}
-
-							enabled = !enabled;
-
-							CLIENT.options.setPerspective(enabled ? ACTIVE_PERSPECTIVE : actualPerspective);
-
-							if (!enabled) {
-								cameraLock.release();
-							}
-						}
-					}
-				}
-
-				if (!enabled && held) {
-					held = false;
-					CLIENT.options.setPerspective(actualPerspective);
-					actualPerspective = null;
-					cameraLock.release();
-				}
-
-				if (enabled && CLIENT.options.getPerspective() != ACTIVE_PERSPECTIVE) {
-					enabled = false;
-					cameraLock.release();
-				}
-			}
-		});
+            if (CLIENT == null || CLIENT.player == null)
+                return;
+            
+            switch (ChatLog.CONFIG.get().main.perspectiveModule.mode) {
+                case HOLD -> {
+                    if (keyBind.isPressed() && !held) {
+                        try {
+                            enable();
+                        } catch (Lock.LeaseFailedException ignored) {
+                            return;
+                        }
+                        held = true;
+                    }
+                }
+                case TOGGLE -> {
+                    if (keyBind.wasPressed()) {
+                        if (lease.isValid()) {
+                            try {
+                                lease.release();
+                            } catch (Lock.LeaseInvalidException ex) {
+                                throw new AssertionError(ex);
+                            }
+                        } else {
+                            try {
+                                enable();
+                            } catch (Lock.LeaseFailedException ignored) {
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (!keyBind.isPressed() && held) {
+                held = false;
+                try {
+                    lease.release();
+                } catch (Lock.LeaseInvalidException ignored) {}
+            }
+        });
 	}
 
 }
