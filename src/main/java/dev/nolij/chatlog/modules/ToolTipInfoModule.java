@@ -51,21 +51,17 @@ public class ToolTipInfoModule extends BaseModule {
 				MutableText hoverText = MutableText.of(VersionCompatHelper.textContent(""));
 				MutableText clickInfoText = generateClickInfo(clickEvent);
 				if (hoverEvent == null) {
-					LOGGER.debug("NO HOVEREVENT");
 					hoverText = clickInfoText;
 				} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_TEXT) {
-					LOGGER.debug("SHOW_TEXT");
 					hoverText.append(hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT));
 					hoverText.append(MutableText.of(VersionCompatHelper.textContent("\n\n")).append(clickInfoText));
 				} else {
 					List<Text> lines = List.of();
 					try {
 						if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ENTITY) {
-							LOGGER.debug("SHOW_ENTITY");
 							//noinspection DataFlowIssue
 							lines = hoverEvent.getValue(HoverEvent.Action.SHOW_ENTITY).asTooltip();
 						} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_ITEM) {
-							LOGGER.debug("SHOW_ITEM");
 							//noinspection DataFlowIssue
 							lines = hoverEvent
 								.getValue(HoverEvent.Action.SHOW_ITEM)
