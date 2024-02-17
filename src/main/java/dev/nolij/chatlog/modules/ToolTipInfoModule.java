@@ -37,7 +37,7 @@ public class ToolTipInfoModule extends BaseModule {
 
 	public MutableText generateClickInfo(ClickEvent clickEvent) {
 		return MutableText.of(new TranslatableTextContent("text.chatlog.tooltipinfo.display", null,
-				new Object[] { clickEvent.getAction().getName().toUpperCase(), clickEvent.getValue() }))
+				new Object[] { VersionCompatHelper.actionName(clickEvent.getAction()).toUpperCase(), clickEvent.getValue() }))
 			.formatted(Formatting.DARK_GRAY);
 	}
 

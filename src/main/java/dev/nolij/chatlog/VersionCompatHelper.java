@@ -2,6 +2,7 @@ package dev.nolij.chatlog;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralTextContent;
 import net.minecraft.text.TextContent;
 
@@ -15,9 +16,13 @@ public final class VersionCompatHelper {
 	private static final MethodHandle NEW_LITERALTEXTCONTENT;
 	private static final MethodHandle PLAINTEXTCONTENT_OF;
 	
+	private static final MethodHandle CLICKEVENT_ACTION_GETNAME;
+	private static final MethodHandle CLICKEVENT_ACTION_ASSTRING;
+	
 	static {
 		final MappingResolver mappingResolver = FabricLoader.getInstance().getMappingResolver();
 		final MethodHandles.Lookup lookup = MethodHandles.lookup();
+		
 		MethodHandle newLiteralTextContent = null;
 		MethodHandle plainTextContentOf = null;
         try {
@@ -38,6 +43,30 @@ public final class VersionCompatHelper {
 		
 		NEW_LITERALTEXTCONTENT = newLiteralTextContent;
 		PLAINTEXTCONTENT_OF = plainTextContentOf;
+		
+		MethodHandle clickEventActionGetName = null;
+		MethodHandle clickEventActionAsString = null;
+		
+		try {
+			final String methodName = mappingResolver.mapMethodName("intermediary",
+				"net.minecraft.class_2558$class_2559", "method_10846", "()Ljava/lang/String;");
+			final Method getName = ClickEvent.Action.class.getMethod(methodName);
+			clickEventActionGetName = lookup.unreflect(getName);
+		} catch (NoSuchMethodException e) {
+			final String methodName = mappingResolver.mapMethodName("intermediary",
+				"net.minecraft.class_3542", "method_15434", "()Ljava/lang/String;");
+			try {
+				final Method asString = ClickEvent.Action.class.getMethod(methodName);
+				clickEventActionAsString = lookup.unreflect(asString);
+			} catch (NoSuchMethodException | IllegalAccessException ex) {
+                throw new AssertionError(ex);
+            }
+        } catch (IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
+        
+        CLICKEVENT_ACTION_GETNAME = clickEventActionGetName;
+		CLICKEVENT_ACTION_ASSTRING = clickEventActionAsString;
 	}
 	
 	public static TextContent textContent(String content) {
@@ -50,6 +79,20 @@ public final class VersionCompatHelper {
 		} catch (Throwable e) {
             throw new AssertionError(e);
         }
+		
+		throw new AssertionError();
+	}
+	
+	public static String actionName(ClickEvent.Action action) {
+		try {
+			if (CLICKEVENT_ACTION_GETNAME != null) {
+				return (String) CLICKEVENT_ACTION_GETNAME.invokeExact(action);
+			} else if (CLICKEVENT_ACTION_ASSTRING != null) {
+				return (String) CLICKEVENT_ACTION_ASSTRING.invokeExact(action);
+			}
+		} catch (Throwable e) {
+			throw new AssertionError(e);
+		}
 		
 		throw new AssertionError();
 	}
