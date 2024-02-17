@@ -494,7 +494,9 @@ public class ESPModule extends BaseModule {
 		public boolean isVisible(Frustum frustum, BlockPos origin) {
 			boolean performFrustumCheck = !isFrustumVisible || (frameFrustumLastChecked % 4) == 0;
 			if (performFrustumCheck) {
-				Box box = new Box(origin, origin.add(16, 16, 16));
+				Box box = new Box(
+					origin.getX(), origin.getY(), origin.getZ(), 
+					origin.getX() + 16, origin.getY() + 16, origin.getZ() + 16);
 				isFrustumVisible = frustum.isVisible(box);
 			}
 			frameFrustumLastChecked++;

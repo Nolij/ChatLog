@@ -1,5 +1,6 @@
 package dev.nolij.chatlog.modules;
 
+import dev.nolij.chatlog.VersionCompatHelper;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.text.*;
 import net.minecraft.util.ActionResult;
@@ -47,7 +48,7 @@ public class ToolTipInfoModule extends BaseModule {
 			ClickEvent clickEvent = style.getClickEvent();
 			if (clickEvent != null) {
 				HoverEvent hoverEvent = style.getHoverEvent();
-				MutableText hoverText = MutableText.of(new LiteralTextContent(""));
+				MutableText hoverText = MutableText.of(VersionCompatHelper.textContent(""));
 				MutableText clickInfoText = generateClickInfo(clickEvent);
 				if (hoverEvent == null) {
 					LOGGER.debug("NO HOVEREVENT");
@@ -55,7 +56,7 @@ public class ToolTipInfoModule extends BaseModule {
 				} else if (hoverEvent.getAction() == HoverEvent.Action.SHOW_TEXT) {
 					LOGGER.debug("SHOW_TEXT");
 					hoverText.append(hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT));
-					hoverText.append(MutableText.of(new LiteralTextContent("\n\n")).append(clickInfoText));
+					hoverText.append(MutableText.of(VersionCompatHelper.textContent("\n\n")).append(clickInfoText));
 				} else {
 					List<Text> lines = List.of();
 					try {
