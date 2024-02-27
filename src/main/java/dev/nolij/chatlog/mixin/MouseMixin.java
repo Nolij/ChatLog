@@ -1,7 +1,7 @@
 package dev.nolij.chatlog.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import dev.nolij.chatlog.ChatLog;
 import net.minecraft.client.Mouse;
 import net.minecraft.entity.player.PlayerInventory;
