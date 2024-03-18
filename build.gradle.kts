@@ -49,13 +49,12 @@ dependencies {
 	modRuntimeOnly("maven.modrinth:moddetectionpreventer:${"mod_detection_preventer_version"()}")
 	
 	// Performance Mods
-	modRuntimeOnly("maven.modrinth:modernfix:oJUG6agJ")
-	modRuntimeOnly("maven.modrinth:embeddium:JVm1F3Ne")
+	modRuntimeOnly("maven.modrinth:modernfix:Id3z4wMh")
+	modRuntimeOnly("maven.modrinth:embeddium:Q3sjpN6Y")
 	modRuntimeOnly("maven.modrinth:lithium:mc1.20.1-0.11.2")
 	
 	// QoL Mods
-//	modRuntimeOnly("dev.nolij:zume:0.14.1-dev.2:modern")
-	modRuntimeOnly("maven.modrinth:zume:0.14.0")
+	modRuntimeOnly("maven.modrinth:zume:0.17.0")
 	modRuntimeOnly("maven.modrinth:reeses-sodium-options:mc1.20.1-1.7.2")
 	modRuntimeOnly("maven.modrinth:sodium-extra:mc1.20.1-0.5.4")
 }
