@@ -283,7 +283,7 @@ public class ChatLogConfig extends PartitioningSerializer.GlobalData {
 		public double cps = 7.0;
 		
 		@NonZero
-		@Slider(min = 5.0, max = 200.0, suffix = "ms", step = 5)
+		@Slider(min = 5.0, max = 1000.0, suffix = "ms", step = 5)
 		public double releaseDelay = 50;
 		
 		@Slider(min = 0.0, max = 100.0, suffix = "ms", step = 5)
